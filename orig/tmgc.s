@@ -7,13 +7,13 @@
 / i = interprested instruction counter during parse and translation
 
 .globl tables
-.globl x,si,j,k,n,g1,env
-.globl ek,ek.fs,ep,ep.fs,fs
-.globl lptr,sptr,rptr
+.globl x,si,j,k,n,g1,env                // A.M.: parse frame
+.globl ek,ek.fs,ep,ep.fs,fs             // A.M.: translation frame
+.globl lptr,sptr,rptr                   // A.M.: symbol table
 .globl outb,outt,outw
 .globl stkt,stkb,stke
 .globl ktat,ktab
-.globl input,cfile,lfile,dfile,ofile
+.globl input,cfile,lfile,dfile,ofile    // A.M.: file descriptors
 
 / parse stack frame layout
 / 0 is previous frame pointer
