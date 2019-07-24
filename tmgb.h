@@ -2,9 +2,20 @@
 #include <stdint.h>
 #include "tmgc.h"
 
-extern tptr g;
-
 extern tword iget();
 extern void  succ();
 
+tword trswitch = 0;
+
 void trans();
+void trace();
+
+void trans() {
+    *g++ = iget();
+    succ();
+}
+
+void trace() {
+    // TODO
+    printf("trace\n");
+}

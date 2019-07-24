@@ -1,4 +1,4 @@
-// Reimplementation of the Unix compiler-compiler TMG in C.
+// Reimplementation of the Unix compiler-compiler TMG in C99.
 // Based on the original PDP-11 assembly code by M. D. McIlroy.
 // (c) 2019, Andriy Makukha, 2-clause BSD License.
 //
@@ -11,18 +11,11 @@
 
 #define TRACING 1
 
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include "tmgb.h"
-
-tptr  f;        // stack frame pointer during parse and translation
-tptr  g;        // stack frame end during parse
-tword i;        // interpreted instruction counter during parse and translation
-
-tword r0;
-tword r1;
+#include "table.h"
 
 // TODO:
 // sef=sec^sec; clf=clc^clc; bfs=bcs^bcs; bfc=bcc^bcc	/fail indicator
@@ -32,23 +25,60 @@ tword continc   = 0;
 tword failc     = 0;
 tword advc      = 0;
 
+// get interpreted instruction for a parsing rule
+// negative instruction is a pointer to a parameter in this
+// stack frame, fetch that instead
+// put environment pointer in r1
+
 tword iget() {
-    // TODO
-    return 0;
+    r1 = (tword)f;
+    r0 = *i++;
+    if (r0 < 0) {
+        // TODO         <-- CONT
+    }
+    return r0;
 }
 
+void contin() {
+    continc++;
+#if TRACING
+    if (trswitch) {
+        // TODO
+        trace();
+    }
+#endif
+
+    // get interpreted instruction
+    // save its exit bit (bit 0) on stack
+    // distinguish type of instruction by ranges of value
+    ((parse_frame_t*)f)->x = iget(); 
+    // TODO
+}
+
+// all functions that succeed come here
+// test the exit indicator, and leave the rule if on
 void succ() {
+    succc++;
+    if (((parse_frame_t*)f)->x)
+        goto sret;
+    contin();
+
+// do a success return
+// bundle translations delivered to this rule,
+// pop stack frame
+// restore  interpreted instruction counter (i)
+// update input cursor (j) for invoking rule
+// update high water mark (k) in ktable
+// if there was a translation delivered, add to stack frame
+// clear the fail flag
+sret:
     // TODO
     return;
 }
 
-void contin() {
-    // TODO
-}
-
 void errcom(const char* error) {
     // TODO 
-    fprintf(dfile, "%s", error);
+    fprintf(dfile, "%s\n", error);
     exit(1);
 }
 
@@ -67,10 +97,10 @@ void adv() {
     _g->k = _f->k;
     _g->n = _f->n;
     f = g;
-    g += sizeof(parse_frame_t); // g1
+    g = (tptr)((uint8_t*)g + sizeof(parse_frame_t)); // g1
     if ((uint8_t*)g >= stke)
         errcom("stack overflow");
-    i = r0;
+    i = (tptr)r0;                       // Initially this contains &start[0]
     _f->env = (tptr)r1;
     contin();
 }
@@ -119,11 +149,12 @@ int main(int argc, char* argv[]) {
     // go interpret beginning at "start"
     // finish up
     f = (tptr) stkb;
-    parse_frame_t* p = (parse_frame_t*) f;
-    p->j = 0;
-    p->k = 0;
-    p->n = 0;
-    g = (tptr)((uint8_t*)f + stkt);
+    parse_frame_t* _f = (parse_frame_t*) f;
+    _f->j = 0;
+    _f->k = 0;
+    _f->n = 0;
+    g = (tptr)((uint8_t*)f + sizeof(parse_frame_t));
+    r0 = (tword)start;
     adv();
     flush();
     //unlink("alloc.d");

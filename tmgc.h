@@ -1,4 +1,4 @@
-// Reimplementation of the Unix compiler-compiler TMG in C.
+// Reimplementation of the Unix compiler-compiler TMG in C99.
 // Based on the original PDP-11 assembly code by M. D. McIlroy.
 // (c) 2019, Andriy Makukha, 2-clause BSD License.
 //
@@ -7,8 +7,15 @@
 // copied from the original assembly code or directly stem from it.
 
 // Just like B, Unix TMG operated with words, which could contain either a
-// pointer or an integer value. This implementation uses words of same size
-// as pointers for simplicity, but introduces distinction between the two.
+// pointer or an integer value. This implementation also uses words of same
+// size as pointers, but introduces distinction between the two.
+
+#ifndef __TMGC__
+#define __TMGC__
+
+#include <stdio.h>
+#include <stdbool.h>
+
 #if UINTPTR_MAX == UINT_MAX 
 #define tword   int
 #define tptr    int*
@@ -20,6 +27,13 @@
 #error "Unknown architecture; define your own tword / tptr"
 #endif
 #endif
+
+tword r0;       // Global variable, originally PDP-11 register R0
+tword r1;       // Global variable, originally PDP-11 register R1
+
+tptr  f;        // stack frame pointer during parse and translation
+tptr  g;        // stack frame end during parse
+tptr  i;        // interpreted instruction counter during parse and translation
 
 // tmg tables and global definitions
 
@@ -46,8 +60,8 @@ uint8_t* stke = stkb + stkt;    // stack end
 typedef struct parse_frame {
     struct parse_frame* prev;   // previous frame pointer
                                 // return address in (sp)
-    tword x;                    // exit bit, nonzero at end of rule
-    tword si;                   // save location for instruction counter
+    bool x;                     // exit bit, nonzero at end of rule
+    tptr si;                    // save location for instruction counter
     tword j;                    // input cursor counts characters
     tptr k;                     // ktable high water mark, last use location relative to base
     tptr n;                     // address of ignored character class
@@ -69,14 +83,15 @@ typedef struct symbol {
 // used as ek(f), ep(f), etc.
 // return address in (sp)
 typedef struct translation_frame { 
-    tptr ek;            // k environment, frame where bunlde address is in si
+    tptr ek;                    // k environment, frame where bunlde address is in si
     // x and si have same meaning as in parse stack frame
-    tword x;            // exit bit, nonzero at end of rule
-    tptr si;            // save location for instruction counter
-    tptr ep;            // p environment, frame where si points to parameter list
+    tword x;                    // exit bit, nonzero at end of rule
+    tptr si;                    // save location for instruction counter
+    tptr ep;                    // p environment, frame where si points to parameter list
     // TODO: why frame size is 10, not 8?
     // fs = 10	/ frame size
     // ek.fs = ek+fs	/ k environment in next frame
     // ep.fs = ep+fs	/ p env in next frame
 } translation_frame_t;
 
+#endif // __TMGC__
