@@ -4,6 +4,7 @@
 
 extern tword iget();
 extern void  succ();
+extern void  parse();
 
 tword trswitch = 0;
 
@@ -12,7 +13,6 @@ void _px();
 void _pxs();
 void _tx();
 void _txs();
-void parse();
 void trans();
 void trace();
 
@@ -21,7 +21,6 @@ void _px() {}
 void _pxs() {}
 void _tx() {}
 void _txs() {}
-void parse() {}
 
 void trans() {
     *g++ = iget();

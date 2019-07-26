@@ -17,10 +17,12 @@
 #include "tmgb.h"
 #include "tmgl.h"
 
-// This is an address range used to recognize predefined functions pointers
-// TODO
-tptr  func_min = 0;
-tptr  func_max = (tptr)UINTPTR_MAX;
+#define ARRAY_END(x)  (x + sizeof(x)/sizeof(*x))
+#define BIT0_CLEAR(x) (((tuword)x) & (~(tuword)1))
+
+// This is an address range used to distinguish predefined function pointers
+tptr  func_min;
+tptr  func_max;
 
 // Statictics
 bool verbose    = false;
@@ -31,6 +33,8 @@ tword advc      = 0;
 
 // Function declarations
 void adv();
+void diag();
+void parse();
 void succ();
 void fail();
 void contin();
@@ -67,14 +71,14 @@ void contin() {
     // save its exit bit (bit 0) on stack
     // distinguish type of instruction by ranges of value
     ((parse_frame_t*)f)->x = iget(); 
-    r0 = (tuword)r0 & ~(tuword)1;
-    if ((tptr)r0 >= start && (tptr)r0 < start + sizeof(start)) {
+    r0 = BIT0_CLEAR(r0);
+    if ((tptr)r0 >= start && (tptr)r0 < ARRAY_END(start)) {
         // tmg-coded rule, execute and test its success
         adv();
         if (failure)
-            fail();
+            return fail();  // Tail call
         else
-            succ();
+            return succ();  // Tail call
     } else if ((tptr)r0 >= func_min && (tptr)r0 <= func_max) {
         // machine coded function
         (*(void (*)(void))r0)();
@@ -181,6 +185,10 @@ void flush() {
     outw = 0;
 }
 
+void parse() {
+    // TODO
+}
+
 int main(int argc, char* argv[]) {
     // These have to be initialized here because stdout/stderr are not compile-time constants
     input = NULL;
@@ -230,8 +238,8 @@ int main(int argc, char* argv[]) {
 
     // Replace global label references in the driving table
     for (tword j = 0; j < sizeof(start)/sizeof(*start); j++)
-        if ((tptr)start[j] >= labels && (tptr)start[j] < labels + sizeof(labels))
-            start[j] = *((tword *)start[j]);
+        if ((tptr)start[j] >= labels && (tptr)start[j] < ARRAY_END(labels))
+            start[j] = *((tword *)BIT0_CLEAR(start[j]));
     if (verbose) {
         fprintf(dfile, "Driving table size = %lu words (%lu bytes)\n", 
                         sizeof(start)/sizeof(*start), sizeof(start));
@@ -243,6 +251,7 @@ int main(int argc, char* argv[]) {
         (tptr)&adv,
         (tptr)&succ,
         (tptr)&fail,
+        (tptr)&parse,
         (tptr)&contin,
     };
     func_max = 0;
