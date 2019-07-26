@@ -1,6 +1,3 @@
-#ifndef __TMGB__
-#define __TMGB__
-
 #include <limits.h>
 #include <stdint.h>
 #include "tmgc.h"
@@ -10,8 +7,21 @@ extern void  succ();
 
 tword trswitch = 0;
 
+// Function declarations
+void _px();
+void _pxs();
+void _tx();
+void _txs();
+void parse();
 void trans();
 void trace();
+
+// Function definitions
+void _px() {}
+void _pxs() {}
+void _tx() {}
+void _txs() {}
+void parse() {}
 
 void trans() {
     *g++ = iget();
@@ -22,5 +32,3 @@ void trace() {
     // TODO
     printf("trace\n");
 }
-
-#endif // __TMGB__

@@ -131,7 +131,7 @@ void succ() {
         // update high water mark (k) in ktable
         // if there was a translation delivered, add to stack frame
         // clear the fail flag
-        // TODO: sret
+        // TODO: sret       <-- CONTIN
         return;
     }
     return contin();    // Tail call
@@ -183,15 +183,13 @@ int main(int argc, char* argv[]) {
     // Help message
     if (argc <= 1 || !strcmp(argv[1], "-h")) {
         printf("TMG compiler-compiler (%lu-bit)\n", 8*sizeof(tword));
-        printf("Usage:\t%s input output\n", argv[0]);
-        printf("\tinput\t- program in TMGL\n");
-        printf("\toutput\t- name of resulting binary (translator)\n");
+        printf("Usage:\t%s input.t output.h\n", argv[0]);
+        printf("\tinput.t \t- program in TMGL\n");
+        printf("\toutput.h\t- resulting driving table in C\n");
         
         // Testing
         for (int i=0; i<sizeof(start)/sizeof(*start); i++)
-            printf("%08lx\n", start[i]);
-        printf("%08lx\n", (tword)start);
-        printf("%s", start[sizeof(start)/sizeof(*start)-1]);
+            printf("%08lx\n", (tword)start[i]);
         return 0;
     }
 

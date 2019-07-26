@@ -6,15 +6,12 @@
 // original code. Comments starting with a lowercase letter were either
 // copied from the original assembly code or directly stem from it.
 
+#include <stdio.h>
+#include <stdbool.h>
+
 // Just like B, Unix TMG operated with words, which could contain either a
 // pointer or an integer value. This implementation also uses words of same
 // size as pointers, but introduces distinction between the two.
-
-#ifndef __TMGC__
-#define __TMGC__
-
-#include <stdio.h>
-#include <stdbool.h>
 
 #if UINTPTR_MAX == UINT_MAX 
 #define tword   int
@@ -100,5 +97,3 @@ typedef struct translation_frame {
     // ek.fs = ek+fs	/ k environment in next frame
     // ep.fs = ep+fs	/ p env in next frame
 } translation_frame_t;
-
-#endif // __TMGC__
