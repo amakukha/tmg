@@ -22,7 +22,8 @@
 tptr  func_min = 0;
 tptr  func_max = (tptr)UINTPTR_MAX;
 
-// Statictics counters
+// Statictics
+bool verbose    = false;
 tword succc     = 0;
 tword continc   = 0;
 tword failc     = 0;
@@ -41,6 +42,8 @@ void errcom(const char* error);
 // put environment pointer in r1
 
 tword iget() {
+    if (verbose)
+        fprintf(dfile, "iget: i=%lx\n", (tuword)i);
     r1 = (tword)f;
     r0 = *i++;
     if (r0 < 0) {
@@ -51,6 +54,8 @@ tword iget() {
 
 void contin() {
     continc++;
+    if (verbose)
+        fprintf(dfile, "contin()\n");
 #if TRACING
     if (trswitch) {
         // TODO
@@ -62,19 +67,20 @@ void contin() {
     // save its exit bit (bit 0) on stack
     // distinguish type of instruction by ranges of value
     ((parse_frame_t*)f)->x = iget(); 
-    r0 &= ~(tword)1;
-    if (r0 >= (tword)start && r0 < (tword)start + sizeof(start)) {
+    r0 = (tuword)r0 & ~(tuword)1;
+    if ((tptr)r0 >= start && (tptr)r0 < start + sizeof(start)) {
         // tmg-coded rule, execute and test its success
         adv();
         if (failure)
             fail();
         else
             succ();
-    } else if (r0 >= (tword)func_min && r0 <= (tword)func_max) {
+    } else if ((tptr)r0 >= func_min && (tptr)r0 <= func_max) {
         // machine coded function
         (*(void (*)(void))r0)();
     } else {
-        errcom("bad address in parsing");
+        fprintf(dfile, "bad address in parsing: %08lx\n", r0);
+        errcom(NULL);
     }
 }
 
@@ -139,7 +145,8 @@ void succ() {
 
 void errcom(const char* error) {
     // TODO 
-    fprintf(dfile, "%s\n", error);
+    if (error)
+        fprintf(dfile, "%s\n", error);
     exit(1);
 }
 
@@ -150,7 +157,9 @@ void errcom(const char* error) {
 // r0,r1 are new i,environment
 void adv() {
     advc++;
-    parse_frame_t* _f = (parse_frame_t*)f;      // Cast for convenience
+    if (verbose)
+        fprintf(dfile, "adv()\n");
+    parse_frame_t* _f = (parse_frame_t*)f;      // Cast for convenience TODO: remove later
     parse_frame_t* _g = (parse_frame_t*)g;
     _g->prev = _f;
     _f->si = i;
@@ -180,12 +189,22 @@ int main(int argc, char* argv[]) {
     dfile = stderr;
     ofile = stdout;
 
+    // Verbose?
+    r1 = 1;
+    if (!strcmp(argv[r1], "-v")) {
+        verbose = true;
+        r1++;
+    }
+
     // Help message
-    if (argc <= 1 || !strcmp(argv[1], "-h")) {
+    if (r1 >= argc || !strcmp(argv[r1], "-h")) {
         printf("TMG compiler-compiler (%lu-bit)\n", 8*sizeof(tword));
-        printf("Usage:\t%s input.t output.h\n", argv[0]);
+        printf("Usage: %s [-v] input.t output.h\n", argv[0]);
+        printf("       %s -h\n", argv[0]);
         printf("\tinput.t \t- program in TMGL\n");
         printf("\toutput.h\t- resulting driving table in C\n");
+        printf("\t-h      \t- show this message\n");
+        printf("\t-v      \t- verbose output\n");
         
         // Testing
         for (int i=0; i<sizeof(start)/sizeof(*start); i++)
@@ -196,18 +215,44 @@ int main(int argc, char* argv[]) {
     // get arguments from shell
     // arg1 is input file
     // arg2 is output file (standard output if missing)
-    input = fopen(argv[1], "r");
+    input = fopen(argv[r1], "r");
     if (!input) {
-        fprintf(dfile, "could not open: %s\n", argv[1]);
+        fprintf(dfile, "could not open: %s\n", argv[r1]);
         return 1;
     }
-    if (argc >= 3) {
-        ofile = fopen(argv[2], "w");
+    if (++r1 < argc) {
+        ofile = fopen(argv[r1], "w");
         if (!ofile) {
-            fprintf(dfile, "could not open for writing: %s\n", argv[2]);
+            fprintf(dfile, "could not open for writing: %s\n", argv[r1]);
             return 1;
         }
     }
+
+    // Replace global label references in the driving table
+    for (tword j = 0; j < sizeof(start)/sizeof(*start); j++)
+        if ((tptr)start[j] >= labels && (tptr)start[j] < labels + sizeof(labels))
+            start[j] = *((tword *)start[j]);
+    if (verbose) {
+        fprintf(dfile, "Driving table size = %lu words (%lu bytes)\n", 
+                        sizeof(start)/sizeof(*start), sizeof(start));
+        fprintf(dfile, "Table range: %08lx..%08lx\n", (tuword)start, (tuword)start + sizeof start);
+    }
+
+    // Compute function address range
+    tptr funcs[] = {
+        (tptr)&adv,
+        (tptr)&succ,
+        (tptr)&fail,
+        (tptr)&contin,
+    };
+    func_max = 0;
+    func_min = (tptr)SIZE_MAX;
+    for (tword j = 0; j < sizeof(funcs)/sizeof(*funcs); j++) {
+        if (funcs[j] > func_max)  func_max = funcs[j];
+        if (funcs[j] < func_min)  func_min = funcs[j];
+    }
+    if (verbose)
+        fprintf(dfile, "Functions range: %08lx..%08lx\n", (tuword)func_min, (tuword)func_max);
 
     // set up tables
     // initialize stack

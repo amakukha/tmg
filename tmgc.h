@@ -14,12 +14,14 @@
 // size as pointers, but introduces distinction between the two.
 
 #if UINTPTR_MAX == UINT_MAX 
-#define tword   int
-#define tptr    int*
+#define tword       int
+#define tptr        int*
+#define tuword      unsigned int
 #else
 #if UINTPTR_MAX == ULONG_MAX
-#define tword   long
-#define tptr    long*
+#define tword       long
+#define tptr        long*
+#define tuword      unsigned long
 #else
 #error "Unknown architecture; define your own tword / tptr"
 #endif

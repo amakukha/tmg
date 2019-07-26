@@ -100,7 +100,7 @@ contin:
 .endif
 	cmp	r0,$start
 	blo	2f
-	cmp	r0,$end
+	cmp	r0,$end         / A.M.: label end from tmgb/end.s starts file tmgb, it is unclear how it was achieved
 	blo	3f
 	cmp	r0,$tables
 	blo	2f
