@@ -15,15 +15,25 @@
 #include <string.h>
 #include <unistd.h>
 #include "tmgb.h"
-#include "table.h"
+#include "tmgl.h"
 
-// TODO:
-// sef=sec^sec; clf=clc^clc; bfs=bcs^bcs; bfc=bcc^bcc	/fail indicator
+// This is an address range used to recognize predefined functions pointers
+// TODO
+tptr  func_min = 0;
+tptr  func_max = (tptr)UINTPTR_MAX;
 
+// Statictics counters
 tword succc     = 0;
 tword continc   = 0;
 tword failc     = 0;
 tword advc      = 0;
+
+// Function declarations
+void adv();
+void succ();
+void fail();
+void contin();
+void errcom(const char* error);
 
 // get interpreted instruction for a parsing rule
 // negative instruction is a pointer to a parameter in this
@@ -52,28 +62,79 @@ void contin() {
     // save its exit bit (bit 0) on stack
     // distinguish type of instruction by ranges of value
     ((parse_frame_t*)f)->x = iget(); 
-    // TODO
+    r0 &= ~(tword)1;
+    if (r0 >= (tword)start && r0 < (tword)start + sizeof(start)) {
+        // tmg-coded rule, execute and test its success
+        adv();
+        if (failure)
+            fail();
+        else
+            succ();
+    } else if (r0 >= (tword)func_min && r0 <= (tword)func_max) {
+        // machine coded function
+        (*(void (*)(void))r0)();
+    } else {
+        errcom("bad address in parsing");
+    }
+}
+
+void alt() {
+    i++;
+    return succ();      // Tail call
+}
+
+void salt() {
+    i = (tptr)iget();
+    return contin();    // Tail call
+}
+
+void tgoto() {
+    return salt();      // Tail call
+}
+
+// all functions and rules that fail come here
+// if exit bit is on do a fail return
+// if following instruction is an alternate (recognized literally)
+// do a goto, if a success alternate, do a nop
+// otherwise do a fail return
+void fail() {
+    failc++;
+    if (!(((parse_frame_t*)f)->x & 1)) {    // Exit bit not set
+        ((parse_frame_t*)f)->x = iget(); 
+        r0 &= ~(tword)1;
+        if (r0 == (tword)&alt)      // TODO: why does it go to salt if equal to alt and v.v.?
+            return salt();  // Tail call
+        if (r0 == (tword)&salt)
+            return alt();   // Tail call
+    }
+
+    // do a fail return
+    // pop stack
+    // do not update j or k
+    // restore interpreted instruction counter
+    g = f;
+    f = (tptr)((parse_frame_t*)f)->prev;
+    i = ((parse_frame_t*)f)->si;
+    failure = true;
 }
 
 // all functions that succeed come here
 // test the exit indicator, and leave the rule if on
 void succ() {
     succc++;
-    if (((parse_frame_t*)f)->x)
-        goto sret;
-    contin();
-
-// do a success return
-// bundle translations delivered to this rule,
-// pop stack frame
-// restore  interpreted instruction counter (i)
-// update input cursor (j) for invoking rule
-// update high water mark (k) in ktable
-// if there was a translation delivered, add to stack frame
-// clear the fail flag
-sret:
-    // TODO
-    return;
+    if (((parse_frame_t*)f)->x & 1) {       // Exit bit set
+        // do a success return
+        // bundle translations delivered to this rule,
+        // pop stack frame
+        // restore  interpreted instruction counter (i)
+        // update input cursor (j) for invoking rule
+        // update high water mark (k) in ktable
+        // if there was a translation delivered, add to stack frame
+        // clear the fail flag
+        // TODO: sret
+        return;
+    }
+    return contin();    // Tail call
 }
 
 void errcom(const char* error) {
@@ -125,6 +186,12 @@ int main(int argc, char* argv[]) {
         printf("Usage:\t%s input output\n", argv[0]);
         printf("\tinput\t- program in TMGL\n");
         printf("\toutput\t- name of resulting binary (translator)\n");
+        
+        // Testing
+        for (int i=0; i<sizeof(start)/sizeof(*start); i++)
+            printf("%08lx\n", start[i]);
+        printf("%08lx\n", (tword)start);
+        printf("%s", start[sizeof(start)/sizeof(*start)-1]);
         return 0;
     }
 

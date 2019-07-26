@@ -1,3 +1,6 @@
+#ifndef __TMGB__
+#define __TMGB__
+
 #include <limits.h>
 #include <stdint.h>
 #include "tmgc.h"
@@ -19,3 +22,5 @@ void trace() {
     // TODO
     printf("trace\n");
 }
+
+#endif // __TMGB__

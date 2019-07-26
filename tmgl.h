@@ -5,9 +5,18 @@
 // Driving table for the TMGL.
 
 #include "tmgc.h"
+#include "tmgb.h"
 
 tword start[] = {
     1,
+#undef  __2
+#define __2         (tword)&start[1]
     2,
     3,
+    (tword)&trans,
+#undef  __2
+#define __2         (tword)&start[4]
+    (tword)&succ,
+    (tword)&iget,   __2,
+    (tword)&succ,   (tword)"Hello, world\n"
 };
