@@ -300,7 +300,7 @@ i = r3
 / if exit bit is on pop stack frame restore inst counter and return
 
 generate:
-bit	$1,x(f)
+	bit	$1,x(f)
 	beq	gcontin
 	sub	$fs,f
 	mov	si(f),i
