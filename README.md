@@ -1,1 +1,3 @@
-Reimplementation of Unix TMG in C.
+Port of Unix TMG to C99.
+
+Work in progress.
