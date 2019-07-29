@@ -1,4 +1,4 @@
-// Reimplementation of the Unix compiler-compiler TMG in C99.
+// Port of the Unix compiler-compiler TMG to C99.
 // Based on the original PDP-11 assembly code by M. D. McIlroy.
 // (c) 2019, Andriy Makukha, 2-clause BSD License.
 //
@@ -52,6 +52,7 @@ void pbundle();
 void _process();
 void putch();
 void succ();
+void _tp();
 
 // get interpreted instruction for a parsing rule
 // negative instruction is a pointer to a parameter in this
@@ -82,7 +83,7 @@ tword iget() {
 
 void contin() {
     continc++;
-    DEBUG("%scontin(): f=%lu, g=%lu", SPACE, f-(tptr)stkb, g-(tptr)stkb);
+    DEBUG("%scontin(): f=%lu, g=%lu", DEPTH, f-(tptr)stkb, g-(tptr)stkb);
 #if TRACING
     if (trswitch) {
         r0 = 'r';
@@ -94,7 +95,7 @@ void contin() {
     // save its exit bit (bit 0) on stack
     // distinguish type of instruction by ranges of value
     ((parse_frame_t*)f)->x = iget(); 
-    DEBUG("%s          x==%lx", SPACE, ((parse_frame_t*)f)->x);
+    DEBUG("%s          x==%lx", DEPTH, ((parse_frame_t*)f)->x);
     r0 = BIT0_CLEAR(r0);
     if ((tptr)r0 >= start && (tptr)r0 < ARRAY_END(start)) {
         // tmg-coded rule, execute and test its success
@@ -103,7 +104,7 @@ void contin() {
         if (failure)
             return fail();  // Tail call
         else {
-            DEBUG("%scontin() -> succ", SPACE);
+            DEBUG("%scontin() -> succ", DEPTH);
             return succ();  // Tail call
         }
     } else if ((tptr)r0 >= func_min && (tptr)r0 <= func_max) {
@@ -117,14 +118,14 @@ void contin() {
 }
 
 void alt() {
-    DEBUG("%salt", SPACE);
+    DEBUG("%salt", DEPTH);
     i++;
-    DEBUG("%salt() -> succ", SPACE);
+    DEBUG("%salt() -> succ", DEPTH);
     return succ();      // Tail call
 }
 
 void salt() {
-    DEBUG("%ssalt", SPACE);
+    DEBUG("%ssalt", DEPTH);
     i = (tptr)iget();
     return contin();    // Tail call
 }
@@ -139,12 +140,12 @@ void tgoto() {
 // do a goto, if a success alternate, do a nop
 // otherwise do a fail return
 void fail() {
-    DEBUG("%sfail(): f=%ld, g=%ld", SPACE, (tword)(f-(tptr)stkb), (tword)(g-(tptr)stkb));
+    DEBUG("%sfail(): f=%ld, g=%ld", DEPTH, (tword)(f-(tptr)stkb), (tword)(g-(tptr)stkb));
     failc++;
     if (!(((parse_frame_t*)f)->x & 1)) {    // Exit bit not set
-        DEBUG("%sexit bit not set", SPACE);
+        DEBUG("%sexit bit not set", DEPTH);
         ((parse_frame_t*)f)->x = iget();    // checked both
-        DEBUG("%s        x==%lx", SPACE, ((parse_frame_t*)f)->x);
+        DEBUG("%s        x==%lx", DEPTH, ((parse_frame_t*)f)->x);
         r0 &= ~(tword)1;
         if (r0 == (tword)&alt)      // TODO: why does it go to salt if equal to alt and v.v.?
             return salt();  // Tail call
@@ -160,7 +161,7 @@ void fail() {
     f = (tptr)((parse_frame_t*)f)->prev;
     i = ((parse_frame_t*)f)->si;
     DEBUG_SHALLOWER;
-    DEBUG("%s<failure: f=%ld, g=%ld", SPACE, (tword)(f-(tptr)stkb), (tword)(g-(tptr)stkb));
+    DEBUG("%s<failure: f=%ld, g=%ld", DEPTH, (tword)(f-(tptr)stkb), (tword)(g-(tptr)stkb));
     failure = true;
 }
 
@@ -168,7 +169,7 @@ void fail() {
 // test the exit indicator, and leave the rule if on
 void succ() {
     ++succc;
-    DEBUG("%ssucc() f=%ld, g=%ld, c=%lu", SPACE, (tword)(f-(tptr)stkb), (tword)(g-(tptr)stkb), succc);
+    DEBUG("%ssucc() f=%ld, g=%ld, c=%lu", DEPTH, (tword)(f-(tptr)stkb), (tword)(g-(tptr)stkb), succc);
     if (((parse_frame_t*)f)->x & 1) {       // Exit bit set
         // do a success return
         // bundle translations delivered to this rule,
@@ -188,11 +189,11 @@ void succ() {
         if (r0)
             *g++ = r0;      // TODO: what is the meaning of this?
         DEBUG_SHALLOWER;
-        DEBUG("%s<success: f=%ld, g=%ld", SPACE, (tword)(f-(tptr)stkb), (tword)(g-(tptr)stkb));
+        DEBUG("%s<success: f=%ld, g=%ld", DEPTH, (tword)(f-(tptr)stkb), (tword)(g-(tptr)stkb));
         failure = false;
         return;
     }
-    DEBUG("%sexit bit not set", SPACE);
+    DEBUG("%sexit bit not set", DEPTH);
     return contin();    // Tail call
 }
 
@@ -210,7 +211,7 @@ void errcom(const char* error) {
 // r0,r1 are new i,environment
 void adv() {
     advc++;
-    DEBUG("%s>adv()", SPACE);
+    DEBUG("%s>adv()", DEPTH);
     parse_frame_t* _f = (parse_frame_t*)f;      // Cast for convenience TODO: remove later
     parse_frame_t* _g = (parse_frame_t*)g;
     _g->prev = _f;
@@ -234,7 +235,7 @@ void adv() {
 
 void pbundle() {
     if ((tptr)r0 >= g) {
-        DEBUG("%sempty bundle", SPACE);
+        DEBUG("%sempty bundle", DEPTH);
         r0 = 0;         // empty bundle
         return;
     }
@@ -244,7 +245,7 @@ void pbundle() {
     r1 += sizeof(tword);
     if ((tptr)r1 != g) {
         // non-trivial bundle
-        DEBUG("%snon-trivial bundle", SPACE);
+        DEBUG("%snon-trivial bundle", DEPTH);
         do {
             PUSH(r1);
             kput();
@@ -254,7 +255,7 @@ void pbundle() {
         } while((tptr)r1 <= g);
         r0 = ((parse_frame_t*)f)->k;
     } else {
-        DEBUG("%strivial bundle", SPACE);
+        DEBUG("%strivial bundle", DEPTH);
     }
     g = (tptr)POP();
     return;
@@ -263,7 +264,7 @@ void pbundle() {
 // tmg translation rule interpreter (generator)
 
 void generate() {
-    DEBUG("%sgenerate(), exit=%lu, f=%lu, g=%lu", SPACE, ((parse_frame_t*)f)->x & 1,
+    DEBUG("%sgenerate(), exit=%lu, f=%lu, g=%lu", DEPTH, ((parse_frame_t*)f)->x & 1,
                                                   (tuword)(f-(tptr)stkb), (tuword)(g-(tptr)stkb));
     // checked
     if (((parse_frame_t*)f)->x & 1) {       // Exit bit set
@@ -278,7 +279,7 @@ void generate() {
 }
 
 void gcontin() {
-    DEBUG("%sgcontin(): f=%lu, g=%lu", SPACE, (tuword)(f-(tptr)stkb), (tuword)(g-(tptr)stkb));
+    DEBUG("%sgcontin(): f=%lu, g=%lu", DEPTH, (tuword)(f-(tptr)stkb), (tuword)(g-(tptr)stkb));
 #if TRACING
     if (trswitch) {
         r0 = 'g';
@@ -288,7 +289,7 @@ void gcontin() {
     // get interpreted instruction, decode by range of values
     r0 = (tword)*i++;
     ((parse_frame_t*)f)->x = r0;    // checked
-    DEBUG("%s           x==%lx", SPACE, r0);
+    DEBUG("%s           x==%lx", DEPTH, r0);
     r0 = BIT0_CLEAR(r0);
     if ((tptr)r0 >= start && (tptr)r0 < ARRAY_END(start)) {
         // tmg-coded translation subroutine
@@ -302,7 +303,7 @@ void gcontin() {
         _n->ep = _f->ep;
         f = (tptr)_n;
         DEBUG_DEEPER;
-        DEBUG("%s>gcontin(): f=%lu, g=%lu", SPACE, (tuword)(f-(tptr)stkb), (tuword)(g-(tptr)stkb));
+        DEBUG("%s>gcontin(): f=%lu, g=%lu", DEPTH, (tuword)(f-(tptr)stkb), (tuword)(g-(tptr)stkb));
         gcontin();
         generate();  // Tail call TODO
         return;
@@ -326,12 +327,50 @@ void gcontin() {
     }
 }
 
+// execute rule called for by 1 2 ...
+// found relative to instruction counter in the k environment
+// this frame becomes th p environment for
+// any parameters passed with this invocation
+// e.g. for 1(x) see also .tq
+void _tp() {
+    DEBUG("%s_tp(): f=%lx, g=%lx", DEPTH, (tword)(f-(tptr)stkb), (tword)(g-(tptr)stkb));
+    r0 = *(char*)i;
+    r2 = *((char*)i + 1); 
+    i++;    // Using only two bytes of the word
+    //r0 = (r0 + 1)<<1;    // Shift left (<< 1) is probably word size multiplier
+    r0 = (r0 + 1)*sizeof(tword);
+    translation_frame_t* _f = (translation_frame_t*)f;    // Cast for convenience TODO
+    translation_frame_t* _n = (translation_frame_t*)((tword)f + fs);
+    _f->si = i;
+    _n->ep = (tptr)f;
+    r1 = (tword)_f->ek;
+    i = ((translation_frame_t*)r1)->si;
+    i = (tptr)((tword)i - r0);
+    f = (tptr)_n;
+    DEBUG_DEEPER;
+    ((translation_frame_t*)f)->ek = f;
+    //r2 <<= 1;     // Shift left is probably word size multiplier
+    r2 *= sizeof(tword);
+    if (r2 != 0) {
+        //element is 1.1, 1.2, .. 2.1,...
+        i = (tptr)-*i;
+        if ((tword)i < 0)
+            errcom("not a bundle");
+        if ((tword)i >= ktat) {
+            fprintf(dfile, "bad address in _tp: %ld > %ld", (tword)i, ktat);
+            errcom(NULL);
+        }
+        i = (tptr)((tword)i + ktab - r2);
+    }
+    gcontin();
+    return generate();  // Tail call
+}
+
 // diag and parse builtins
 // set current file to diagnostic or output
 // save and restore ktable water mark around parse-translate
 // also current file and next frame pointer (g)
 // execute parsing rule
-
 void diag() {
     r1 = (tword)dfile;
     return _process();  // Tail call
@@ -363,7 +402,7 @@ void _process() {
             i = (tptr)(ktab - ((parse_frame_t*)f)->k);
             PUSH(f);
             f = g;
-            DEBUG("%sx==0, f=%ld, f=%ld", SPACE, (tword)(f-(tptr)stkb), (tword)(g-(tptr)stkb));
+            DEBUG("%sx==0, f=%ld, f=%ld", DEPTH, (tword)(f-(tptr)stkb), (tword)(g-(tptr)stkb));
             ((parse_frame_t*)f)->x = 0;     // checked
             DEBUG(">generating (in parse)");
             generate();
@@ -373,7 +412,7 @@ void _process() {
         }
         ((parse_frame_t*)f)->k = POP();
         cfile = (FILE*)POP();
-        DEBUG("%s_process -> succ", SPACE);
+        DEBUG("%s_process -> succ", DEPTH);
         return succ();  // Tail call
     } else {
         g = (tptr)POP();

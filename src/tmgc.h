@@ -1,4 +1,4 @@
-// Reimplementation of the Unix compiler-compiler TMG in C99.
+// Port of the Unix compiler-compiler TMG to C99.
 // Based on the original PDP-11 assembly code by M. D. McIlroy.
 // (c) 2019, Andriy Makukha, 2-clause BSD License.
 //
@@ -42,6 +42,7 @@
 
 tword r0;       // Register R0
 tword r1;       // Register R1
+tword r2;       // Register R2
 
 tptr  f;        // stack frame pointer during parse and translation
 tptr  g;        // stack frame end during parse

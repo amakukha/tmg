@@ -1,4 +1,4 @@
-// Reimplementation of the Unix compiler-compiler TMG in C99.
+// Port of the Unix compiler-compiler TMG to C99.
 // Based on the original PDP-11 assembly code by M. D. McIlroy.
 // (c) 2019, Andriy Makukha, 2-clause BSD License.
 
@@ -17,7 +17,7 @@
 #if DEBUG_MODE
 int _depth = 0;
 const char* _space = "......................................................................";
-#define SPACE               ((const char*)(_space + strlen(_space) - 2*_depth))
+#define DEPTH               ((const char*)(_space + strlen(_space) - 2*_depth))
 #define DEBUG(msg, ...)     do { if (verbose) fprintf(dfile, msg "\n", ##__VA_ARGS__); } while(0)
 #define DEBUG_DEEPER        _depth++
 #define DEBUG_SHALLOWER     _depth--
@@ -36,6 +36,7 @@ extern void  obuild();
 extern void  parse();
 extern void  putch();
 extern void  succ();
+extern void  _tp();
 
 tword trswitch = 0;
 
@@ -45,6 +46,8 @@ void _pxs();
 void _tx();
 void _txs();
 void kput();
+void octal();
+void _octal();
 void putcall();
 void puthex();
 void putoct();
@@ -82,6 +85,22 @@ void kput() {
     *((tptr)(ktab + r1)) = r0;
 }
 
+void octal() {
+    DEBUG("    octal()");
+    r0 = 1 + (tword)&_octal;
+    putcall();
+    iget();
+    r0 = *(tptr)r0;
+    kput();
+    return succ();  // Tail call
+}
+
+void _octal() {
+    r0 = *i;
+    putoct();
+    return generate();  // Tail call
+}
+
 void putcall() {
     kput();
     *g++ = ((parse_frame_t*)f)->k;
@@ -111,13 +130,13 @@ void putoct() {
 }
 
 void trans() {
-    DEBUG("    trans");
+    DEBUG("    trans()");
     *g++ = iget();
     return succ();  // Tail call
 }
 
 void trace() {
-    DEBUG("    trace: %c%lx", (char)r0, (tuword)i);
+    DEBUG("    trace(): %c%lx", (char)r0, (tuword)i);
     putch();
     r0 = 'x';
     putch();
