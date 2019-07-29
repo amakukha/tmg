@@ -2,9 +2,13 @@
 // Based on the original PDP-11 assembly code by M. D. McIlroy.
 // (c) 2019, Andriy Makukha, 2-clause BSD License.
 
+//#define SRC_LANGUAGE "TMGL"
+//#define DST_LANGUAGE "C driving table"
+#define SRC_LANGUAGE "dummy"
+
 const tword labels[];
 
-// Driving table for a sample program
+// Driving table for a sample program: hello world
 
 tword start[] = {
 #define __1         (tword)&labels[0]
@@ -26,9 +30,9 @@ tword start[] = {
 //__hello:
     1 + (tword)&trans, 1 + _1,
 //__pn:
-    1 + (tword)&_pxs, 012,
+    1 + (tword)&_pxs, (tword)'\n',
 //__tn:
-    1 + (tword)&_txs, 012,
+    1 + (tword)&_txs, (tword)'\n',
 };
 
 // Global label addresses inside the driving table

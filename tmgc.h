@@ -9,6 +9,17 @@
 #include <stdio.h>
 #include <stdbool.h>
 
+// This implementation provides a verbose mode for the compiler (-v option).
+// Additionally, when compiled with the DEBUG_MODE macro set, verbose mode
+// will print detailed debugging information.
+#define DEBUG_MODE 1
+
+// Original tracing capability; must be set together with trswitch in tmgb.h
+#define TRACING 1       
+
+// Flush the output every time obuild is called. Useful in debugging mode.
+#define NOBUFFER DEBUG_MODE
+
 // Just like B, Unix TMG operated with words, which could contain either a
 // pointer or an integer value. This implementation also uses words of same
 // size as pointers, but introduces distinction between the two.
@@ -41,12 +52,16 @@ tptr  i;        // interpreted instruction counter during parse and translation
 // sef := sec; clf := clc; bfs := bcs; bfc := bcc
 bool failure;
 
+// PDP-11 stack
+tword stack[1000];
+tword sp = sizeof(stack)/sizeof(*stack);
+
 // tmg tables and global definitions
 
 // These constants are multiplied by four to account for larger words (64-bit vs 32)
 // Constants could also be increased to provide bigger buffers and k table
 
-#define outt (64*sizeof(tword))         // output buffer top
+#define outt 64                         // output buffer top
 #define stkt (800*sizeof(tword))	// stack top for (f), not for (sp)
 #define ktat (1200*sizeof(tword))	// k table top
 
@@ -69,7 +84,7 @@ typedef struct parse_frame {
     tword x;                    // exit bit, nonzero at end of rule
     tptr si;                    // save location for instruction counter
     tword j;                    // input cursor counts characters
-    tptr k;                     // ktable high water mark, last use location relative to base
+    tword k;                    // ktable high water mark, last use location relative to base (in bytes)
     tptr n;                     // address of ignored character class
     tptr env;                   // frame pointer for static environment
 } parse_frame_t;
@@ -94,8 +109,9 @@ typedef struct translation_frame {
     tword x;                    // exit bit, nonzero at end of rule
     tptr si;                    // save location for instruction counter
     tptr ep;                    // p environment, frame where si points to parameter list
-    // TODO: why frame size is 10, not 8?
-    // fs = 10	/ frame size
     // ek.fs = ek+fs	/ k environment in next frame
     // ep.fs = ep+fs	/ p env in next frame
 } translation_frame_t;
+
+// TODO: why original fs (frame size) is 10 instead of 8?
+#define fs  (sizeof(translation_frame_t)+sizeof(tword))     // frame size

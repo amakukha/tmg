@@ -9,16 +9,22 @@
 // tmg
 // main program and parsing rule interpreter
 
-#define TRACING 1
-
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include "tmgb.h"
 #include "tmgl.h"
 
-#define ARRAY_END(x)  (x + sizeof(x)/sizeof(*x))
-#define BIT0_CLEAR(x) (((tuword)x) & (~(tuword)1))
+#ifdef  SRC_LANGUAGE
+#define SRC_LANGUAGE_ SRC_LANGUAGE " "
+#else
+#define SRC_LANGUAGE_ ""
+#endif
+#ifdef  DST_LANGUAGE
+#define DST_LANGUAGE_ DST_LANGUAGE " "
+#else
+#define DST_LANGUAGE_ ""
+#endif
 
 // This is an address range used to distinguish predefined function pointers
 tptr  func_min;
@@ -33,12 +39,19 @@ tword advc      = 0;
 
 // Function declarations
 void adv();
-void diag();
-void parse();
-void succ();
-void fail();
 void contin();
+void diag();
 void errcom(const char* error);
+void fail();
+void flush();
+void generate();
+void gcontin();
+void obuild();
+void parse();
+void pbundle();
+void _process();
+void putch();
+void succ();
 
 // get interpreted instruction for a parsing rule
 // negative instruction is a pointer to a parameter in this
@@ -46,23 +59,33 @@ void errcom(const char* error);
 // put environment pointer in r1
 
 tword iget() {
-    if (verbose)
-        fprintf(dfile, "iget: i=%lx\n", (tuword)i);
+    if ((tptr)i >= start && (tptr)i < ARRAY_END(start)) {
+        DEBUG("    iget: i=%lx [%ld]=%ld", (tuword)i, ((tword)((tptr)i-start)), *i);
+    } else {
+        DEBUG("    iget: i=%lx", (tuword)i);
+    }
     r1 = (tword)f;
     r0 = *i++;
     if (r0 < 0) {
-        // TODO         <-- CONT
+        PUSH(r0 & 1);   // save the exit bit
+        r0 = stack[sp];
+        do {            // chase parameter
+            r1 = (tword)((parse_frame_t*)r1)->env; 
+            r0 += (tword)((parse_frame_t*)r1)->si;
+            r0 = *(tptr)r0;
+        } while (r0 < 0);
+        r1 = (tword)((parse_frame_t*)r1)->env; 
+        r0 |= (tword)POP();
     }
     return r0;
 }
 
 void contin() {
     continc++;
-    if (verbose)
-        fprintf(dfile, "contin()\n");
+    DEBUG("%scontin(): f=%lu, g=%lu", SPACE, f-(tptr)stkb, g-(tptr)stkb);
 #if TRACING
     if (trswitch) {
-        // TODO
+        r0 = 'r';
         trace();
     }
 #endif
@@ -71,16 +94,21 @@ void contin() {
     // save its exit bit (bit 0) on stack
     // distinguish type of instruction by ranges of value
     ((parse_frame_t*)f)->x = iget(); 
+    DEBUG("%s          x==%lx", SPACE, ((parse_frame_t*)f)->x);
     r0 = BIT0_CLEAR(r0);
     if ((tptr)r0 >= start && (tptr)r0 < ARRAY_END(start)) {
         // tmg-coded rule, execute and test its success
+        DEBUG("TMG-CODED RULE: %lu", ((tuword)r0-(tuword)start)/sizeof(tptr));
         adv();
         if (failure)
             return fail();  // Tail call
-        else
+        else {
+            DEBUG("%scontin() -> succ", SPACE);
             return succ();  // Tail call
+        }
     } else if ((tptr)r0 >= func_min && (tptr)r0 <= func_max) {
         // machine coded function
+        DEBUG("MACHINE-CODED: %lx", r0);
         (*(void (*)(void))r0)();
     } else {
         fprintf(dfile, "bad address in parsing: %08lx\n", r0);
@@ -89,11 +117,14 @@ void contin() {
 }
 
 void alt() {
+    DEBUG("%salt", SPACE);
     i++;
+    DEBUG("%salt() -> succ", SPACE);
     return succ();      // Tail call
 }
 
 void salt() {
+    DEBUG("%ssalt", SPACE);
     i = (tptr)iget();
     return contin();    // Tail call
 }
@@ -108,9 +139,12 @@ void tgoto() {
 // do a goto, if a success alternate, do a nop
 // otherwise do a fail return
 void fail() {
+    DEBUG("%sfail(): f=%ld, g=%ld", SPACE, (tword)(f-(tptr)stkb), (tword)(g-(tptr)stkb));
     failc++;
     if (!(((parse_frame_t*)f)->x & 1)) {    // Exit bit not set
-        ((parse_frame_t*)f)->x = iget(); 
+        DEBUG("%sexit bit not set", SPACE);
+        ((parse_frame_t*)f)->x = iget();    // checked both
+        DEBUG("%s        x==%lx", SPACE, ((parse_frame_t*)f)->x);
         r0 &= ~(tword)1;
         if (r0 == (tword)&alt)      // TODO: why does it go to salt if equal to alt and v.v.?
             return salt();  // Tail call
@@ -125,13 +159,16 @@ void fail() {
     g = f;
     f = (tptr)((parse_frame_t*)f)->prev;
     i = ((parse_frame_t*)f)->si;
+    DEBUG_SHALLOWER;
+    DEBUG("%s<failure: f=%ld, g=%ld", SPACE, (tword)(f-(tptr)stkb), (tword)(g-(tptr)stkb));
     failure = true;
 }
 
 // all functions that succeed come here
 // test the exit indicator, and leave the rule if on
 void succ() {
-    succc++;
+    ++succc;
+    DEBUG("%ssucc() f=%ld, g=%ld, c=%lu", SPACE, (tword)(f-(tptr)stkb), (tword)(g-(tptr)stkb), succc);
     if (((parse_frame_t*)f)->x & 1) {       // Exit bit set
         // do a success return
         // bundle translations delivered to this rule,
@@ -141,9 +178,21 @@ void succ() {
         // update high water mark (k) in ktable
         // if there was a translation delivered, add to stack frame
         // clear the fail flag
-        // TODO: sret       <-- CONTIN
+        r0 = (tword)f + sizeof(parse_frame_t);
+        pbundle();
+        g = f;
+        f = (tptr)(((parse_frame_t*)f)->prev);
+        i = ((parse_frame_t*)f)->si;
+        ((parse_frame_t*)f)->j = ((parse_frame_t*)g)->j;
+        ((parse_frame_t*)f)->k = ((parse_frame_t*)g)->k;
+        if (r0)
+            *g++ = r0;      // TODO: what is the meaning of this?
+        DEBUG_SHALLOWER;
+        DEBUG("%s<success: f=%ld, g=%ld", SPACE, (tword)(f-(tptr)stkb), (tword)(g-(tptr)stkb));
+        failure = false;
         return;
     }
+    DEBUG("%sexit bit not set", SPACE);
     return contin();    // Tail call
 }
 
@@ -161,8 +210,7 @@ void errcom(const char* error) {
 // r0,r1 are new i,environment
 void adv() {
     advc++;
-    if (verbose)
-        fprintf(dfile, "adv()\n");
+    DEBUG("%s>adv()", SPACE);
     parse_frame_t* _f = (parse_frame_t*)f;      // Cast for convenience TODO: remove later
     parse_frame_t* _g = (parse_frame_t*)g;
     _g->prev = _f;
@@ -171,22 +219,214 @@ void adv() {
     _g->k = _f->k;
     _g->n = _f->n;
     f = g;
-    g = (tptr)((uint8_t*)g + sizeof(parse_frame_t)); // g1
+    DEBUG_DEEPER;
+    g = (tptr)((tword)g + sizeof(parse_frame_t)); // g1
     if ((uint8_t*)g >= stke)
         errcom("stack overflow");
     i = (tptr)r0;                       // Initially this contains &start[0]
     _f->env = (tptr)r1;
-    contin();
+    return contin();    // Tail call
+}
+
+// pbundle entered with pointer to earliest element of bundle
+// to reduce from the top of stack in r0
+// exit with pointer to bundle in r0, or zero if bundle is empty
+
+void pbundle() {
+    if ((tptr)r0 >= g) {
+        DEBUG("%sempty bundle", SPACE);
+        r0 = 0;         // empty bundle
+        return;
+    }
+    PUSH(r0);
+    r1 = r0;
+    r0 = *(tptr)r1;
+    r1 += sizeof(tword);
+    if ((tptr)r1 != g) {
+        // non-trivial bundle
+        DEBUG("%snon-trivial bundle", SPACE);
+        do {
+            PUSH(r1);
+            kput();
+            r1 = POP();
+            r0 = *(tptr)r1;
+            r1 += sizeof(tword);
+        } while((tptr)r1 <= g);
+        r0 = ((parse_frame_t*)f)->k;
+    } else {
+        DEBUG("%strivial bundle", SPACE);
+    }
+    g = (tptr)POP();
+    return;
+}
+
+// tmg translation rule interpreter (generator)
+
+void generate() {
+    DEBUG("%sgenerate(), exit=%lu, f=%lu, g=%lu", SPACE, ((parse_frame_t*)f)->x & 1,
+                                                  (tuword)(f-(tptr)stkb), (tuword)(g-(tptr)stkb));
+    // checked
+    if (((parse_frame_t*)f)->x & 1) {       // Exit bit set
+        // exit bit is on -> pop stack frame, restore instruction counter and return
+        f = (tptr)((tuword)f - fs);
+        i = ((parse_frame_t*)f)->si;
+        DEBUG_SHALLOWER;
+        return;
+    }
+    gcontin();   // Tail call   TODO
+    return;
+}
+
+void gcontin() {
+    DEBUG("%sgcontin(): f=%lu, g=%lu", SPACE, (tuword)(f-(tptr)stkb), (tuword)(g-(tptr)stkb));
+#if TRACING
+    if (trswitch) {
+        r0 = 'g';
+        trace();
+    }
+#endif
+    // get interpreted instruction, decode by range of values
+    r0 = (tword)*i++;
+    ((parse_frame_t*)f)->x = r0;    // checked
+    DEBUG("%s           x==%lx", SPACE, r0);
+    r0 = BIT0_CLEAR(r0);
+    if ((tptr)r0 >= start && (tptr)r0 < ARRAY_END(start)) {
+        // tmg-coded translation subroutine
+        // execute it in current environment
+        DEBUG("TMG-CODED ROUTINE: [%lu]", ((tptr)r0-start));
+        translation_frame_t* _f = (translation_frame_t*)f;      // Cast for convenience TODO: remove later
+        translation_frame_t* _n = (translation_frame_t*)((tuword)f + fs);
+        _f->si = i;
+        i = (tptr)r0;
+        _n->ek = _f->ek;
+        _n->ep = _f->ep;
+        f = (tptr)_n;
+        DEBUG_DEEPER;
+        DEBUG("%s>gcontin(): f=%lu, g=%lu", SPACE, (tuword)(f-(tptr)stkb), (tuword)(g-(tptr)stkb));
+        gcontin();
+        generate();  // Tail call TODO
+        return;
+    } else if ((tptr)r0 >= func_min && (tptr)r0 <= func_max) {
+        // builtin  translation function
+        DEBUG("BUILTIN FUNCTION: %lx", r0);
+        return (*(void (*)(void))r0)(); // Tail call
+    } else if (-r0 < ktat) {
+        // delivered compound translation
+        // instruction counter is in ktable
+        // set the k environment for understanding 1, 2 ...
+        // to designate this frame
+        DEBUG("COMPOUND");
+        ((translation_frame_t*)f)->ek = f;
+        r0 = (tword)(ktab - r0);
+        i = (tptr)r0;
+	return gcontin();   // Tail call
+    } else {
+        fprintf(dfile, "bad address in translation: %lx", r0);
+        errcom(NULL);
+    }
+}
+
+// diag and parse builtins
+// set current file to diagnostic or output
+// save and restore ktable water mark around parse-translate
+// also current file and next frame pointer (g)
+// execute parsing rule
+
+void diag() {
+    r1 = (tword)dfile;
+    return _process();  // Tail call
+}
+
+void parse() {
+    DEBUG("    parse");
+    r1 = (tword)ofile;
+    return _process();  // Tail call
+}
+
+void _process() {
+    DEBUG("    _process");
+    PUSH(cfile);
+    cfile = (FILE*) r1;
+    PUSH(((parse_frame_t*)f)->k);
+    PUSH(g);
+    iget();
+    adv();
+    if (!failure) {
+        // rule succeeded
+        // if it delivered translation, put it in ktable and set
+        // instruction counter for
+        // translation generator to point there
+        // go generate
+        if (g > (tptr)POP()) {
+            r0 = *(--g);        // TODO: what is the point here? reversing what's in succ?
+            kput();
+            i = (tptr)(ktab - ((parse_frame_t*)f)->k);
+            PUSH(f);
+            f = g;
+            DEBUG("%sx==0, f=%ld, f=%ld", SPACE, (tword)(f-(tptr)stkb), (tword)(g-(tptr)stkb));
+            ((parse_frame_t*)f)->x = 0;     // checked
+            DEBUG(">generating (in parse)");
+            generate();
+            DEBUG("<generated");
+            f = (tptr)POP();
+            i = ((parse_frame_t*)f)->si;
+        }
+        ((parse_frame_t*)f)->k = POP();
+        cfile = (FILE*)POP();
+        DEBUG("%s_process -> succ", SPACE);
+        return succ();  // Tail call
+    } else {
+        g = (tptr)POP();
+        ((parse_frame_t*)f)->k = POP();
+        cfile = (FILE*)POP();
+        return fail();  // Tail call
+    }
+}
+
+// tmg output routines
+
+// adds 1 or 2 (or more, depending on architecture) characters in r0 to output
+void putch() {
+    PUSH(0);
+    PUSH(r0);
+    r0 = (tword)&stack[sp];
+    obuild();
+    POP();
+    POP();
+}
+
+// r0 points to string to put out on current output file (cfile)
+// string terminated by 0
+// if last file differed from current file, flush output buffer first
+// in any case flush output buffer when its write pointer (outw)
+// reaches its top (outt)
+
+void obuild() {
+    //DEBUG("obuild(): %s", (tptr)r0);
+    if (cfile != lfile) {
+        flush();
+        lfile = cfile;
+    }
+    r1 = outw;
+    do {
+        if (!*(char*)r0) {
+#if NOBUFFER
+            flush();
+#endif
+            return;
+        }
+        outb[r1++] = *(char*)r0;
+        r0++;           // TODO: use outw directly
+        outw = r1;
+    } while (r1 <= outt);
+    flush();
+    return obuild();    // Tail call
 }
 
 // copy output buffer onto last output file and clear buffer
 void flush() {
     fwrite(outb, 1, outw, lfile);
     outw = 0;
-}
-
-void parse() {
-    // TODO
 }
 
 int main(int argc, char* argv[]) {
@@ -199,24 +439,25 @@ int main(int argc, char* argv[]) {
 
     // Verbose?
     r1 = 1;
-    if (!strcmp(argv[r1], "-v")) {
+    if (r1 < argc && !strcmp(argv[r1], "-v")) {
         verbose = true;
         r1++;
     }
 
     // Help message
     if (r1 >= argc || !strcmp(argv[r1], "-h")) {
-        printf("TMG compiler-compiler (%lu-bit)\n", 8*sizeof(tword));
-        printf("Usage: %s [-v] input.t output.h\n", argv[0]);
-        printf("       %s -h\n", argv[0]);
-        printf("\tinput.t \t- program in TMGL\n");
-        printf("\toutput.h\t- resulting driving table in C\n");
-        printf("\t-h      \t- show this message\n");
-        printf("\t-v      \t- verbose output\n");
+        printf(SRC_LANGUAGE_ "compiler (%lu-bit)\n", 8*sizeof(tword));
+        printf("Usage: %s [-v] [-h] input [output]\n", argv[0]);
+        printf("\tinput \t- " SRC_LANGUAGE_ "program\n");
+        printf("\toutput\t- " DST_LANGUAGE_ "translation\n");
+        printf("\t-v    \t- verbose output\n");
+        printf("\t-h    \t- display this message and exit\n");
         
-        // Testing
-        for (int i=0; i<sizeof(start)/sizeof(*start); i++)
-            printf("%08lx\n", (tword)start[i]);
+        if (verbose) {
+            DEBUG("Driving table values:");
+            for (int i=0; i<sizeof(start)/sizeof(*start) && i<25; i++)
+                printf("%08lx\n", (tword)start[i]);
+        }
         return 0;
     }
 
@@ -239,11 +480,11 @@ int main(int argc, char* argv[]) {
     // Replace global label references in the driving table
     for (tword j = 0; j < sizeof(start)/sizeof(*start); j++)
         if ((tptr)start[j] >= labels && (tptr)start[j] < ARRAY_END(labels))
-            start[j] = *((tword *)BIT0_CLEAR(start[j]));
+            start[j] = *((tword *)BIT0_CLEAR(start[j])) | (start[j] & 1);   // Preserve exit bit
     if (verbose) {
         fprintf(dfile, "Driving table size = %lu words (%lu bytes)\n", 
                         sizeof(start)/sizeof(*start), sizeof(start));
-        fprintf(dfile, "Table range: %08lx..%08lx\n", (tuword)start, (tuword)start + sizeof start);
+        fprintf(dfile, "Table range: %08lx..%08lx\n", (tuword)start, (tuword)start + sizeof(start));
     }
 
     // Compute function address range
@@ -253,6 +494,10 @@ int main(int argc, char* argv[]) {
         (tptr)&fail,
         (tptr)&parse,
         (tptr)&contin,
+        // tmgb functions
+        (tptr)&trans,
+        (tptr)&_px,         (tptr)&_pxs,
+        (tptr)&_tx,         (tptr)&_txs,
     };
     func_max = 0;
     func_min = (tptr)SIZE_MAX;
