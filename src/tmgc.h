@@ -26,17 +26,24 @@
 
 #if UINTPTR_MAX == UINT_MAX 
 #define tword       int
-#define tptr        int*
-#define tuword      unsigned int
 #else
 #if UINTPTR_MAX == ULONG_MAX
 #define tword       long
-#define tptr        long*
-#define tuword      unsigned long
 #else
-#error "Unknown architecture; define your own tword / tptr"
+#error "Unknown architecture; define your own tword (of same size as tword*)"
 #endif
 #endif
+
+#define tptr        tword*
+#define tuword      unsigned tword
+
+// Convenience macros
+#define ARRAY_END(x)        (x + sizeof(x)/sizeof(*x))
+#define BIT_CLEAR(mask,x)   ((~(tuword)mask) & ((tuword)(x)))
+#define BIT0_CLEAR(x)       BIT_CLEAR(1, x)
+#define NEG(x)              ((~(tuword)(x)) + 1)
+#define PUSH(x)             (stack[--sp] = (tword)(x))
+#define POP()               (stack[sp++])
 
 // Global variables from PDP-11 registers
 
@@ -54,7 +61,7 @@ tptr  i;        // interpreted instruction counter during parse and translation
 bool failure;
 
 // PDP-11 stack
-tword stack[1000];
+tword stack[1024];                      // stack for (sp)
 tword sp = sizeof(stack)/sizeof(*stack);
 
 // tmg tables and global definitions
@@ -63,7 +70,7 @@ tword sp = sizeof(stack)/sizeof(*stack);
 // Constants could also be increased to provide bigger buffers and k table
 
 #define outt 64                         // output buffer top
-#define stkt (800*sizeof(tword))	// stack top for (f), not for (sp)
+#define stkt (1<<16)                    // stack top for (f), not for (sp)
 #define ktat (1200*sizeof(tword))	// k table top
 
 FILE* input;                    // input

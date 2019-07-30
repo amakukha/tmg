@@ -110,7 +110,7 @@ void contin() {
     } else if ((tptr)r0 >= func_min && (tptr)r0 <= func_max) {
         // machine coded function
         DEBUG("MACHINE-CODED: %lx", r0);
-        (*(void (*)(void))r0)();
+        return (*(void (*)(void))r0)(); // Tail call
     } else {
         fprintf(dfile, "bad address in parsing: %08lx\n", r0);
         errcom(NULL);

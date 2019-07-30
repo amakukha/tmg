@@ -4,14 +4,7 @@
 
 #include <limits.h>
 #include <stdint.h>
-#include "tmgc.h"
-
-#define ARRAY_END(x)        (x + sizeof(x)/sizeof(*x))
-#define BIT_CLEAR(mask,x)   ((~(tuword)mask) & ((tuword)(x)))
-#define BIT0_CLEAR(x)       BIT_CLEAR(1, x)
-#define NEG(x)              ((~(tuword)(x)) + 1)
-#define PUSH(x)             (stack[--sp] = (tword)(x))
-#define POP()               (stack[sp++])
+#include "libs.h"
 
 // Debugging output enabled? (see tmgc.h)
 #if DEBUG_MODE
@@ -27,6 +20,7 @@ const char* _space = "..........................................................
 #define DEBUG_SHALLOWER
 #endif
 
+// Defined in tmga.c
 extern bool verbose;
 
 extern tword iget();
@@ -51,6 +45,7 @@ void _octal();
 void putcall();
 void puthex();
 void putoct();
+void sprv();
 void trans();
 void trace();
 
@@ -129,6 +124,21 @@ void putoct() {
     putch();
 }
 
+// from: arith.s
+// make sp hold a simple rvalue (forget it might be a table value)
+void sprv() {
+    r0 = (tword)POP();
+    if (stack[sp+1]==-1) {
+	//mov	(sp)+,(sp)
+	//mov	(sp)+,(sp)
+        stack[sp+1] = stack[sp];
+        sp++;
+        stack[sp+1] = stack[sp];
+        sp++;
+    }
+    return (*(void (*)(void))r0)(); // Tail call
+}
+
 void trans() {
     DEBUG("    trans()");
     *g++ = iget();
@@ -144,4 +154,20 @@ void trace() {
     puthex();
     r0 = '\n';
     putch();
+}
+
+// from: arith.s
+// update a stored value, used by all assignments
+void update() {
+    DEBUG("    update()");
+    if (stack[sp+2] != -1) {
+        *(tptr)stack[sp+2] = stack[sp+1];
+        return;
+    }
+    // TODO: what's the meaning of this?
+    r1 = stack[sp+3];
+    r0 = stack[sp+4];
+    seekchar();
+    r0 = stack[sp+1];
+    return alterword(); // Tail call
 }
