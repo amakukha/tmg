@@ -29,7 +29,7 @@ copy:
 	mov	r2,-(sp)
 	mov	r3,-(sp)
 	jsr	pc,wc
-1:	jsr	pc,reset
+1:	jsr	pc,reset        /A.M.: label not used
 	mov	w(r0),r2
 	sub	a(r0),r2	/W-A
 	mov	l(r1),r3
@@ -40,7 +40,7 @@ copy:
 	mov	r2,r0
 	jsr	pc,allocate
 	mov	4(sp),r0
-/
+/A.M.: label not used
 1:	mov	a(r1),w(r1)	/rewind w pointer
 	mov	a(r0),-(sp)
 /
@@ -79,7 +79,7 @@ copy:
 /
 /	fix up read ptr of new string
 /
-1:	mov	r(r0),r2
+1:	mov	r(r0),r2        /A.M.: label not used
 	sub	a(r0),r2
 	add	a(r1),r2
 	mov	r2,r(r1)

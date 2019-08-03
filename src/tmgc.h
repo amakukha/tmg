@@ -44,6 +44,7 @@
 #define NEG(x)              ((~(tuword)(x)) + 1)
 #define PUSH(x)             (stack[--sp] = (tword)(x))
 #define POP()               (stack[sp++])
+#define SWAP_BYTES(x)       (((x & 0xFF)<<8) | ((x & 0xFF00)>>8))
 
 // Global variables from PDP-11 registers
 
@@ -55,7 +56,7 @@ tptr  f;        // stack frame pointer during parse and translation
 tptr  g;        // stack frame end during parse
 tptr  i;        // interpreted instruction counter during parse and translation
 
-// Carry bit was used as a failure indicator.
+// Carry bit (c-bit) was used as a failure indicator.
 // Original code has these mnemonic synonyms defined:
 // sef := sec; clf := clc; bfs := bcs; bfc := bcc
 bool failure;
