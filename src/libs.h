@@ -56,7 +56,7 @@ FILE* afout;
 struct shead {
     tword _hblk;                    // must remain here - pointer to free header
     tword _frlist[FRSIZE];          //
-    char  _strbuf[HSZ];
+    char  _strbuf[HSZ];             // TODO: sizeof(shead) is not HSZ! FIXIT
 } _shd;
 
 #define hblk    _shd._hblk

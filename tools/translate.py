@@ -33,8 +33,12 @@ def statements(fn):
 class Translator:
 
     KNOWN_FUNCTIONS = [
+        '.l', '.p', '.t', '.u', 
+        '.ge',
+        '.da', '.ia', '.db', '.ib',
         'parse', 'trans', '.tx', '.txs', '.px', '.pxs',
         'octal', '.tp',
+        'alt', 'salt',
     ]
 
     def __init__(self):
@@ -140,6 +144,9 @@ class Translator:
                 if t is None: continue
                 print('\t{tran:<24s}// {name}'.format(tran=t+',', name=s))
             print('};')
+            for n,s,t in sorted(self.labels.values()):
+                if t is None:
+                    print('// Undefined: {name}'.format(name=s))
 
     @staticmethod
     def label(s):

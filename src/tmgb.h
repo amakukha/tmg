@@ -22,9 +22,11 @@ const char* _space = "..........................................................
 
 // Defined in tmga.c
 extern bool verbose;
+extern uint8_t* classtab;
 
 extern tword iget();
 extern void  errcom(const char* msg);
+extern void  fail();
 extern void  generate();
 extern void  obuild();
 extern void  parse();
@@ -32,13 +34,34 @@ extern void  putch();
 extern void  succ();
 extern void  _tp();
 
-tword trswitch = 0;
+// Variables from tmgb
+#define INPT 128        // Input buffer size; NOTE: Must be power of two
+char  inpb[INPT];       // Input buffer
+tword inpr = 0;         // Input file offset
+tword jgetc = 0;        // Statistic: jget calls
+tword litc = 0;         // 
+tword readc = 0;        // Input read statistic
+tword trswitch = 0;     // Trace switch
 
 // Function declarations
+void _da();
+void _db();
+void _false();
+void _ge();
+void _ia();
+void _ib();
+void _l();
+void _p();
 void _px();
+void _pxcommon();
 void _pxs();
+void _t();
+void _true();
 void _tx();
 void _txs();
+void _u();
+
+void jget();
 void kput();
 void octal();
 void _octal();
@@ -48,11 +71,122 @@ void putoct();
 void sprv();
 void trans();
 void trace();
+void update();
 
 // Function definitions
-void _px() {}
-void _pxs() {}
-    
+
+// potsfix --
+void _da() {
+    stack[sp]--;
+    update();
+    stack[sp]++;
+    return succ();  // Tail call
+}
+
+// prefix --
+void _db() {
+    stack[sp]--;
+    return _u();    // Tail call
+}
+
+// from tmgb/reln.s, original name false
+void _false() {
+    stack[sp+2] = 0;
+    return _p();    // Tail call
+}
+
+void _ge() {
+    sprv();
+    if (stack[sp+2] >= stack[sp])
+        return _true();     // Tail call
+    else
+        return _false();    // Tail call
+}
+
+// postfix ++
+void _ia() {
+    stack[sp]++;
+    update();
+    stack[sp]--;
+    return succ();  // Tail call
+}
+
+// prefix ++
+void _ib() {
+    stack[sp]++;
+    return _u();    // Tail call
+}
+
+// load named value
+// rvalue into (sp), lvalue into 2(sp)
+void _l() {
+    iget();
+    PUSH(r0);
+    PUSH(*(tptr)r0);
+    return succ();  // Tail call
+}
+
+// pop stack
+void _p() {
+    sprv();
+    //cmp   (sp)+,(sp)+
+    POP();  POP();
+    return succ();  // Tail call
+}
+
+void _px() {
+    iget();
+    return _pxcommon(); // Tail call
+}
+
+void _pxs() {
+    r0 = (tword)i++;
+    return _pxcommon(); // Tail call
+}
+
+// TODO: what does it do?
+// .pn:1 .pxs;012   - expects a newline?
+void _pxcommon() {
+    litc++;
+    PUSH(((parse_frame_t*)f)->n);
+    PUSH(((parse_frame_t*)f)->j);
+    PUSH(r0);
+    while ((char)stack[sp]) {
+        jget();
+        if (r0!=(char)stack[sp]) {
+            POP();
+            ((parse_frame_t*)f)->j = POP();
+            ((parse_frame_t*)f)->n = POP();     // Restore input cursor on failure
+            return fail();  // Tail call
+        }
+        ((parse_frame_t*)f)->n = 0;             // Do not ignore any characters
+        stack[sp]++;                            // TODO: what is the meaning?
+        ((parse_frame_t*)f)->j++;               // Advance input cursor
+    }
+    //cmp   (sp)+,(sp)+
+    POP();  POP();
+    ((parse_frame_t*)f)->n = POP();             // Restore ignored character class
+    return succ();  // Tail call
+}
+
+// test stack
+void _t() {
+    sprv();
+    if (POP()) {
+        POP();
+        return succ();  // Tail call
+    } else {
+        POP();
+        return fail();  // Tail call
+    }
+}
+
+// from tmgb/reln.s, original name true
+void _true() {
+    stack[sp+2] = 1;
+    return _p();    // Tail call
+}
+
 void _tx() {
     DEBUG("    _tx()");
     r0 = *i++;
@@ -70,6 +204,45 @@ void _txs() {
     i++;
     obuild();
     return generate();  // Tail call
+}
+
+// update
+void _u() {
+    update();
+    return succ();  // Tail call
+}
+
+// Description:
+//      Get next character from input which is not in ignored class.
+// Return:
+//      r0 - character
+void jget() {
+    jgetc++;
+    do {
+        r1 = ((parse_frame_t*)f)->j;    // input cursor
+        r0 = BIT_CLEAR(INPT-1, r1);     // Clear lower 7 bits (INPT is 128); input file offset
+        r1 = BIT_CLEAR(r0, r1);         // Leave lower 7 bits of r1
+        if (r0 != inpr) {               // Input buffer needs to be updated?
+            // Read next portion of buffer from the input file
+            readc++;
+            inpr = r0;                  // Remember current input file offset
+            fseek(input, inpr, SEEK_SET);
+            r0 = fread(inpb, 1, INPT, input);
+            for (; r0<INPT; r0++)
+                inpb[r0] = 0;           // Rest of buffer is zeroed, loop will exit on '\0'
+        }
+        do {
+            r0 = inpb[r1];
+            //r0 <<= 1;                 // Conversion to word offset
+            if (!(classtab[r0] & ((parse_frame_t*)f)->n))   // n - address of ignored character class
+                goto done;
+            ((parse_frame_t*)f)->j++;
+            r1++;
+        } while (r1 < INPT);
+    } while (1);
+done:
+    //r0 >>= 1;                         // Last character
+    return;
 }
 
 void kput() {
@@ -126,15 +299,12 @@ void putoct() {
 
 // from: arith.s
 // make sp hold a simple rvalue (forget it might be a table value)
+// TODO: try to understand what it does
 void sprv() {
     r0 = (tword)POP();
     if (stack[sp+1]==-1) {
-	//mov	(sp)+,(sp)
-	//mov	(sp)+,(sp)
-        stack[sp+1] = stack[sp];
-        sp++;
-        stack[sp+1] = stack[sp];
-        sp++;
+        POP_PREV();
+        POP_PREV();
     }
     return (*(void (*)(void))r0)(); // Tail call
 }
@@ -169,5 +339,6 @@ void update() {
     r0 = stack[sp+4];
     seekchar();
     r0 = stack[sp+1];
-    return alterword(); // Tail call
+    alterword();
+    return sprv();  // Tail call
 }

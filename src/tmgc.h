@@ -44,6 +44,7 @@
 #define NEG(x)              ((~(tuword)(x)) + 1)
 #define PUSH(x)             (stack[--sp] = (tword)(x))
 #define POP()               (stack[sp++])
+#define POP_PREV()          do { stack[sp+1]=stack[sp]; sp++; } while(0)        // mov (sp)+,(sp)
 #define SWAP_BYTES(x)       (((x & 0xFF)<<8) | ((x & 0xFF00)>>8))
 
 // Global variables from PDP-11 registers
@@ -92,9 +93,9 @@ typedef struct parse_frame {
                                 // return address in (sp)
     tword x;                    // exit bit, nonzero at end of rule
     tptr si;                    // save location for instruction counter
-    tword j;                    // input cursor counts characters
+    tword j;                    // input cursor, counts characters
     tword k;                    // ktable high water mark, last use location relative to base (in bytes)
-    tptr n;                     // address of ignored character class
+    tword n;                    // address of ignored character class
     tptr env;                   // frame pointer for static environment
 } parse_frame_t;
 

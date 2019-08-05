@@ -26,6 +26,8 @@
 #define DST_LANGUAGE_ ""
 #endif
 
+uint8_t* classtab = (uint8_t*)__classtab;
+
 // This is an address range used to distinguish predefined function pointers
 tptr  func_min;
 tptr  func_max;
@@ -198,7 +200,6 @@ void succ() {
 }
 
 void errcom(const char* error) {
-    // TODO 
     if (error)
         fprintf(dfile, "%s\n", error);
     exit(1);
@@ -212,7 +213,7 @@ void errcom(const char* error) {
 void adv() {
     advc++;
     DEBUG("%s>adv()", DEPTH);
-    parse_frame_t* _f = (parse_frame_t*)f;      // Cast for convenience TODO: remove later
+    parse_frame_t* _f = (parse_frame_t*)f;      // Cast for conveniencee
     parse_frame_t* _g = (parse_frame_t*)g;
     _g->prev = _f;
     _f->si = i;
@@ -274,8 +275,7 @@ void generate() {
         DEBUG_SHALLOWER;
         return;
     }
-    gcontin();   // Tail call   TODO
-    return;
+    return gcontin();   // Tail call
 }
 
 void gcontin() {
@@ -295,7 +295,7 @@ void gcontin() {
         // tmg-coded translation subroutine
         // execute it in current environment
         DEBUG("TMG-CODED ROUTINE: [%lu]", ((tptr)r0-start));
-        translation_frame_t* _f = (translation_frame_t*)f;      // Cast for convenience TODO: remove later
+        translation_frame_t* _f = (translation_frame_t*)f;      // Cast for convenience
         translation_frame_t* _n = (translation_frame_t*)((tuword)f + fs);
         _f->si = i;
         i = (tptr)r0;
@@ -305,8 +305,7 @@ void gcontin() {
         DEBUG_DEEPER;
         DEBUG("%s>gcontin(): f=%lu, g=%lu", DEPTH, (tuword)(f-(tptr)stkb), (tuword)(g-(tptr)stkb));
         gcontin();
-        generate();  // Tail call TODO
-        return;
+        return generate();  // Tail call
     } else if ((tptr)r0 >= func_min && (tptr)r0 <= func_max) {
         // builtin  translation function
         DEBUG("BUILTIN FUNCTION: %lx", r0);
@@ -339,7 +338,7 @@ void _tp() {
     i++;    // Using only two bytes of the word
     //r0 = (r0 + 1)<<1;    // Shift left (<< 1) is probably word size multiplier
     r0 = (r0 + 1)*sizeof(tword);
-    translation_frame_t* _f = (translation_frame_t*)f;    // Cast for convenience TODO
+    translation_frame_t* _f = (translation_frame_t*)f;    // Cast for convenience
     translation_frame_t* _n = (translation_frame_t*)((tword)f + fs);
     _f->si = i;
     _n->ep = (tptr)f;
@@ -529,14 +528,15 @@ int main(int argc, char* argv[]) {
     // Compute function address range
     tptr funcs[] = {
         (tptr)&adv,
-        (tptr)&succ,
-        (tptr)&fail,
+        (tptr)&alt,     (tptr)&salt,    (tptr)&succ,    (tptr)&fail,
         (tptr)&parse,
         (tptr)&contin,
         // tmgb functions
         (tptr)&trans,
-        (tptr)&_px,         (tptr)&_pxs,
-        (tptr)&_tx,         (tptr)&_txs,
+        (tptr)&_l,      (tptr)&_p,      (tptr)&_t,      (tptr)&_u,
+        (tptr)&_da,     (tptr)&_ia,     (tptr)&_db,     (tptr)&_ib,
+        (tptr)&_px,     (tptr)&_pxs,    (tptr)&_tx,     (tptr)&_txs,
+        (tptr)&_ge,
     };
     func_max = 0;
     func_min = (tptr)SIZE_MAX;
