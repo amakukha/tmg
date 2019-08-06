@@ -133,6 +133,7 @@ void salt() {
 }
 
 void tgoto() {
+    DEBUG("%stgoto", DEPTH);
     return salt();      // Tail call
 }
 
@@ -433,12 +434,14 @@ void putch() {
     POP();
 }
 
-// r0 points to string to put out on current output file (cfile)
-// string terminated by 0
-// if last file differed from current file, flush output buffer first
-// in any case flush output buffer when its write pointer (outw)
-// reaches its top (outt)
-
+// Description:
+//      r0 points to string to put out on current output file (cfile)
+//      string terminated by 0
+//      if last file differed from current file, flush output buffer first
+//      in any case flush output buffer when its write pointer (outw)
+//      reaches its top (outt)
+// Parameters:
+//      r0 - C-string to print into the current output file
 void obuild() {
     //DEBUG("obuild(): %s", (tptr)r0);
     if (cfile != lfile) {
@@ -536,7 +539,8 @@ int main(int argc, char* argv[]) {
         (tptr)&_l,      (tptr)&_p,      (tptr)&_t,      (tptr)&_u,
         (tptr)&_da,     (tptr)&_ia,     (tptr)&_db,     (tptr)&_ib,
         (tptr)&_px,     (tptr)&_pxs,    (tptr)&_tx,     (tptr)&_txs,
-        (tptr)&_ge,
+        (tptr)&_ge,     (tptr)&_ne,     (tptr)&_eq,
+        (tptr)&decimal, (tptr)&octal,
     };
     func_max = 0;
     func_min = (tptr)SIZE_MAX;

@@ -32,14 +32,16 @@ def statements(fn):
 
 class Translator:
 
-    KNOWN_FUNCTIONS = [
+    KNOWN_LIST = [
         '.l', '.p', '.t', '.u', 
-        '.ge',
+        '.ge','.ne','.eq',
         '.da', '.ia', '.db', '.ib',
         'parse', 'trans', '.tx', '.txs', '.px', '.pxs',
-        'octal', '.tp',
-        'alt', 'salt',
+        'octal', '.tp', 'decimal',
+        'alt', 'salt', 'generate', 'succ', 'fail',
     ]
+
+    KNOWN_DICT = { 'goto': 'tgoto' }
 
     def __init__(self):
         self.cur = 0
@@ -60,11 +62,15 @@ class Translator:
             s = s[2:].lstrip()
 
         # Translate known literals
-        if s in self.KNOWN_FUNCTIONS:
+        if s in self.KNOWN_LIST:
             s = '(tword)&' + s.replace('.','_')
 
-        elif s in self.known:
-            pass
+        elif s in self.KNOWN_DICT:
+            s = '(tword)&' + self.KNOWN_DICT[s].replace('.','_')
+
+        # Defined label usage
+        elif self.label(s) in self.known:
+            s = self.label(s)
 
         # Translate special words
         elif s.startswith('.byte '):
@@ -117,6 +123,10 @@ class Translator:
                 s = '0' + s   # octal
             if s=='012':
                 s = "(tword)'\\n'"
+
+        # Translate character literal
+        elif len(s)==2 and s[0]=="'":
+            s = "(tword)'%c'" % s[1]
 
         # - Label usage: everything unknown must be a global label
         elif s:

@@ -6,24 +6,11 @@
 #include <stdint.h>
 #include "libs.h"
 
-// Debugging output enabled? (see tmgc.h)
-#if DEBUG_MODE
-int _depth = 0;
-const char* _space = "......................................................................";
-#define DEPTH               ((const char*)(_space + strlen(_space) - 2*_depth))
-#define DEBUG(msg, ...)     do { if (verbose) fprintf(dfile, msg "\n", ##__VA_ARGS__); } while(0)
-#define DEBUG_DEEPER        _depth++
-#define DEBUG_SHALLOWER     _depth--
-#else
-#define DEBUG(msg, ...)
-#define DEBUG_DEEPER
-#define DEBUG_SHALLOWER
-#endif
-
 // Defined in tmga.c
 extern bool verbose;
 extern uint8_t* classtab;
 
+extern void  alt();
 extern tword iget();
 extern void  errcom(const char* msg);
 extern void  fail();
@@ -32,7 +19,10 @@ extern void  obuild();
 extern void  parse();
 extern void  putch();
 extern void  succ();
+extern void  tgoto();
 extern void  _tp();
+
+char putbuff[256];      // Used in putdec
 
 // Variables from tmgb
 #define INPT 128        // Input buffer size; NOTE: Must be power of two
@@ -46,11 +36,13 @@ tword trswitch = 0;     // Trace switch
 // Function declarations
 void _da();
 void _db();
+void _eq();
 void _false();
 void _ge();
 void _ia();
 void _ib();
 void _l();
+void _ne();
 void _p();
 void _px();
 void _pxcommon();
@@ -61,11 +53,14 @@ void _tx();
 void _txs();
 void _u();
 
+void decimal();
+void _decimal();
 void jget();
 void kput();
 void octal();
 void _octal();
 void putcall();
+void putdec();
 void puthex();
 void putoct();
 void sprv();
@@ -86,7 +81,16 @@ void _da() {
 // prefix --
 void _db() {
     stack[sp]--;
+    DEBUG("    _db: new value: %lx", stack[sp]);
     return _u();    // Tail call
+}
+
+void _eq() {
+    sprv();
+    if (stack[sp+2] == stack[sp])
+        return _true();     // Tail call
+    else
+        return _false();    // Tail call
 }
 
 // from tmgb/reln.s, original name false
@@ -123,11 +127,21 @@ void _l() {
     iget();
     PUSH(r0);
     PUSH(*(tptr)r0);
+    DEBUG("    loaded: %lx",*(tptr)r0);
     return succ();  // Tail call
+}
+
+void _ne() {
+    sprv();
+    if (stack[sp+2] != stack[sp])
+        return _true();     // Tail call
+    else
+        return _false();    // Tail call
 }
 
 // pop stack
 void _p() {
+    DEBUG("    _p()");
     sprv();
     //cmp   (sp)+,(sp)+
     POP();  POP();
@@ -212,6 +226,22 @@ void _u() {
     return succ();  // Tail call
 }
 
+void decimal() {
+    DEBUG("    decimal()");
+    r0 = 1 + (tword)&_decimal;
+    putcall();
+    iget();
+    r0 = *(tptr)r0;
+    kput();
+    return succ();  // Tail call
+}
+
+void _decimal() {
+    r0 = *i;
+    putdec();
+    return generate();    // Tail call
+}
+
 // Description:
 //      Get next character from input which is not in ignored class.
 // Return:
@@ -274,6 +304,17 @@ void putcall() {
     *g++ = ((parse_frame_t*)f)->k;
 }
 
+// Description:
+//      Output decimal representation of a number into output file.
+//      (This is a rewrite rather than a translation.)
+// Parameters:
+//      r0 - number
+void putdec() {
+    sprintf(putbuff, "%ld", r0);
+    r0 = (tword)putbuff;
+    return obuild();    // Tail call
+}
+
 void puthex() {
     // Derived from putoct (hex is much more convenient for modern machines)
     PUSH(r0);
@@ -299,14 +340,12 @@ void putoct() {
 
 // from: arith.s
 // make sp hold a simple rvalue (forget it might be a table value)
-// TODO: try to understand what it does
 void sprv() {
-    r0 = (tword)POP();
+    DEBUG("    sprv()");
     if (stack[sp+1]==-1) {
         POP_PREV();
         POP_PREV();
     }
-    return (*(void (*)(void))r0)(); // Tail call
 }
 
 void trans() {
@@ -328,17 +367,20 @@ void trace() {
 
 // from: arith.s
 // update a stored value, used by all assignments
+// NOTE: all stack offsets are smaller by 1, because calls don't use `stack`
 void update() {
     DEBUG("    update()");
-    if (stack[sp+2] != -1) {
-        *(tptr)stack[sp+2] = stack[sp+1];
+    if (stack[sp+1] != -1) {
+        DEBUG("    0(): %lx", stack[sp+1]);
+        *(tptr)stack[sp+1] = stack[sp];
         return;
     }
+    DEBUG("    1()");
     // TODO: what's the meaning of this?
-    r1 = stack[sp+3];
-    r0 = stack[sp+4];
+    r1 = stack[sp+2];
+    r0 = stack[sp+3];
     seekchar();
-    r0 = stack[sp+1];
+    r0 = stack[sp];
     alterword();
     return sprv();  // Tail call
 }

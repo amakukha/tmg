@@ -37,16 +37,6 @@
 #define tptr        tword*
 #define tuword      unsigned tword
 
-// Convenience macros
-#define ARRAY_END(x)        (x + sizeof(x)/sizeof(*x))
-#define BIT_CLEAR(mask,x)   ((~(tuword)mask) & ((tuword)(x)))
-#define BIT0_CLEAR(x)       BIT_CLEAR(1, x)
-#define NEG(x)              ((~(tuword)(x)) + 1)
-#define PUSH(x)             (stack[--sp] = (tword)(x))
-#define POP()               (stack[sp++])
-#define POP_PREV()          do { stack[sp+1]=stack[sp]; sp++; } while(0)        // mov (sp)+,(sp)
-#define SWAP_BYTES(x)       (((x & 0xFF)<<8) | ((x & 0xFF00)>>8))
-
 // Global variables from PDP-11 registers
 
 tword r0;       // Register R0
@@ -125,3 +115,28 @@ typedef struct translation_frame {
 
 // TODO: why original fs (frame size) is 10 instead of 8?
 #define fs  (sizeof(translation_frame_t)+sizeof(tword))     // frame size
+
+
+// Convenience macros
+#define ARRAY_END(x)        (x + sizeof(x)/sizeof(*x))
+#define BIT_CLEAR(mask,x)   ((~(tuword)mask) & ((tuword)(x)))
+#define BIT0_CLEAR(x)       BIT_CLEAR(1, x)
+#define NEG(x)              ((~(tuword)(x)) + 1)
+#define PUSH(x)             (stack[--sp] = (tword)(x))
+#define POP()               (stack[sp++])
+#define POP_PREV()          do { stack[sp+1]=stack[sp]; sp++; } while(0)        // mov (sp)+,(sp)
+#define SWAP_BYTES(x)       (((x & 0xFF)<<8) | ((x & 0xFF00)>>8))
+
+// Debugging output enabled?
+#if DEBUG_MODE
+int _depth = 0;
+const char* _space = "......................................................................";
+#define DEPTH               ((const char*)(_space + strlen(_space) - 2*_depth))
+#define DEBUG(msg, ...)     do { if (verbose) fprintf(dfile, msg "\n", ##__VA_ARGS__); } while(0)
+#define DEBUG_DEEPER        _depth++
+#define DEBUG_SHALLOWER     _depth--
+#else
+#define DEBUG(msg, ...)
+#define DEBUG_DEEPER
+#define DEBUG_SHALLOWER
+#endif

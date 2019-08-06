@@ -1,4 +1,5 @@
 /* "99 Bottles of Beer" program for Unix TMG */
+/* Author: Andriy Makukha */
 
 loop: parse(line1) [--n] parse(line2) [n>=1?]/done loop;
 line1: beer = { 1 < on the wall, > 1 <.> * };

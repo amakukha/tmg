@@ -35,7 +35,7 @@
 #define DATADR  (HEADSZ+DATASZ)         // end of data offset (in bytes)
 
 // Defined in tmga.c
-
+extern bool verbose;
 extern void errcom(const char* msg);
 
 // Globals (from alloc3.s)
@@ -126,6 +126,7 @@ void whead();
 //      pointer to header of allocated block returned in r1
 //      r0 is preserved
 void allocate() {
+    DEBUG("    allocate()");
     PUSH(r0);
     PUSH(r2);
     tword r3;
@@ -233,6 +234,7 @@ void alterchar() {
 // Description:
 //      routine to alter a word in the string
 void alterword() {
+    DEBUG("    alterword()");
     alterchar();
     r0 = SWAP_BYTES(r0);
     alterchar();
@@ -504,6 +506,7 @@ int ilog2(tuword x) {
 // Description:
 //      Initialization, used by allocate()
 void initl() {
+    DEBUG("    initl()");
     PUSH(r0);
     PUSH(r2);
 
@@ -642,6 +645,7 @@ void reset() {
 //      r0 - position
 //      r1 - ... (The string.)
 void seekchar() {
+    DEBUG("    seekchar()");
     PUSH(r1);
     PUSH(r0);
     do {
