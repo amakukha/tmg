@@ -28,14 +28,16 @@ def statements(fn):
             while ':' in s:
                 label, s = s.split(':',1)
                 yield label.strip() + ':'
-            yield s.strip()
+            ls = s.lstrip()
+            yield ls.rstrip() if ls and ls[0]!="'" else ls[:2]+ls[2:].rstrip()
 
 class Translator:
 
     KNOWN_LIST = [
-        '.l', '.p', '.t', '.u', 
+        '.l', '.p', '.t', '.u', '.st',
         '.ge','.ne','.eq',
         '.da', '.ia', '.db', '.ib',
+        '.a', '.s', '.n', '.o', '.x',
         'parse', 'trans', '.tx', '.txs', '.px', '.pxs',
         'octal', '.tp', 'decimal',
         'alt', 'salt', 'generate', 'succ', 'fail',
