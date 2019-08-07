@@ -34,6 +34,7 @@ tword readc = 0;        // Input read statistic
 tword trswitch = 0;     // Trace switch
 
 // Function declarations
+void _a();
 void _da();
 void _db();
 void _eq();
@@ -42,16 +43,21 @@ void _ge();
 void _ia();
 void _ib();
 void _l();
+void _n();
 void _ne();
+void _o();
 void _p();
 void _px();
 void _pxcommon();
 void _pxs();
+void _s();
+void _st();
 void _t();
 void _true();
 void _tx();
 void _txs();
 void _u();
+void _x();
 
 void decimal();
 void _decimal();
@@ -69,6 +75,13 @@ void trace();
 void update();
 
 // Function definitions
+
+// infix +
+void _a() {
+    sprv();
+    stack[sp+2] += stack[sp];
+    return _p();    // Tail call
+}
 
 // potsfix --
 void _da() {
@@ -131,12 +144,26 @@ void _l() {
     return succ();  // Tail call
 }
 
+// infix &
+void _n() {
+    sprv();
+    stack[sp+2] &= stack[sp];
+    return _p();    // Tail call
+}
+
 void _ne() {
     sprv();
     if (stack[sp+2] != stack[sp])
         return _true();     // Tail call
     else
         return _false();    // Tail call
+}
+
+// infix |
+void _o() {
+    sprv();
+    stack[sp+2] |= stack[sp];
+    return _p();    // Tail call
 }
 
 // pop stack
@@ -183,6 +210,20 @@ void _pxcommon() {
     return succ();  // Tail call
 }
 
+// infix -
+void _s() {
+    sprv();
+    stack[sp+2] -= stack[sp];
+    return _p();    // Tail call
+}
+
+// infix =
+void _st() {
+    sprv();
+    POP_PREV();
+    POP_PREV();
+}
+
 // test stack
 void _t() {
     sprv();
@@ -224,6 +265,13 @@ void _txs() {
 void _u() {
     update();
     return succ();  // Tail call
+}
+
+// infix ^ exclusive or
+void _x() {
+    sprv();
+    stack[sp+2] ^= stack[sp];
+    return _p();    // Tail call
 }
 
 void decimal() {

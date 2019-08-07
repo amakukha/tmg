@@ -536,10 +536,11 @@ int main(int argc, char* argv[]) {
         (tptr)&contin,
         // tmgb functions
         (tptr)&trans,
-        (tptr)&_l,      (tptr)&_p,      (tptr)&_t,      (tptr)&_u,
+        (tptr)&_l,      (tptr)&_p,      (tptr)&_t,      (tptr)&_u,      (tptr)&_st,
         (tptr)&_da,     (tptr)&_ia,     (tptr)&_db,     (tptr)&_ib,
         (tptr)&_px,     (tptr)&_pxs,    (tptr)&_tx,     (tptr)&_txs,
         (tptr)&_ge,     (tptr)&_ne,     (tptr)&_eq,
+        (tptr)&_a,      (tptr)&_s,      (tptr)&_n,      (tptr)&_o,      (tptr)&_x,
         (tptr)&decimal, (tptr)&octal,
     };
     func_max = 0;
