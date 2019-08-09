@@ -11,18 +11,22 @@
         Tom Duff (td) 2004.02.17 et seq.
         http://www.iq0.com/notes/tmg.html
 
-    Corrected spelling, converted to HTML5
+    Corrected mistakes, converted to HTML5
         Andriy Makukha 2019.07.05
 
     Original document can be found here:
         https://www.tuhs.org/Archive/Distributions/Research/1972_stuff/tmg.pdf
 -->
 <meta charset="UTF-8">
+<meta name="search_date" content="1972-09-13">
+<meta name="date" content="September 13, 1972">
+<meta name="author" content="Malcolm Douglas McIlroy">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
 .tt { font-family: monospace; }
 .vt { vertical-align: top; }
 .up { text-transform: uppercase; }
+pre { overflow-x: auto; }
 /* Required for dual super- and subscript in the grammar */
 .ss { position: relative; padding-right: 1.0em; }
 .ss sub, .ss sup { position: absolute; left: 0; padding-left: 0.15em; }
@@ -37,6 +41,7 @@
 <address class="author">M. D. McIlroy</address>
 Bell Laboratories<br>
 Murray Hill, New Jersey<br>
+September 13, 1972
 <br>
 <h4 class="up">Abstract</h4>
 </div>
@@ -50,7 +55,7 @@ on the PDP-11 under the UNIX operating system.
 </blockquote>
 <h2>1. Introduction</h2>
 <h3>1.1 Parsing rules and functions</h3>
-<p>
+<p id="s1-1_any">
 At the heart of the language are parsing rules (3.1).
 A rule is a sequence of actions, written simply by naming the actions
 one after the other.
@@ -355,7 +360,7 @@ readable groupings.
 The characters of a class may be given in any order, with duplications,
 except that the character <span class="tt">&gt;</span>, if included, must come last to avoid
 confusion with literals.
-<p>
+<p id="s3-2_any">
 There is always an <i>ignored class</i>, which is saved upon the invocation
 and restored upon the return from each parsing rule.
 The ignored class is initially empty; "<span class="tt">ignore(.)</span>" resets it.
@@ -554,7 +559,7 @@ is right-associative.
 	factor:  primary &lt;^&gt;/done factor = { 2 1 &lt; EXP&gt; };
 	primary: ident = { &lt; LOAD &gt; 1 }
 	       | &lt;(&gt; expr &lt;)&gt;;
-	done:
+	done:    ;
 	addop:   &lt;+&gt; = { &lt; ADD &gt; }
 	       | &lt;-&gt; = { &lt; SUB &gt; };
 	mulop:   &lt;*&gt; = { &lt; MUL &gt; }
@@ -1143,7 +1148,7 @@ Conventional meanings
   <td class="vt">CF
   <td class="vt">
    scan current character; succeed if in class <span class="tt">c</span> and add
-   character to current string (see pages 1,6.) <!-- TODO: change! -->
+   character to current string (see sections <a href="#s1-1_any">1.1</a> and <a href="#s3-2_any">3.2</a>.)
  <tr>
   <td class="vt"><span class="tt">append(l)</span>
   <td class="vt">&nbsp;
@@ -1554,6 +1559,6 @@ Parsing Algorithms with Backtrack,
 Conf. Record 11th Annual Symposium on Switching and Automata Theory,
 IEEE (1970) 153-174
 <hr>
-<em>Transcribed by Tom Duff, February 17, 2004. Modified July 21, 2019.</em>
+<em>Transcribed by Tom Duff, February 17, 2004. Modified August 9, 2019.</em>
 </body>
 </html>
