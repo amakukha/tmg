@@ -1,9 +1,7 @@
-Port of Unix TMG to C99.
-
-Work in progress.
+Port of Unix TMG to C99. Work in progress.
 
 About TMG
-==
+--
 > Tmg is a string processing language especially intended for writing 
 > translators for computer languages. It deals with string scanning, building
 > of tables and output generation, and provides some integer arithmetic.
@@ -19,7 +17,7 @@ which it was phased out in favor of YACC.
 This is an attempt to translate TMG from PDP-11 assembly to portable C.
 
 References
-==
+--
 
  - M. D. McIlroy. [*A Manual for the Tmg Compiler-writing
 Language*](https://amakukha.github.io/tmg/TMG_Manual_McIlroy_1972.html) (1972)
