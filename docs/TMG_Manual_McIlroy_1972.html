@@ -18,8 +18,6 @@
         https://www.tuhs.org/Archive/Distributions/Research/1972_stuff/tmg.pdf
 -->
 <meta charset="UTF-8">
-<meta name="search_date" content="1972-09-13">
-<meta name="date" content="September 13, 1972">
 <meta name="author" content="Malcolm Douglas McIlroy">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
@@ -41,7 +39,7 @@ pre { overflow-x: auto; }
 <address class="author">M. D. McIlroy</address>
 Bell Laboratories<br>
 Murray Hill, New Jersey<br>
-September 13, 1972
+<time datetime="1972-09-13">September 13, 1972</time>
 <br>
 <h4 class="up">Abstract</h4>
 </div>
@@ -54,9 +52,9 @@ The experience of many years has been distilled into a new version running
 on the PDP-11 under the UNIX operating system.
 </blockquote>
 <h2>1. Introduction</h2>
-<h3>1.1 Parsing rules and functions</h3>
-<p id="s1-1_any">
-At the heart of the language are parsing rules (3.1).
+<h3 id="s1-1">1.1 Parsing rules and functions</h3>
+<p>
+At the heart of the language are parsing rules (<a href="#s3-1">3.1</a>).
 A rule is a sequence of actions, written simply by naming the actions
 one after the other.
 For example, this typical parsing rule
@@ -75,7 +73,7 @@ Sandwiched around the scanning are "<span class="tt">smark</span>" and "<span cl
 which note the beginning of the string, and enter the completed string into
 the table.
 <p>
-A parsing statement (2.) is a parsing rule labeled with a name and ended with
+A parsing statement (<a href="#s2">2.</a>) is a parsing rule labeled with a name and ended with
 a semicolon.
 This parsing statement contains the previous parsing rule:
 <pre>
@@ -102,7 +100,7 @@ Thus a Fortran <span class="tt">DO</span> statement might be recognized by
 
 </pre>
 
-<h3>1.2 Success, failure and branches</h3>
+<h3 id="s1-2">1.2 Success, failure and branches</h3>
 <p>
 Execution of a parsing rule may have several effects.
 (We have already noted that it may make entries in a table.)
@@ -126,8 +124,8 @@ of a number.
 The branch, designated by a slash and the name of a rule, is a conditional
 go-to.
 If "<span class="tt">ident</span>" fails, then the rule for "<span class="tt">limit</span>" continues at
-"<span class="tt">lm1</span>" as if "<span class="tt">ident</span>" had never been invoked (but see 3.7
-for a qualification).
+"<span class="tt">lm1</span>" as if "<span class="tt">ident</span>" had never been invoked (but see 
+<a href="#s3-7">3.7</a> for a qualification).
 The success or failure of "<span class="tt">number</span>" then determines the success or
 failure of "<span class="tt">limit</span>".
 <p>
@@ -151,13 +149,13 @@ When a rule succeeds the cursor is left where it was left by the last action
 in the rule.
 When a rule fails, the cursor is restored to the place where it was when the
 rule was invoked, regardless of what happened later.
-<h3>1.4 Translation rules</h3>
+<h3 id="s1-4">1.4 Translation rules</h3>
 <p>
 A successful parsing rule may <i>deliver</i> a <i>translation rule</i>,
 often called simply a <i>translation</i>.
 Since the proper order of output may not be the same as the order in which
 translation rules are delivered, the execution of a translation rule is delayed
-until explicitly called for (1.5).
+until explicitly called for (<a href="#s1-5">1.5</a>).
 <p>
 A translation rule, like a parsing rule, consists of a sequence of actions,
 which may be other translation rules or literal strings to place into the
@@ -186,7 +184,7 @@ Those translations are identified by
 Actions with no translations (e.g. recognizing a literal) are not counted.
 This awkward convention happens to be very efficient to implement, so we live
 with it; however some syntactic sugaring will get around counting in many
-cases (4.2).
+cases (<a href="#s4-2">4.2</a>).
 <p>
 The four operators <span class="tt">+-*/</span> are translated into
 "<span class="tt">ADD</span>", "<span class="tt">SUB</span>", "<span class="tt">MPY</span>" and "<span class="tt">DIV</span>".
@@ -204,7 +202,7 @@ in which angle brackets have the same meaning as in Tmg:
 and that the expression <span class="tt">((a*x)+(b*y))</span> translates into
 <pre>
 
-     LOAD a LOAD x MPY LOAD b LOAD y MPY ADD 
+    LOAD a LOAD x MPY LOAD b LOAD y MPY ADD 
 
 </pre>
 Here we see an important difference between the Tmg, which is a <i>program</i>,
@@ -213,7 +211,7 @@ In Tmg the branch was placed after <span class="tt">&lt;(&gt;</span>, not after 
 <span class="tt">&lt;)&gt;</span> as was the alternate in the BNF.
 The latter place would be wrong, for the rule would fail without ever getting
 there to test for the branch.
-<h3>1.5 Getting output</h3>
+<h3 id="s1-5">1.5 Getting output</h3>
 <p>
 Mere delivery of a translation rule does not create any output.
 Indeed a delivered translation may never get used, for example if the rule
@@ -244,13 +242,13 @@ When "<span class="tt">statement</span>" succeeds, its translation is output;
 When "<span class="tt">statement</span>" fails, so does "<span class="tt">parse(statement)</span>" and
 the rule goes on to "<span class="tt">diag(error)</span>".
 <p>
-"<span class="tt">Diag(.)</span>" is just like "<span class="tt">parse(.)</span>", except that it sends
+"<span id="s1-5_diag" class="tt">Diag(.)</span>" is just like "<span class="tt">parse(.)</span>", except that it sends
 output to the diagnostic file.
 We assume that "<span class="tt">error</span>" has been coded to eat up any card and perhaps
 deliver a copy of the card along with a message.
 Thus unless there is no card there at all (end of file), the rule loops after
 giving the diagnostic.
-<h3>1.6 Tables</h3>
+<h3 id="s1-6">1.6 Tables</h3>
 <p>
 As characters are scanned over by "<span class="tt">any(.)</span>" and "<span class="tt">string(.)</span>",
 but not by quoted literals, they are gathered into a <i>current string</i>.
@@ -267,7 +265,7 @@ The current string is cleared by "<span class="tt">smark</span>" and gathered by
 "<span class="tt">any(.)</span>" and "<span class="tt">string(.)</span>".
 "<span class="tt">Enter(.)</span>" enters the current string into table <span class="tt">t</span>
 and assigns the index of the entry to variable <span class="tt">i</span>.
-(See Section 6 for how to create a table.)
+(See <a href="#s6">Section 6</a> for how to create a table.)
 "<span class="tt">Getnam(t,i)</span>" delivers the string which is the <span class="tt">i</span>th entry
 of table <span class="tt">t</span>.
 The "<span class="tt">= { 1 }</span>" in each rule arranges to deliver to its invoker
@@ -288,10 +286,10 @@ An exclamation mark complements a set as in this example that defines the
 class of all ascii characters as the complement of the empty class.
 <pre>
 
-    ascii:	!&lt;&lt;&gt;&gt;;
+    ascii:      !&lt;&lt;&gt;&gt;;
 
 </pre>
-<h2>2. Programs</h2>
+<h2 id="s2">2. Programs</h2>
 <p>
 A Tmg program consists of a sequence of <i>statements</i>.
 Each statement has one of these forms
@@ -299,9 +297,9 @@ Each statement has one of these forms
 <ol type=i>
 <li>a comment bracketed by <span class="tt">/* */</span> in the style of PL/I
 <li>a parsing statement
-<li>a labeled translation rule (4.)
-<li>a labeled character class (3.2)
-<li>a labeled list of octal constants separated by semicolons (5.1,5.7).
+<li>a labeled translation rule (<a href="#s4">4.</a>)
+<li>a labeled character class (<a href="#s3-2">3.2</a>)
+<li>a labeled list of octal constants separated by semicolons (<a href="#s5-1">5.1</a>, <a href="#s5-7">5.7</a>).
 </ol>
 
 All statements except comments are terminated by semicolons.
@@ -316,9 +314,10 @@ In the latter case the execution of the containing statement flows into the
 contained rule as if the contained label were not there.
 <p>
 Instructions for compiling and executing a program on the PDP-11 are reproduced
-from the UNIX manual [8] as Section 10 of this manual.
+from the UNIX manual [8] as Section 10 of this manual.<!-- this looks like a
+mistake in the original -->
 <h2>3. Parsing rules</h2>
-<h3>3.1 General form</h3>
+<h3 id="s3-1">3.1 General form</h3>
 <p>
 A <i>parsing rule</i> is a possibly empty sequence of <i>disjuncts</i>
 separated by <span class="tt">|</span> signs.
@@ -327,18 +326,18 @@ A disjunct consists of a nonempty sequence of <i>parsing elements</i>
 (called simply elements when the context is obvious).
 An element may be any one of
 <ol type=i>
-<li>a literal (10.2)
-<li>a name of a builtin function (8.)
-<li>a name of a parsing statement (2.)
-<li>an output element (a translation) (3.3,4.)
-<li>a reference to a parameter of the parsing statement (3.5)
-<li>an arithmetic element (5.1)
-<li>any of the preceding with a success or failure branch (1.2)
+<li>a literal (<a href="#s3-2">3.2</a>)<!-- "10.2" in original -->
+<li>a name of a builtin function (<a href="#s8">8.</a>)
+<li>a name of a parsing statement (<a href="#s2">2.</a>)
+<li>an output element (a translation) (<a href="#s3-3">3.3</a>, <a href="#s4">4.</a>)
+<li>a reference to a parameter of the parsing statement (<a href="#s3-5">3.5</a>)
+<li>an arithmetic element (<a href="#s5-1">5.1</a>)
+<li>any of the preceding with a success or failure branch (<a href="#s1-2">1.2</a>)
 <li>a parsing rule in parentheses <span class="tt">()</span>
 </ol>
 The elements specify actions to be performed in order, except as modified by
 failure, branches or disjunction.
-<h3>3.2 Literals and character classes</h3>
+<h3 id="s3-2">3.2 Literals and character classes</h3>
 <p>
 A literal consists of one or more ascii characters enclosed in angle
 brackets <span class="tt">&lt;&gt;</span>.
@@ -360,7 +359,7 @@ readable groupings.
 The characters of a class may be given in any order, with duplications,
 except that the character <span class="tt">&gt;</span>, if included, must come last to avoid
 confusion with literals.
-<p id="s3-2_any">
+<p id="s3-2_any_smark_string">
 There is always an <i>ignored class</i>, which is saved upon the invocation
 and restored upon the return from each parsing rule.
 The ignored class is initially empty; "<span class="tt">ignore(.)</span>" resets it.
@@ -382,7 +381,7 @@ which is space, tab and newline.
 
 </pre>
 The Tmg character set consists of 127 characters &mdash; ascii less NUL.
-<h3>3.3. Output elements</h3>
+<h3 id="s3-3">3.3. Output elements</h3>
 <p>
 An output element is an <span class="tt">=</span> sign followed by a translation rule,
 or by the name of a labeled translation rule.
@@ -392,16 +391,16 @@ verbatim into the place of the name.
 <p>
 An infix <span class="tt">|</span> sign separates two or more <i>disjuncts</i>, each of
 which is a nonempty sequence of elements.
-The example of section 1.4 <!-- "page 3" in original --> may be reworked
+The example of section <a href="#s1-4">1.4</a> <!-- "page 3" in original --> may be reworked
 into a go-to-less form using disjunction:
 <pre>
 
-	expr:   &lt;(&gt; expr operator expr &lt;)&gt; = { 3 1 2 }
-		| ident = { &lt; LOAD &gt; 1 };
-	operator: &lt;+&gt; = { &lt; ADD &gt; }
-		| &lt;-&gt; = { &lt; SUB &gt; }
-		| &lt;*&gt; = { &lt; MPY &gt; }
-		| &lt;/&gt; = { &lt; DIV &gt; };
+    expr:   &lt;(&gt; expr operator expr &lt;)&gt; = { 3 1 2 }
+            | ident = { &lt; LOAD &gt; 1 };
+    operator: &lt;+&gt; = { &lt; ADD &gt; }
+            | &lt;-&gt; = { &lt; SUB &gt; }
+            | &lt;*&gt; = { &lt; MPY &gt; }
+            | &lt;/&gt; = { &lt; DIV &gt; };
 
 </pre>
 Disjuncts are executed in order, with the second being tried if and only if the
@@ -410,14 +409,14 @@ Once past the first element of a disjunct, the rule executes as if the other
 disjuncts weren't there.
 For all its BNF-like appearance, a disjunction still represents a program,
 not a pattern, as may be illustrated by the example of <span class="tt">DO</span> limits
-from section 1.2.  <!-- "page 2" in original -->
+from section <a href="#s1-2">1.2</a>.  <!-- "page 2" in original -->
 <pre>
 
-	limits: limit &lt;,&gt; limit
-		( &lt;,&gt; limit | () );
+    limits: limit &lt;,&gt; limit
+            ( &lt;,&gt; limit | () );
 
 </pre>
-<h3>3.5 Parameters</h3>
+<h3 id="s3-5">3.5 Parameters</h3>
 <p>
 A parsing statement may have one or more parameters.
 Corresponding arguments are designated in ordinary functional notation.
@@ -433,7 +432,7 @@ another element
 </ol>
 The forms ii and iii are understood to be shorthand for an unwritten name
 of a statement containing the given rule or variable.
-<p>
+<p id="s3-5_params">
 A parameter is referred to by number, counting 1,2,... <i>from right to left</i>
 in the argument list, the number being preceded by a dollar sign.
 Before any parameters are used, they must be made available by means of the
@@ -452,14 +451,14 @@ The <span class="tt">$2</span> argument of seplist defines a list element, the <
 argument defines the separator.
 <pre>
 
-	seplist: params(2) $2 ( $1 seplist($2, $1) | () );
-	block:   &lt;begin&gt; seplist(statement, (&lt;;&gt;)) &lt;end&gt;;
-	actuals: &lt;(&gt; seplist(expr, (&lt;,&gt;)) &lt;)&gt;;
-	formals: &lt;(&gt; seplist(ident, (&lt;,&gt;)) &lt;)&gt;;
-	expr:    seplist(term, (&lt;+&gt;|&lt;-&gt;));
-	term:    seplist(factor, (&lt;*&gt;|&lt;/&gt;));
-	factor:  seplist(primary, (&lt;^&gt;));
-		<!-- previous line has an up arrow instead of ^ in original -->
+    seplist: params(2) $2 ( $1 seplist($2, $1) | () );
+    block:   &lt;begin&gt; seplist(statement, (&lt;;&gt;)) &lt;end&gt;;
+    actuals: &lt;(&gt; seplist(expr, (&lt;,&gt;)) &lt;)&gt;;
+    formals: &lt;(&gt; seplist(ident, (&lt;,&gt;)) &lt;)&gt;;
+    expr:    seplist(term, (&lt;+&gt;|&lt;-&gt;));
+    term:    seplist(factor, (&lt;*&gt;|&lt;/&gt;));
+    factor:  seplist(primary, (&lt;^&gt;));
+            <!-- previous line has an up arrow instead of ^ in original -->
 
 </pre>
 Parses according to this definition of "<span class="tt">seplist</span>" are right associative,
@@ -474,7 +473,7 @@ the arguments of "<span class="tt">proc</span>" are the parameters.
 "<span class="tt">Seplist</span>" can be defined this way:
 <pre>
 
-	seplist: proc(x, y) x (y seplist(x, y) | () );
+    seplist: proc(x, y) x (y seplist(x, y) | () );
 
 </pre>
 The next example uses "<span class="tt">not(.)</span>" to distinguish a <span class="tt">&lt;</span> sign
@@ -482,7 +481,7 @@ from <span class="tt">&lt;=</span> and <span class="tt">&lt;&lt;</span> by looki
 The double parentheses come from an argument of type (ii), a parsing rule.
 <pre>
 
-	lessthan: &lt;&lt;&gt; not(( any(&lt;&lt;=&lt;&gt;&gt;) ));
+    lessthan: &lt;&lt;&gt; not(( any(&lt;&lt;=&lt;&gt;&gt;) ));
 
 </pre>
 "<span class="tt">Not(( not(.) ))</span>" may be used to peek ahead without displacing the
@@ -491,7 +490,7 @@ where a newline (denoted <span class="tt">*</span>) can act as a semicolon provi
 beginning of the next line is a plausible beginning for a statement.
 <pre>
 
-	semicolon: &lt;;&gt; | ( * not(( not(( ident|keyword )) )) );
+    semicolon: &lt;;&gt; | ( * not(( not(( ident|keyword )) )) );
 
 </pre>
 Parameters are passed by name, in the Algol sense.
@@ -499,7 +498,7 @@ This example capitalizes on a name parameter to recognize a notorious
 non-context free language.
 <pre>
 
-	f: proc(x) &lt;a&gt; f((&lt;b&gt; x)) &lt;c&gt; | x;
+    f: proc(x) &lt;a&gt; f((&lt;b&gt; x)) &lt;c&gt; | x;
 
 </pre>
 The element "<span class="tt">parse(( f(()) ))</span>" will recognize
@@ -507,15 +506,15 @@ The element "<span class="tt">parse(( f(()) ))</span>" will recognize
 The diagram shows the progress of a parse of "<span class="tt">aabbcc</span>".
 <pre>
 
-	|--------------f(())---------------|
-	|   |-------f((&lt;b&gt;()))---------|   |
-	|   |   |-f((&lt;b&gt;(&lt;b&gt;())))-|    |   |
-	|   |   |----&lt;b&gt;(&lt;b&gt;())---|    |   |
-	|   |   |     |--&lt;b&gt;()--| |    |   |
-	  a   a    b       b         c   c
+    |--------------f(())---------------|
+    |   |-------f((&lt;b&gt;()))---------|   |
+    |   |   |-f((&lt;b&gt;(&lt;b&gt;())))-|    |   |
+    |   |   |----&lt;b&gt;(&lt;b&gt;())---|    |   |
+    |   |   |     |--&lt;b&gt;()--| |    |   |
+      a   a    b       b         c   c
 
 </pre>
-<h3>3.6 Bundles</h3>
+<h3 id="s3-6">3.6 Bundles</h3>
 <p>
 Upon successful completion of a rule, all translations that have been delivered
 to it are <i>bundled</i> into a single <i>translation</i>, or <i>bundle</i>,
@@ -531,13 +530,13 @@ element in its bundle.
 Thus the rules
 <pre>
 
-	param:    ident = { 1 };
-	param:    ident;
+    param:    ident = { 1 };
+    param:    ident;
 
 </pre>
-deliver indistinguishable translations (see 4.3 for a qualification).
+deliver indistinguishable translations (see <a href="#s4-3">4.3</a> for a qualification).
 The latter form is more efficient in time and space.
-<p>
+<p id="s3-6_bundle">
 The builtin "<span class="tt">bundle</span>" causes a bundling in the rule that invoked it
 up to the point of its invocation, and delivers that bundle to the same rule.
 The set of translations delivered up to the invocation of "<span class="tt">bundle</span>"
@@ -552,27 +551,27 @@ The operators <span class="tt">+-*/</span> are left-associative and
 is right-associative.
 <pre>
 
-	expr:    term
-	expr1:   addop/done term = { 3 1 2 } bundle\expr1;
-	term:    factor
-	term1:   mulop/done factor = { 3 1 2 } bundle\term1;
-	factor:  primary &lt;^&gt;/done factor = { 2 1 &lt; EXP&gt; };
-	primary: ident = { &lt; LOAD &gt; 1 }
-	       | &lt;(&gt; expr &lt;)&gt;;
-	done:    ;
-	addop:   &lt;+&gt; = { &lt; ADD &gt; }
-	       | &lt;-&gt; = { &lt; SUB &gt; };
-	mulop:   &lt;*&gt; = { &lt; MUL &gt; }
-	       | &lt;/&gt; = { &lt; DIV &gt; };
+    expr:    term
+    expr1:   addop/done term = { 3 1 2 } bundle\expr1;
+    term:    factor
+    term1:   mulop/done factor = { 3 1 2 } bundle\term1;
+    factor:  primary &lt;^&gt;/done factor = { 2 1 &lt; EXP&gt; };
+    primary: ident = { &lt; LOAD &gt; 1 }
+           | &lt;(&gt; expr &lt;)&gt;;
+    done:    ;
+    addop:   &lt;+&gt; = { &lt; ADD &gt; }
+           | &lt;-&gt; = { &lt; SUB &gt; };
+    mulop:   &lt;*&gt; = { &lt; MUL &gt; }
+           | &lt;/&gt; = { &lt; DIV &gt; };
 
 </pre>
-The builtin "<span class="tt">reduce(</span><i>n</i><span class="tt">)</span>" performs the same job as
+The builtin "<span id="s3-6_reduce" class="tt">reduce(</span><i>n</i><span class="tt">)</span>" performs the same job as
 "<span class="tt">bundle</span>" except that it replaces only the last <i>n</i> delivered
 translations.
-There can be no intra- or interbundle references (4.2, 4.4) between elements
+There can be no intra- or interbundle references (<a href="#s4-2">4.2</a>, <a href="#s4-4">4.4</a>) between elements
 of a bundle created by "<span class="tt">reduce(.)</span>" and translations of earlier
 elements of the rule.
-<h3>3.7 Side effects</h3>
+<h3 id="s3-7">3.7 Side effects</h3>
 <p>
 Some side effects of the execution of a rule are automatically undone upon
 its completion.
@@ -582,18 +581,18 @@ All side effects except these persist:
 <li>the ignored class is reset
 <li>the cursor is reset on failure
 </ul>
-<h2>4. Translation rules</h2>
-<h3>4.1 General form</h3>
+<h2 id="s4">4. Translation rules</h2>
+<h3 id="s4-1">4.1 General form</h3>
 <p>
 The <i>body</i> of a translation rule is a sequence of <i>translation
 elements</i> enclosed in braces <span class="tt">{}</span>.
 A translation element may be any one of
 <ol type=i>
 <li>a name of a labeled translation rule
-<li>a literal (3.2)
-<li>a reference to a parameter of the translation rule (4.3)
-<li>an intrabundle reference optionally accompanied by arguments (4.2)
-<li>an interbundle reference optionally accompanied by arguments (4.4)
+<li>a literal (<a href="#s3-2">3.2</a>)
+<li>a reference to a parameter of the translation rule (<a href="#s4-3">4.3</a>)
+<li>an intrabundle reference optionally accompanied by arguments (<a href="#s4-2">4.2</a>)
+<li>an interbundle reference optionally accompanied by arguments (<a href="#s4-4">4.4</a>)
 </ol>
 In general the significance of a translation element is dynamic and depends
 upon the progress of the parse and upon other translation rules delivered by
@@ -601,17 +600,17 @@ the parse.
 If a translation element is the name of a labeled translation rule, which must
 consist of a body only, the element acts as if the designated rule were copied
 into its place with the braces stripped.
-<h3>4.2 Intrabundle references</h3>
+<h3 id="s4-2">4.2 Intrabundle references</h3>
 <p>
 An intrabundle reference is a number designating another element
 of the same bundle.
-An argument list may be supplied to an intrabundle reference (4.3).
+An argument list may be supplied to an intrabundle reference (<a href="#s4-3">4.3</a>).
 Intrabundle references are counted backward starting from 0 at the element
 containing the reference.
 For example, if all parsing elements in this rule deliver translations
 <pre>
 
-	r: a = { 1 }  b = { 3 2 1 };
+    r: a = { 1 }  b = { 3 2 1 };
 
 </pre>
 the bundle it delivers will have four elements
@@ -627,7 +626,7 @@ The <span class="tt">1</span> in the last element refers to the translation of <
 the other <span class="tt">1</span> refers to the translation of <span class="tt">a</span>.
 Only the <span class="tt">0</span> element of a bundle is directly accessible to its invoker;
 other elements of the bundle are pulled out by intrabundle references in the
-<span class="tt">0</span> element (or y interbundle references, 4.4).
+<span class="tt">0</span> element (or y interbundle references, <a href="#s4-4">4.4</a>).
 <p>
 Names may be used instead of numbers for intrabundle references within
 one parsing rule, provided that the parsing elements that have translations are
@@ -639,16 +638,16 @@ then that name becomes the alias.
 The preceding rule may be rewritten in these ways, among others:
 <pre>
 
-	r: a. = { 1 }.t  b. = { a t b };
-	r: a. = { a }.  b.x = { a 2 x };
+    r: a. = { 1 }.t  b. = { a t b };
+    r: a. = { a }.  b.x = { a 2 x };
 
 </pre>
-<h3>4.3 Parameters</h3>
+<h3 id="s4-3">4.3 Parameters</h3>
 <p>
 A translation rule may have parameters, and if it does, their number is
 declared by a parenthesized integer prefixed to its body.
 Alternatively parameters may be given names listed in the contained bodies,
-but not in bodies copied in place of type (i) elements (4.1).
+but not in bodies copied in place of type (i) elements (<a href="#s4-1">4.1</a>).
 Parameters are referred to by name or by <span class="tt">$1, $2,</span>... counted from
 right to left in the associated argument list.
 An argument corresponding to a parameter is itself a <i>name</i> (in the sense
@@ -659,9 +658,9 @@ The next rule compiles Honeywell 6000 assembly code for a simple case of
 Fortran subscripted variables:
 <pre>
 
-	svar:  ident. &lt;(&gt; ident.subscr &lt;)&gt;
-	       = (1){ &lt;LXL0 &gt; subscr *
-		      $1 &lt; &gt; ident&lt;,0&gt; * }
+    svar:  ident. &lt;(&gt; ident.subscr &lt;)&gt;
+           = (1){ &lt;LXL0 &gt; subscr *
+                  $1 &lt; &gt; ident&lt;,0&gt; * }
 
 </pre>
 A machine opcode is to be filled in for the parameter.
@@ -670,7 +669,7 @@ Assuming that "<span class="tt">expr</span>" compiles code to leave a result in 
 variables:
 <pre>
 
-	assign: svar. &lt;=&gt; expr. = { expr svar({&lt;STQ&gt;}) };
+    assign: svar. &lt;=&gt; expr. = { expr svar({&lt;STQ&gt;}) };
 
 </pre>
 The next example compiles code for Boolean expressions over a set of
@@ -684,16 +683,16 @@ truth of falsity of the subexpression in question.
 "<span class="tt">Lbl</span>" is a rule that delivers a unique label every time it is invoked.
 <pre>
 
-	disj:  conj.
-	       ( &lt;|&gt; lbl. disj.
-		  = (T,F){ conj({T},{lbl}) lbl&lt;:&gt; disj({T},{F})}
-	       | () );
-	conj:  prim.
-	       ( &lt;&amp;&gt; lbl. conj.
-		  = (T,F){ prim({lbl}),{F}) lbl&lt;:&gt; conj({T},{F})}
-	       | () );
-	prim:  pred. = (T,F){ pred&lt; bt &gt;T&lt; bf&gt;F * }
-	       | &lt;(&gt; disj &lt;)&gt;;
+    disj:  conj.
+           ( &lt;|&gt; lbl. disj.
+              = (T,F){ conj({T},{lbl}) lbl&lt;:&gt; disj({T},{F})}
+           | () );
+    conj:  prim.
+           ( &lt;&amp;&gt; lbl. conj.
+              = (T,F){ prim({lbl}),{F}) lbl&lt;:&gt; conj({T},{F})}
+           | () );
+    prim:  pred. = (T,F){ pred&lt; bt &gt;T&lt; bf&gt;F * }
+           | &lt;(&gt; disj &lt;)&gt;;
 
 </pre>
 Suppose that predicates are denoted by single letters and that "<span class="tt">lbl</span>"
@@ -701,20 +700,20 @@ generates the labels <span class="tt">#1, #2,</span> ...
 Then the parsing element
 <pre>
 
-	parse(( disj. = { disj({&lt;T&gt;},{&lt;F&gt;}}) } ))
+    parse(( disj. = { disj({&lt;T&gt;},{&lt;F&gt;}}) } ))
 
 </pre>
 applied to the expression <span class="tt">a&amp;(b|c&amp;d)</span> would yield (except for
 spacing) the output
 <pre>
 
-	    a bt #1 bf F
-	#1: b bt T  bf #2
-	#2: c bt #3 bf F
-	#3: d bt T  bf F
+        a bt #1 bf F
+    #1: b bt T  bf #2
+    #2: c bt #3 bf F
+    #3: d bt T  bf F
 
 </pre>
-<h3>4.4 Interbundle references</h3>
+<h3 id="s4-4">4.4 Interbundle references</h3>
 <p>
 An interbundle reference is a translation element of the form
 <i>m</i><span class="tt">.</span><i>n</i>,
@@ -732,11 +731,11 @@ Members of the first output list are separated by <span class="tt">/</span>, of 
 The input "<span class="tt">(a,b,c)</span>" yields the output "<span class="tt">a/b/c|a\b\c</span>".
 <pre>
 
-	double:   &lt;(&gt; dbla. &lt;)&gt; = { dbla.1 &lt;|&gt; dbla.0 };
+    double:   &lt;(&gt; dbla. &lt;)&gt; = { dbla.1 &lt;|&gt; dbla.0 };
 
-	dbla:  ident.
-	       ( &lt;,&gt; dbla. = {ident &lt;/&gt; dbla.1}. = {ident &lt;\&gt; dbla.0}
-	       | = { ident }. = { ident } );
+    dbla:  ident.
+           ( &lt;,&gt; dbla. = {ident &lt;/&gt; dbla.1}. = {ident &lt;\&gt; dbla.0}
+           | = { ident }. = { ident } );
 
 </pre>
 The rule "<span class="tt">dbla</span>" builds two different output lists that are finally
@@ -745,15 +744,15 @@ The notation "<span class="tt">dbla.0</span>" means just the same as "<span clas
 it has been used to emphasize the fact that it is expected to evoke only part
 of the designated bundle.
 <h2>5. Arithmetic</h2>
-<h3>5.1 Variables and arithmetic statements</h3>
+<h3 id="s5-1">5.1 Variables and arithmetic statements</h3>
 <p>
 All arithmetic is performed on 16-bit two's complement integer data.
 An integer variable is declared and initialized by a labeled unsigned
 <i>octal</i> number, thus
 <pre>
 
-	n:     1;
-	size:  0;
+    n:     1;
+    size:  0;
 
 </pre>
 An <i>arithmetic element</i> of a parsing rule is an expression enclosed
@@ -871,7 +870,7 @@ If <span class="tt">e1</span>, <span class="tt">e2</span> and <span class="tt">e
 then the conditional expression
 <pre>
 
-	e1?e2:e3
+    e1?e2:e3
 
 </pre>
 has the value of <span class="tt">e2</span> if <span class="tt">e1</span> is nonzero,
@@ -897,18 +896,18 @@ otherwise an arithmetic element always succeeds.
 This is a simple Fortran-style do-loop:
 <pre>
 
-	begin: [ i = 1]
-	loop:  . . .
-	       [++i&lt;=n?]\loop;
+    begin: [ i = 1]
+    loop:  . . .
+           [++i&lt;=n?]\loop;
 
 </pre>
-<h3>5.7 Arrays</h3>
+<h3 id="s5-7">5.7 Arrays</h3>
 <p>
 A static array is allocated by initializing more than one location with an
 octal constant, thus:
 <pre>
 
-	A:     1;2;3;4;
+    A:     1;2;3;4;
 
 </pre>
 Subscripting is not directly provided for static arrays, but can be
@@ -917,7 +916,7 @@ which when applied to the array <span class="tt">A</span> as initialized above w
 out the rvalue <span class="tt">3</span>.
 (Addresses of successive words differ by <span class="tt">2</span>, as is usual on the
 PDP-11.)
-<h3>5.8 Variables in functions</h3>
+<h3 id="s5-8">5.8 Variables in functions</h3>
 <p>
 Although the names of variables have global scope, their values can be pushed
 down for the duration of a rule, as in SNOBOL.
@@ -925,21 +924,21 @@ The builtin "<span class="tt">push(n,v1,v2,...,vn)</span>" saves the current val
 <span class="tt">n</span> variables <span class="tt">v1,v2,...,vn</span>, to be automatically restored when
 the rule terminates.
 Variables to be pushed right at the start of a rule may be listed after a
-semicolon within the "<span class="tt">proc(.)</span>" declaration (3.5) instead of in a
+semicolon within the "<span class="tt">proc(.)</span>" declaration (<a href="#s3-5">3.5</a>) instead of in a
 "<span class="tt">push(.)</span>".
 <p>
 The following rule recognizes an octal integer and assigns to its
 argument the numerical equivalent of the integer.
 The rule pushes its temporary, <span class="tt">i</span>, to avoid conflict with other uses
 of <span class="tt">i</span> in the program.
-<pre>
+<pre id="s5-8_char">
 
-	integer: proc(n;i) [n=0] inta
-	int1:    [ n = n*10+i] inta\int1;
-	inta:    char(i) [i&lt;70?] [ (i =- 60)&gt;=0?];
+    integer: proc(n;i) [n=0] inta
+    int1:    [ n = n*10+i] inta\int1;
+    inta:    char(i) [i&lt;70?] [ (i =- 60)&gt;=0?];
 
 </pre>
-The builtin "<span class="tt">char(i)</span>" moves the cursor an assigns the ascii value
+The builtin "<span class="tt">char(i)</span>" moves the cursor and assigns the ascii value
 of the scanned character to variable <span class="tt">i</span>.
 The rule depends upon knowing that the ascii codes for 0, 1, ... are
 octal 60, 61, ...
@@ -948,13 +947,13 @@ The next rule has the same effect at the builtin "<span class="tt">octal(.)</spa
 binary-to-octal conversion, provided the argument is not negative.
 <pre>
 
-	octal:   proc(n;m,i) [i = (m=n)%10]
-		 ( [i==0?] = {&lt;0&gt;}
-		 | . . .
-		 | [i==7?] = {&lt;7&gt;} )
-		 [m =/ 10?]/done
-		 octal(m) = { 1 2 };
-	done:    ;
+    octal:   proc(n;m,i) [i = (m=n)%10]
+             ( [i==0?] = {&lt;0&gt;}
+             | . . .
+             | [i==7?] = {&lt;7&gt;} )
+             [m =/ 10?]/done
+             octal(m) = { 1 2 };
+    done:    ;
 
 </pre>
 The purpose of <span class="tt">m</span> is to effect call by value.
@@ -962,13 +961,13 @@ Were the rule written as below, it would not work because of a collision
 between the argument passed by name and the temporary.
 <pre>
 
-	octal:   proc(n;i) [i = n%10]
-		 ( [i==0?] = {&lt;0&gt;}
-		 | . . .
-		 | [i==7?] = {&lt;7&gt;} )
-		 [i = n/10?]/done
-		 octal(i) = { 1 2 };
-	done:    ;
+    octal:   proc(n;i) [i = n%10]
+             ( [i==0?] = {&lt;0&gt;}
+             | . . .
+             | [i==7?] = {&lt;7&gt;} )
+             [i = n/10?]/done
+             octal(i) = { 1 2 };
+    done:    ;
 
 </pre>
 <h3>5.9 Character class operations</h3>
@@ -987,12 +986,12 @@ For example, given the following declarations, the element
 class of all letters in either case:
 <pre>
 
-	ucase:   &lt;&lt;ABCDEFGHIJKLMNOPQRSTUVWXYZ&gt;&gt;;
-	lcase:   &lt;&lt;abcdefghijklmnopqrstuvwxyz&gt;&gt;;
-	letter:  0;
+    ucase:   &lt;&lt;ABCDEFGHIJKLMNOPQRSTUVWXYZ&gt;&gt;;
+    lcase:   &lt;&lt;abcdefghijklmnopqrstuvwxyz&gt;&gt;;
+    letter:  0;
 
 </pre>
-<h2>6. Tables</h2>
+<h2 id="s6">6. Tables</h2>
 <p>
 A <i>table</i> is a dynamically allocated array, identified by
 a <!-- an in the original --> nonzero integer <i>designator</i>.
@@ -1004,14 +1003,14 @@ Bytes of a table are indexed.
 In arithmetic expressions the indexing notation, <span class="tt">t[i]</span>,
 refers to the word occupying bytes <span class="tt">i</span> and <span class="tt">i+1</span> of
 table <span class="tt">t</span> (<span class="tt">i</span> may be odd).
-<p>
+<p id="s6_find_enter">
 A table may be used as a <i>symbol table</i> that holds strings and one
 <i>value word</i> of arbitrary information associated with each.
 The builtins
 <pre>
 
-	find(t,i)
-	enter(t,i)
+    find(t,i)
+    enter(t,i)
 
 </pre>
 look up the current string in table <span class="tt">t</span>.
@@ -1026,17 +1025,17 @@ than value words.
 The builtin "<span class="tt">getnam(t,i)</span>" delivers the string of a symbol table entry
 for a given index.
 Here is a variant of the rule "<span class="tt">install</span>", given
-in section 1.6: <!-- "on page 4" in the original -->
+in section <a href="#s1-6">1.6</a>: <!-- "on page 4" in the original -->
 <pre>
 
-	install: enter(t,i) getnam(t,i);
+    install: enter(t,i) getnam(t,i);
 
 </pre>
 This version delivers a trivial alias &mdash; "<span class="tt">X</span>" followed by
 the index;
 <pre>
 
-	install: enter(t,i) octal(i) = { &lt;X&gt; 1 };
+    install: enter(t,i) octal(i) = { &lt;X&gt; 1 };
 
 </pre>
 The next version delivers an alias that counts the temporal order
@@ -1046,11 +1045,11 @@ The first entry has alias <span class="tt">X1</span>, the second <span class="tt
 not a comparison.)
 <pre>
 
-	install: enter(t,i)
-		 ([temp=t[i]?] | [temp=t[i]=++count])
-		 octal(temp) = { &lt;X&gt; 1 };
-	count:   0;
-	temp:    0;
+    install: enter(t,i)
+             ([temp=t[i]?] | [temp=t[i]=++count])
+             octal(temp) = { &lt;X&gt; 1 };
+    count:   0;
+    temp:    0;
 
 </pre>
 Notice that the argument of "<span class="tt">octal(.)</span>" is a simple variable.
@@ -1063,14 +1062,14 @@ Erratic accessing patterns through large tables can thus be costly in time.
 If no information is to be stored with them, the string may not have to be
 tabled at all.
 The first version of "<span class="tt">install</span>" on this page can be simulated, except in
-the handling of null strings, by the builtin "<span class="tt">scopy</span>", which delivers
+the handling of null strings, by the builtin "<span id="s6_scopy" class="tt">scopy</span>", which delivers
 the current string.
 <pre>
 
-	install: scopy;
+    install: scopy;
 
 </pre>
-<h2>7. Reductions analysis</h2>
+<h2 id="s7">7. Reductions analysis</h2>
 <p>
 A "pure" Tmg program, which uses no builtins except perhaps the basic
 lexical functions "<span class="tt">smark</span>", "<span class="tt">any(.)</span>", "<span class="tt">string(.)</span>"
@@ -1092,12 +1091,12 @@ With Tmg available underneath it is possible to mix top-down and bottom-up to
 get the best of both.
 <p>
 The new builtins for simple LR(k) parsing are "<span class="tt">stack</span>",
-"<span class="tt">unstack</span>", "<span class="tt">accept</span>" and "<span class="tt">gotab</span>" (8.2).
+"<span class="tt">unstack</span>", "<span class="tt">accept</span>" and "<span class="tt">gotab</span>" (<a href="#s8-2">8.2</a>).
 "<span class="tt">Bundle</span>" and "<span class="tt">reduce(n)</span>" should not be intermixed in the same
 rule with "<span class="tt">stack</span>", "<span class="tt">unstack</span>" and "<span class="tt">accept</span>".
 The use of these actions  in real translators will be described by
 Johnson and Aho.
-<h2>8. Builtin functions</h2>
+<h2 id="s8">8. Builtin functions</h2>
 <h3>8.1 General catalog</h3>
 <p>
 This catalog tells for each builtin what kind of arguments it requires,
@@ -1148,7 +1147,7 @@ Conventional meanings
   <td class="vt">CF
   <td class="vt">
    scan current character; succeed if in class <span class="tt">c</span> and add
-   character to current string (see sections <a href="#s1-1_any">1.1</a> and <a href="#s3-2_any">3.2</a>.)
+   character to current string (see sections <a href="#s1-1">1.1</a> and <a href="#s3-2_any_smark_string">3.2</a>)
  <tr>
   <td class="vt"><span class="tt">append(l)</span>
   <td class="vt">&nbsp;
@@ -1160,13 +1159,13 @@ Conventional meanings
   <td class="vt">
    deliver (and make otherwise unavailable) to this rule the translation,
    if any, that this rule would deliver to its invoker if this rule terminated
-   here (9)
+   here (<a href="#s3-6_bundle">3.6</a>)
  <tr>
   <td class="vt"><span class="tt">char(i)</span>
   <td class="vt">CF
   <td class="vt">
    assign the ascii equivalent of the next input character to
-   variable <span class="tt">i</span>; fail if no more characters (15)
+   variable <span class="tt">i</span>; fail if no more characters (<a href="#s5-8_char">5.8</a>)
  <tr>
   <td class="vt"><span class="tt">decimal(i)</span>
   <td class="vt">T
@@ -1177,7 +1176,7 @@ Conventional meanings
   <td class="vt">CF
   <td class="vt">
    execute rule <span class="tt">r</span> and execute the translation it delivers;
-   append result to the diagnostic file; fail if <span class="tt">r</span> fails (4)
+   append result to the diagnostic file; fail if <span class="tt">r</span> fails (<a href="#s1-5_diag">1.5</a>)
  <tr>
   <td class="vt"><span class="tt">emit</span>
   <td class="vt">&nbsp;
@@ -1187,7 +1186,7 @@ Conventional meanings
   <td class="vt"><span class="tt">discard(t)</span>
   <td class="vt">&nbsp;
   <td class="vt">
-   discard table <span class="tt">t</span>
+   discard table <span class="tt">t</span> (<a href="#s6">6</a>)
  <tr>
   <td class="vt"><span class="tt">enter(t,i)</span>
   <td class="vt">F
@@ -1195,7 +1194,7 @@ Conventional meanings
    look up the current string in table <span class="tt">t</span>;
    enter if not there;
    assign its index to variable <span class="tt">i</span>;
-   fail if current string is empty (17)
+   fail if current string is empty (<a href="#s6_find_enter">6</a>)
  <tr>
   <td class="vt"><span class="tt">fail</span>
   <td class="vt">F
@@ -1207,7 +1206,7 @@ Conventional meanings
   <td class="vt">
    look up the current string in table <span class="tt">t</span>;
    assign its index to variable <span class="tt">i</span>;
-   fail if not there (17)
+   fail if not there (<a href="#s6_find_enter">6</a>)
  <tr>
   <td class="vt"><span class="tt">getnam(t,i)</span>
   <td class="vt">F
@@ -1232,14 +1231,14 @@ Conventional meanings
   <td class="vt"><span class="tt">params(n)</span>
   <td class="vt">&nbsp;
   <td class="vt">
-   make <span class="tt">n</span> parameters available to this rule (8)
+   make <span class="tt">n</span> parameters available to this rule (<a href="#s3-5_params">3.5</a>)
  <tr>
   <td class="vt"><span class="tt">parse(r)</span>
   <td class="vt">CF
   <td class="vt">
    execute rule <span class="tt">r</span> and execute the translation it delivers;
    append result to output file;
-   fail if <span class="tt">r</span> fails (3)
+   fail if <span class="tt">r</span> fails (<a href="#s1-5">1.5</a>)
  <tr>
   <td class="vt"><span class="tt">proc(l1;l2)</span>
   <td class="vt">&nbsp;
@@ -1247,7 +1246,7 @@ Conventional meanings
    a declaration, not a true builtin;
    <span class="tt">l1</span> and <span class="tt">l2</span> are lists of names;
    performs "<span class="tt">params(n1) push(n2,l2)</span>" where <span class="tt">n1</span> and <span class="tt">n2</span>
-   are the lengths of <span class="tt">l1</span> and <span class="tt">l2</span> (8,15)
+   are the lengths of <span class="tt">l1</span> and <span class="tt">l2</span> (<a href="#s3-5_params">3.5</a>, <a href="#s5-8">5.8</a>)
  <tr>
   <td class="vt"><span class="tt">push(n, list)</span>
   <td class="vt">&nbsp;
@@ -1255,17 +1254,17 @@ Conventional meanings
    <span class="tt">list</span> has form <span class="tt">i1,i2,...,in</span>, where <span class="tt">i1,...,in</span>
    are variable names;
    save the <span class="tt">n</span> values;
-   restore them when this rule ends (15)
+   restore them when this rule ends (<a href="#s5-8">5.8</a>)
  <tr>
   <td class="vt"><span class="tt">reduce(n)</span>
   <td class="vt">T
   <td class="vt">
-   bundle the last <span class="tt">n</span> translations delivered to this rule (10)
+   bundle the last <span class="tt">n</span> translations delivered to this rule (<a href="#s3-6_reduce">3.6</a>)
  <tr>
   <td class="vt"><span class="tt">scopy</span>
   <td class="vt">T
   <td class="vt">
-   deliver the current string (17)
+   deliver the current string (<a href="#s6_scopy">6</a>)
  <tr>
   <td class="vt"><span class="tt">size(i)</span>
   <td class="vt">&nbsp;
@@ -1276,13 +1275,13 @@ Conventional meanings
   <td class="vt">C
   <td class="vt">
    move to next nonignored character;
-   clear the current string (1,6)
+   clear the current string (<a href="#s1-1">1.1</a>, <a href="#s3-2_any_smark_string">3.2</a>)
  <tr>
   <td class="vt"><span class="tt">string(c)</span>
   <td class="vt">C
   <td class="vt">
    scan up to next character not in class <span class="tt">c</span>;
-   add the scanned characters to the current string (1,6)
+   add the scanned characters to the current string (<a href="#s1-1">1.1</a>, <a href="#s3-2_any_smark_string">3.2</a>)
  <tr>
   <td class="vt"><span class="tt">stop</span>
   <td class="vt">&nbsp;
@@ -1299,9 +1298,9 @@ Conventional meanings
   <td class="vt">&nbsp;
   <td class="vt">
    make a new table;
-   assign its designator to <span class="tt">t</span> (16)
+   assign its designator to <span class="tt">t</span> (<a href="#s6">6</a>)
 </table>
-<h3>8.2 Special builtins for shift-reduce parsing</h3>
+<h3 id="s8-2">8.2 Special builtins for shift-reduce parsing</h3>
 <table>
  <tr>
   <td><i>Name</i>
@@ -1312,7 +1311,7 @@ Conventional meanings
   <td class="vt"><span class="tt">accept</span>
   <td class="vt">T
   <td class="vt">
-   unstack remaining labels stacked during this rule and bundle (18)
+   unstack remaining labels stacked during this rule and bundle (<a href="#s7">7</a>)
  <tr>
   <td class="vt"><span class="tt">gotab(list)</span>
   <td class="vt">&nbsp;
@@ -1324,13 +1323,13 @@ Conventional meanings
   <td class="vt"><span class="tt">stack</span>
   <td class="vt">&nbsp;
   <td class="vt">
-   place label of this element on stack (18)
+   place label of this element on stack (<a href="#s7">7</a>)
  <tr>
   <td class="vt"><span class="tt">unstack(n)</span>
   <td class="vt">T
   <td class="vt">
    remove last <span class="tt">n</span> labels stacked during this rule and bundle all
-   translations delivered since the label so uncovered was stacked (18)
+   translations delivered since the label so uncovered was stacked (<a href="#s7">7</a>)
 </table>
 <h2>9. Syntax</h2>
 <h3>9.1 Conventions</h3>
@@ -1559,6 +1558,6 @@ Parsing Algorithms with Backtrack,
 Conf. Record 11th Annual Symposium on Switching and Automata Theory,
 IEEE (1970) 153-174
 <hr>
-<em>Transcribed by Tom Duff, February 17, 2004. Modified August 9, 2019.</em>
+<em>Transcribed by Tom Duff, February 17, 2004. Modified August 10, 2019.</em>
 </body>
 </html>
