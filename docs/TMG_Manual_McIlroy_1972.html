@@ -17,19 +17,21 @@
     Original document can be found here:
         https://www.tuhs.org/Archive/Distributions/Research/1972_stuff/tmg.pdf
 -->
+<link rel="schema.dcterms" href="http://purl.org/dc/terms/">
 <meta charset="UTF-8">
 <meta name="author" content="Malcolm Douglas McIlroy">
+<meta name="dcterms.created" content="1972-09-13">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
-.tt { font-family: monospace; }
-.vt { vertical-align: top; }
-.up { text-transform: uppercase; }
-pre { overflow-x: auto; }
-/* Required for dual super- and subscript in the grammar */
-.ss { position: relative; padding-right: 1.0em; }
-.ss sub, .ss sup { position: absolute; left: 0; padding-left: 0.15em; }
-.ss sub { top: 0.65em; }
-.ss sup { top: -0.25em; }
+    .tt { font-family: monospace; }
+    .vt { vertical-align: top; }
+    .up { text-transform: uppercase; }
+    pre { overflow-x: auto; }
+    /* Required for dual super- and subscript in the grammar */
+    .ss { position: relative; padding-right: 1.0em; }
+    .ss sub, .ss sup { position: absolute; left: 0; padding-left: 0.15em; }
+    .ss sub { top: 0.65em; }
+    .ss sup { top: -0.25em; }
 </style>
 </head>
 <body>
@@ -1449,7 +1451,7 @@ no ambiguities are so introduced.
  <tr>
   <td>assign<sup>2</sup>
   <td>::=
-  <td><u>=</u> [ infix ]<span class="ss"><sub>0</sub><sup>1</sup></span></span>
+  <td><u>=</u> [ infix ]<span class="ss"><sub>0</sub><sup>1</sup></span>
  <tr>
   <td>incdec
   <td>::=
@@ -1465,7 +1467,7 @@ no ambiguities are so introduced.
  <tr>
   <td>trule
   <td>::=
-  <td>[ <u>(</u> [ number | names ]<span class="ss"><sub>1</sub><sup>1</sup></span> <u>)</u> ]<span class="ss"><sub>0</sub><sup>1</sup></span></span> tbody
+  <td>[ <u>(</u> [ number | names ]<span class="ss"><sub>1</sub><sup>1</sup></span> <u>)</u> ]<span class="ss"><sub>0</sub><sup>1</sup></span> tbody
  <tr>
   <td>tbody
   <td>::=
@@ -1477,11 +1479,11 @@ no ambiguities are so introduced.
  <tr>
   <td>&nbsp;
   <td>&nbsp;
-  <td>| bundleref [ <u>(</u> targ [ <u>.</u> targ ]<sub>0</sub> <u>)</u> ]<span class="ss"><sub>0</sub><sup>1</sup></span></span>
+  <td>| bundleref [ <u>(</u> targ [ <u>.</u> targ ]<sub>0</sub> <u>)</u> ]<span class="ss"><sub>0</sub><sup>1</sup></span>
  <tr>
   <td>bundleref
   <td>::=
-  <td>[ name | number ]<span class="ss"><sub>1</sub><sup>1</sup></span> [ <u>.</u> targ ]<sub>0</sub> <u>)</u> ]<span class="ss"><sub>0</sub><sup>1</sup></span></span>
+  <td>[ name | number ]<span class="ss"><sub>1</sub><sup>1</sup></span> [ <u>.</u> targ ]<sub>0</sub> <u>)</u> ]<span class="ss"><sub>0</sub><sup>1</sup></span>
  <tr>
   <td>targ
   <td>::=
@@ -1497,7 +1499,7 @@ no ambiguities are so introduced.
  <tr>
   <td>charcl<sup>4</sup>
   <td>::=
-  <td>[ <u>!</u> ]<span class="ss"><sub>0</sub><sup>1</sup></span></span> [ <u>&lt;&lt;</u> [ char ]<sub>0</sub> <u>&gt;&gt;</u> ]<sub>1</sub>
+  <td>[ <u>!</u> ]<span class="ss"><sub>0</sub><sup>1</sup></span> [ <u>&lt;&lt;</u> [ char ]<sub>0</sub> <u>&gt;&gt;</u> ]<sub>1</sub>
  <tr>
   <td>comment<sup>5</sup>
   <td>::=
