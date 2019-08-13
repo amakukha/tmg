@@ -50,7 +50,8 @@ tptr  i;        // interpreted instruction counter during parse and translation
 // Carry bit (c-bit) was used as a failure indicator.
 // Original code has these mnemonic synonyms defined:
 // sef := sec; clf := clc; bfs := bcs; bfc := bcc
-bool failure;
+#define failure carry
+bool carry;
 
 // PDP-11 stack
 tword stack[1024];                      // stack for (sp)
@@ -61,9 +62,9 @@ tword sp = sizeof(stack)/sizeof(*stack);
 // These constants are multiplied by four to account for larger words (64-bit vs 32)
 // Constants could also be increased to provide bigger buffers and k table
 
-#define outt 64                         // output buffer top
-#define stkt (1<<16)                    // stack top for (f), not for (sp)
-#define ktat (1200*sizeof(tword))	// k table top
+#define OUTT 64                         // output buffer top
+#define STKT (1<<16)                    // stack top for (f), not for (sp)
+#define KTAT (1200*sizeof(tword))	// k table top
 
 FILE* input;                    // input
 FILE* cfile;                    // current output
@@ -72,10 +73,10 @@ FILE* dfile;                    // diagnostic file
 FILE* ofile;                    // output file
 
 tword outw = 0;                 // output write pointer, number of chars in buffer
-uint8_t outb[outt];             // output buffer
-uint8_t ktab[ktat];             // contains translation rules that have been bundled
-uint8_t stkb[stkt];             // stack, (f) points into this
-uint8_t* stke = stkb + stkt;    // stack end
+uint8_t outb[OUTT];             // output buffer
+uint8_t ktab[KTAT];             // contains translation rules that have been bundled
+uint8_t stkb[STKT];             // stack, (f) points into this
+uint8_t* stke = stkb + STKT;    // stack end
 
 // parse stack frame layout
 typedef struct parse_frame {

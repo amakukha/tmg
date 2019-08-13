@@ -39,8 +39,9 @@ class Translator:
         '.da', '.ia', '.db', '.ib',
         '.a', '.s', '.n', '.o', '.x',
         'parse', 'trans', '.tx', '.txs', '.px', '.pxs',
-        'octal', '.tp', 'decimal',
+        'octal', '.tp', 'decimal', 'ignore',
         'alt', 'salt', 'generate', 'succ', 'fail',
+        'smark', 'any', 'string', 'scopy',
     ]
 
     KNOWN_DICT = { 'goto': 'tgoto' }
@@ -49,6 +50,7 @@ class Translator:
         self.cur = 0
         self.known = {}         # known labels, defined where they appeared
         self.labels = {}        # each value contains a tuple: how to translate in `start` and how to appear in `labels`
+        self.builtins = set()   # list of all builtins used
 
     def start(self):
         print('const tword labels[];\n')
@@ -65,10 +67,14 @@ class Translator:
 
         # Translate known literals
         if s in self.KNOWN_LIST:
-            s = '(tword)&' + s.replace('.','_')
+            s = s.replace('.','_')
+            self.builtins.add(s)
+            s = '(tword)&' + s
 
         elif s in self.KNOWN_DICT:
-            s = '(tword)&' + self.KNOWN_DICT[s].replace('.','_')
+            s = self.KNOWN_DICT[s].replace('.','_')
+            self.builtins.add(s)
+            s = '(tword)&' + s
 
         # Defined label usage
         elif self.label(s) in self.known:
@@ -159,6 +165,10 @@ class Translator:
             for n,s,t in sorted(self.labels.values()):
                 if t is None:
                     print('// Undefined: {name}'.format(name=s))
+        if self.builtins:
+            print('\n// Used builtins:')
+            for x in sorted(list(self.builtins)):
+                print('//  ',x)
 
     @staticmethod
     def label(s):

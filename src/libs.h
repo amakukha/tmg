@@ -11,20 +11,22 @@
 
 // TODO: this library should be reworked to either:
 //  - do all operations completely in memory
-//  - write files only when the size if getting too big
+//  - write files only when the size is getting too big
 // TODO:
 //  - write a unit test for this (starting with log2)
 //  - check whether stack[sp+2] have correct offsets (especially when r3 was present)
+// TODO:
+// - review HEADSZ usage
 
-// NOTE: some of the functions here received state (like bufchar) and will
+// NOTE: some of the functions here received state (like bufchar and copy) and will
 //       use stack as a result. If stackoverflow ever happens, might need to
 //       convert back to using explicit stack[] array.
 
 #include "tmgc.h"
 
 #define ASMEM   "alloc.d"               // filename
-#define DATASZ  (1<<14)                 // 16384
-#define HSZ     1024
+#define DATASZ  (1<<14)                 // 16K bytes
+#define HSZ     (512*sizeof(tword))     // Size of struct shead
 #define HEADSZ  HSZ
 #define NUMB    4
 #define NUMB2   NUMB*sizeof(tword)      // assuming 2 was word size
@@ -32,6 +34,7 @@
 #define NBUF2   NUMB2
 #define BUFSIZE 512
 #define FRSIZE  16
+#define BLKSSZ  (HSZ-(FRSIZE+1)*sizeof(tword))      // Size of strbuf
 #define DATADR  (HEADSZ+DATASZ)         // end of data offset (in bytes)
 
 // Defined in tmga.c
@@ -40,23 +43,23 @@ extern void errcom(const char* msg);
 
 // Globals (from alloc3.s)
 
-tword flag;
+tword flag;             // Buffer use time counter.
 tword stats[9];
 tword useful;
-FILE* afi;
-FILE* afout;
+FILE* afi;              // Input file
+FILE* afout;            // Output file (same as input, really)
 
-// File header structure (sizes in words, total size 1024 bytes):
+// File header structure (sizes in words, original total size - 1024 bytes):
 //     |--hblk(1)--|--frlist(16)--|----strbuf(495)----|
 // strbuf contains 4-word headers of type sblock_t.
-// File structure:
+// File structure (sizes in words):
 //     |--hblk(1)--|--frlist(16)--|----strbuf(495)----|------data(8096)------|
-// data is loaded from files as needed.
+// data is loaded from files as needed via four 512-byte buffers.
 
 struct shead {
     tword _hblk;                    // must remain here - pointer to free header
-    tword _frlist[FRSIZE];          //
-    char  _strbuf[HSZ];             // TODO: sizeof(shead) is not HSZ! FIXIT
+    tword _frlist[FRSIZE];          // Points to a free block of certain size; byte offsets of the file
+    char  _strbuf[BLKSSZ];          // Contains headers of type sblock_t; TODO: use array of structs
 } _shd;
 
 #define hblk    _shd._hblk
@@ -64,15 +67,15 @@ struct shead {
 #define frend   (frlist + FRSIZE)
 #define strbuf  _shd._strbuf
 #define headers strbuf              // Synonym
-#define strend  (strbuf + HSZ)
+#define strend  (strbuf + BLKSSZ)
 
 tword nchar;
 
 tword b1s[NUMB];                    // Beginning of buffer in the file
 tword b1e[NUMB];                    // End of buffer in the file (past last character)
-tword w1[NUMB];
-tword u1[NUMB];                     // Usage count of a buffer?; used to keep most used buffers in memory
-char b1[NUMB*BUFSIZE];              // Buffers data
+tword w1[NUMB];                     // Buffer status: 0 - used, 1 - modified, -1 - not used
+tword u1[NUMB];                     // Usage time of a buffer; used to keep most recently used buffers in memory
+char  b1[NUMB*BUFSIZE];             // Buffers data
 
 // Structs (from alloc3.s)
 
@@ -91,6 +94,9 @@ typedef struct sblock {
     tword l;
 } sblock_t;
 
+#define BLOCK_SIZE(b)   (((sblock_t*)b)->l - ((sblock_t*)b)->a)
+
+
 // Function declarations
 
 void allocate();
@@ -100,19 +106,25 @@ void bufchar();
 void clean(tword bn, char* buf);
 void collect();
 void copy();
+void creates();         // Originally create (was and is a confusing name)
 void fixct();
 void getb();
 void getbuf();
+void getschar();        // Originally getchar, collision with stdio.h
 int ilog2(tuword x);
 void initl();
+void lookchar();
 void plausible();
 void preposterous();
+void putschar();        // Originally putchar, collision with stdio.h
 void release();
 void reset();
+void rewinds();         // Originally rewind, collision with stdio.h
 void seekchar();
 void swap();
 void wc();
 void whead();
+void show_block_string();
 
 // Function definitions
 
@@ -123,21 +135,23 @@ void whead();
 //      (convert to words, adjust for header, round up
 //      to a power of two)
 // Return:
-//      pointer to header of allocated block returned in r1
+//      r1 - pointer to header of allocated block
 //      r0 is preserved
 void allocate() {
-    DEBUG("    allocate()");
+    DEBUG("    allocate(): size=%ld", r0);
     PUSH(r0);
     PUSH(r2);
     tword r3;
     if (stats[0]++==0)
         initl();
     r0 = r0>0 ? ilog2(r0-1)+1 : 0;
+    DEBUG("    allocate(): log(size)=%ld", r0);
     PUSH(r0);
 
     // look on free list for block of required size
 zzz:
-    r0 = POP();
+    r0 = stack[sp];             // Restore ilog2(r0-1)+1
+    DEBUG("    zzz: %ld", r0);
     if (frlist[r0]==0) goto xxx;
 
     // found it, allocate and return
@@ -146,6 +160,7 @@ zzz:
     r0 = ((sblock_t*)r1)->a;
     ((sblock_t*)r1)->w = r0;
     ((sblock_t*)r1)->r = r0;
+    DEBUG("    allocated: %ld bytes", BLOCK_SIZE(r1));
     POP();
     r2 = POP();
     r0 = POP();
@@ -155,6 +170,7 @@ zzz:
     // no block of required size
     // look for larger block
 xxx:
+    DEBUG("    looking for bigger block: %ld", r0+1);
     r0++;
     if (r0 >= FRSIZE) goto www;
     if (frlist[r0]) goto yyy;
@@ -169,6 +185,7 @@ www:
     // split larger block into two smaller pieces and
     // link together as smaller blocks in the free list.
 yyy:
+    DEBUG("    splitting block: %ld", r0);
     r3 = hblk;      // get free header block
     if (!r3) goto www;
     r1 = frlist[r0] + (tuword)&hblk;    // Pointer to header of the free block
@@ -197,6 +214,7 @@ yyy:
 //      r0 - character
 //      r1 - ...
 void alterchar() {
+    DEBUG("    alterchar()");
     PUSH(r2);
     PUSH(r1);
     nchar = r0;
@@ -218,7 +236,7 @@ void alterchar() {
     *(tptr)r0 = nchar;
     r0 = nchar;                 // to preserve r0 for user
     ((sblock_t*)r1)->r++;
-    w1[r2] = 1;
+    w1[r2] = 1;                 // Buffer was modified
     if (((sblock_t*)r1)->r >= ((sblock_t*)r1)->w)
         ((sblock_t*)r1)->w = ((sblock_t*)r1)->r;
     if (++flag)
@@ -246,11 +264,11 @@ void alterword() {
 //      addr is in r0. also returns addr of write
 //      flag for buffer in r2.
 // Parameters:
-//      r0 - disc addr
+//      r0 - disc addr (Byte offset in the file)
 // Return:
-//      (r0) - r0 for read
-//      (r2) - for write must inc w
-//      c-bit - set if char not in either buffer
+//      (r0) - r0 for read (Memory address of the character.)
+//      (r2) - for write must inc w (Number of the buffer)
+//      failure (c-bit) - set if char not in either buffer
 void bufchar() {
     PUSH(r1);
     for (tword r3 = 0; r3 < NBUF; r3++) {
@@ -275,6 +293,7 @@ void bufchar() {
 //      bn  - buffer index
 //      buf - beginning of buffer
 void clean(tword bn, char* buf) {
+    DEBUG("    clean() %ld <--", bn);
     fseek(afout, b1s[bn], SEEK_SET);
     fwrite(buf, 1, BUFSIZE, afout);
     w1[bn] = 0;
@@ -287,6 +306,7 @@ void clean(tword bn, char* buf) {
 // Return:
 //      r0 - zero if no paired blocks were found.
 void collect() {
+    DEBUG("    collect()");
     PUSH(r1);
     PUSH(r2);
     tword r3, r4, exp;
@@ -374,10 +394,12 @@ advance:
 // Return:
 //      r1 points to the new string and should be saved.
 void copy() {
+    DEBUG("    copy() <--");
     PUSH(r0);
     PUSH(r2);
     tword r3;
     wc();
+    reset();
 
     sblock_t* _r0 = (sblock_t*)r0;      // Convenience cast
     sblock_t* _r1 = (sblock_t*)r1;
@@ -391,9 +413,8 @@ void copy() {
         _r0 = (sblock_t*)r0;
     }
 
-    // rewind w pointer
-    _r1 = (sblock_t*)r1;
-    _r1->w = _r1->a;
+    _r1 = (sblock_t*)r1;                // Convenience cast
+    _r1->w = _r1->a;                    // rewind w pointer
     tword roff = _r0->a;                // Read offset
     do {
         // set input pointer
@@ -405,6 +426,10 @@ void copy() {
             r3 = r2;
         r2 -= r3;                       // # left to output
         int ret = fread(b1, 1, r3, afi);
+        #if DEBUG_MODE
+        b1[r3] = '\0';
+        DEBUG("    copied: \"%s\"", b1); 
+        #endif
         if (ret < r3) goto bad;
         fseek(afout, _r1->w, SEEK_SET);
         _r1->w += r3;
@@ -423,28 +448,36 @@ bad:
     errcom("error on copy");
 }
 
-// TODO: try to understand this
+// Description:
+//      routine to rewind write pointer of string
+//      pointed to by r1
 // Parameters:
-//      r2 - number of buffer
+//      r1 - pointer to header (sblock_t)
+void creates() {
+    ((sblock_t*)r1)->w = ((sblock_t*)r1)->a;
+    ((sblock_t*)r1)->r = ((sblock_t*)r1)->a;
+}
+
+// Description:
+//      Buffer usage time overflow. Update usage time for all buffers.
+//      This is called when ++flag is zero.
+//      (On 64-bit architecture will never be called.)
+// Parameters:
+//      r2 - number of buffer where overflow happened.
 void fixct() {
     PUSH(r1);
     tword r3;
     r1 = NBUF;
     flag = NBUF;
-l2:
-    u1[r2] = r1;
-    if (--r1 < 0) {
-        r1 = POP();
-        return;
+    while (1) {
+        u1[r2] = r1--;
+        if (r1<0) break;
+        for (r2=0, r3=1; r3<NBUF; r3++)
+            if (u1[r3] >= u1[r2])
+                r2 = r3;
+        if (u1[r2]<=r1) break;  // Added to avoid looping infinitely
     }
-    r2 = 0;
-    r3 = 1;
-l1:
-    if (r3 >= NBUF) goto l2;
-    if (u1[r3] >= u1[r2])
-        r2 = r3;
-    r3++;
-    goto l1;
+    r1 = POP();
 }
 
 // Description:
@@ -456,6 +489,7 @@ l1:
 // Return:
 //      r0 - addr of byte in buffer (Memory address of the byte)
 inline void getb() {
+    DEBUG("    getb() <--");
     PUSH(r1);
     PUSH(r0);
     r1 = (tuword)b1 + r2*BUFSIZE;      // Current buffer starting byte
@@ -474,12 +508,12 @@ inline void getb() {
 // Description:
 //      routine to get a buffer
 // Parameters:
-//      r0 - disc addr
+//      r0 - disc addr (Offset of a byte in the file.)
 // Return:
-//      (r0) - r0 (for read)
-//      (r2) - must inc w for w
+//      (r0) - r0 (for read) (Memory address of the byte.)
+//      (r2) - must inc w for w (Buffer number.)
 void getbuf() {
-    // Determine what buffer is least used to replace it
+    // Determine what buffer was used longest time ago to replace it
     tword r4 = 1;
     r2 = 0;
     while (r4 < NBUF) {
@@ -491,6 +525,24 @@ void getbuf() {
     getb();
     stats[3+r4]++;
     return;
+}
+
+// Description:
+//      routine to read next character from string
+//      pointer to by r1; character returned in r0
+//      c-bit set if character not availiable (eof)
+// Parameters:
+//      r1 - pointer to sblock_t
+// Return:
+//      r0 - next character
+//      failure (c-bit) - EOF
+void getschar() {
+    DEBUG("    getschar()");
+    lookchar();
+    if (!failure) {
+        ((sblock_t*)r1)->r++;       // Advance read pointer
+        //tst r0
+    }
 }
 
 // Description:
@@ -506,7 +558,7 @@ int ilog2(tuword x) {
 // Description:
 //      Initialization, used by allocate()
 void initl() {
-    DEBUG("    initl()");
+    DEBUG("    initl() <<--");
     PUSH(r0);
     PUSH(r2);
 
@@ -516,9 +568,9 @@ void initl() {
         errcom("cannot open output file: " ASMEM);
     afi = afout;
 
-    // Where are free headers are located?
-    r2 = (tuword)headers;
-    r0 = (tuword)headers - (tuword)&hblk;
+    // Where are the free headers located?
+    r2 = (tuword)headers;                       // Exact address in memory
+    r0 = (tuword)headers - (tuword)&hblk;       // Byte offset in the file
     hblk = r0;      // Arrithmetic offset to first free header (== headers)
 
     // Initialize headers with pointers to next header (arithmetic offset in file)
@@ -546,14 +598,13 @@ void initl() {
 
     // install plausible pointers to make octal dumps look ok
     r1 = (tuword)&hblk;
-l1:     
-    r1 = *(tword*)r1;
-    if (!r1) goto l2;
-    r1 += (tuword)&hblk;
-    ((sblock_t*)r1)->a = r1;    // doesn't make sense, because we were holding arithmetic offsets in a & l
-    ((sblock_t*)r1)->l = r1;
-    goto l1;
-l2:
+    while(1) {
+        r1 = *(tword*)r1;
+        if (!r1) break;
+        r1 += (tuword)&hblk;
+        ((sblock_t*)r1)->a = r1;    // doesn't make sense, because we were holding arithmetic offsets in a & l
+        ((sblock_t*)r1)->l = r1;
+    }
     whead();
     reset();
     r2 = POP();
@@ -561,7 +612,45 @@ l2:
 }
 
 // Description:
-//      shorter, faster version of preposterous()
+//      routine to look at next character from string
+//      pointed to by r1;  character returned in r0
+//      c-bit set if character not available (end of file)
+//      r1 is preserved
+// Parameters:
+//      r1 - Pointer to header (sblock_t)
+// Return:
+//      r0 - Char
+//      failure - Set on EOF
+void lookchar() {
+    DEBUG("    lookchar()");
+    PUSH(r2);
+    plausible();
+    if (((sblock_t*)r1)->w <= ((sblock_t*)r1)->r) goto noch;
+    r0 = ((sblock_t*)r1)->r;
+    bufchar();
+    if (failure)
+        getbuf();
+    if (++flag)
+        u1[r2] = flag;
+    else
+        fixct();
+    r2 = POP();
+    r0 = *(char*)r0;
+    //tst   r0  /clears c-bit
+    failure = false;
+    DEBUG("    lookchar: EOF");
+    return;
+noch:
+    r2 = POP();
+    r0 = 0;
+    failure = true;
+}
+
+// Description:
+//      A quick sanity check to avoid ruination.
+//      Only checks that r1 points into strbuf.
+// Parameters:
+//      r1 - pointer to header (sblock_t)
 void plausible() {
     if ((tuword)r1 < (tuword)strbuf) goto botch;
     if ((tuword)r1 >= (tuword)strend) goto botch;
@@ -577,6 +666,7 @@ botch:
 // Return:
 //      r0 gets a suitable index for frlist
 void preposterous() {
+    DEBUG("    preposterous()");
     // Check bounds
     if ((tptr)r1 < (tptr)strbuf) goto botch;
     if ((tptr)r1 >= (tptr)strend) goto botch;
@@ -599,9 +689,54 @@ void preposterous() {
     }
 
     r0 = ilog;
+    DEBUG("    r0=%lx", r0);
     return;
 botch:
     errcom("error in allocator.");
+}
+
+// Description:
+//      routine to put a character into the string
+//      pointed to by r1;  character in r0
+//      r0 is preserved; r1 points to the string
+//      after return and must be saved.
+// Parameters:
+//      r0 - char
+//      r1 - pointer to header (sblock_t) 
+void putschar() {
+    DEBUG("    putschar(): char=%ld", r0);
+    PUSH(r2);
+    PUSH(r1);
+    nchar = r0;
+    plausible();
+    if (((sblock_t*)r1)->w >= ((sblock_t*)r1)->l) {
+        r0 = ((sblock_t*)r1)->w + 1 - ((sblock_t*)r1)->a;   // W-A+1
+        allocate();             // Pointer to a new block is in r1
+        r0 = stack[sp];         // Old block (originally r1)
+        copy();                 // Copy the string from old block (r0) to new block (r1)
+        swap();                 // New block <- r0, old block <- r1
+        release();              // Free old block (pointed by r1)
+        r1 = stack[sp];         // Restore original pointer, which now points to the new block
+        #if DEBUG_MODE
+        show_block_string(r1);
+        #endif
+    }
+    r0 = ((sblock_t*)r1)->w;
+    bufchar();
+    if (failure)
+        getbuf();
+    *(char*)r0 = nchar;
+    w1[r2] = 1;     // Buffer was modified
+
+    r0 = nchar;     // to preserve r0 for user
+    ((sblock_t*)r1)->w++;
+    flag++;
+    if (++flag)
+        u1[r2] = flag;
+    else
+        fixct();
+    r1 = POP();
+    r2 = POP();
 }
 
 // Description:
@@ -611,15 +746,16 @@ botch:
 void release() {
     // discover that this is a plausible pointer
     // and get a suitable index for frlist into r0.
+    DEBUG("    release(): %lx", r0);
     PUSH(r0);
     preposterous();                     
 
     // find free list index and link block to that entry
     stats[1]++; 
     sblock_t* _r1 = (sblock_t*)r1;      // Convenience casting
-    _r1->w = frlist[r0];
+    _r1->w = frlist[r0];                // Log size (r0) is received from preposterous()
     _r1->r = 0;
-    frlist[r0] = (tuword)r1 - (tuword)&hblk;    // Note: frlist contains offsets relative to hblk
+    frlist[r0] = (tuword)r1 - (tuword)&hblk;        // Byte offset of the sblock header within the file
     r1 = 0;                 // self-defense
     // whead()
     r0 = POP();
@@ -628,13 +764,24 @@ void release() {
 // Description:
 //      Reset buffers.
 void reset() {
+    DEBUG("    reset()");
     for (tword r3=0; r3<NBUF; r3++) {
-        w1[r3] = -1;
+        w1[r3] = -1;        // Mark buffer as not used
         b1s[r3] = 0;
         b1e[r3] = 0;
         u1[r3] = 0;
     }
-    flag = 0;
+    flag = NBUF;    // Changed to NBUF on purpose
+}
+
+// Description:
+//      routine to rewind read pointer of string
+//      pointed to by r1
+// Parameters:
+//      r1 - pointer to header (sblock_t)
+void rewinds() {
+    DEBUG("    rewinds()");
+    ((sblock_t*)r1)->r = ((sblock_t*)r1)->a;
 }
 
 // Description:
@@ -686,8 +833,9 @@ void swap() {
 //      Saves buffers data along with the headers block to the output file
 //      (write current?)
 void wc() {
+    DEBUG("    wc()");
     for (tword r3=0; r3<NBUF; r3++) {    
-        if (w1[r3]<=0) continue;
+        if (w1[r3]<=0) continue;        // Buffer not used
         clean(r3, (char*)(BUFSIZE*r3 + (tuword)b1));
     }
     whead();
@@ -696,6 +844,14 @@ void wc() {
 // Description:
 //      write header block to the output file
 void whead() {
+    DEBUG("    whead() <--");
     fseek(afout, 0, SEEK_SET);
-    fwrite(&hblk, 1, HSZ, afout);
+    fwrite(&hblk, 1, sizeof(struct shead), afout);
+}
+
+// Parameters:
+//      p - pointer to the sblock_t
+void show_block_string(tword p) {
+    DEBUG("    new block: %lx, size=%ld", p, BLOCK_SIZE(p));
+    // TODO
 }

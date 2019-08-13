@@ -26,7 +26,7 @@
 #define DST_LANGUAGE_ ""
 #endif
 
-uint8_t* classtab = (uint8_t*)__classtab;
+tptr classtab = (tptr)__classtab;
 
 // This is an address range used to distinguish predefined function pointers
 tptr  func_min;
@@ -56,11 +56,17 @@ void putch();
 void succ();
 void _tp();
 
-// get interpreted instruction for a parsing rule
-// negative instruction is a pointer to a parameter in this
-// stack frame, fetch that instead
-// put environment pointer in r1
-
+// Description:
+//      get interpreted instruction for a parsing rule.
+//      negative instruction is a pointer to a parameter in this
+//      stack frame: fetch that instead, put environment pointer in r1
+// Typically:
+//      Typically it will just retrieve next word from the driving table.
+// Special case:
+//      If that word is negative, it is a parameter reference.
+// Return:
+//      r0 - Retrieved word from the driving table. OR parameter.
+//      r1 - (IFF r0 is a parameter) environment pointer.
 tword iget() {
     if ((tptr)i >= start && (tptr)i < ARRAY_END(start)) {
         DEBUG("    iget: i=%lx [%ld]=%ld", (tuword)i, ((tword)((tptr)i-start)), *i);
@@ -70,15 +76,17 @@ tword iget() {
     r1 = (tword)f;
     r0 = *i++;
     if (r0 < 0) {
-        PUSH(r0 & 1);   // save the exit bit
+        // negative instruction is a pointer to a parameter in this
+        // stack frame: fetch that instead, put environment pointer in r1
+        PUSH(r0 & 1);               // save the exit bit
         r0 = stack[sp];
-        do {            // chase parameter
+        do {                        // chase parameter
             r1 = (tword)((parse_frame_t*)r1)->env; 
             r0 += (tword)((parse_frame_t*)r1)->si;
             r0 = *(tptr)r0;
         } while (r0 < 0);
         r1 = (tword)((parse_frame_t*)r1)->env; 
-        r0 |= (tword)POP();
+        r0 |= (tword)POP();         // Restore the exit bit
     }
     return r0;
 }
@@ -231,10 +239,14 @@ void adv() {
     return contin();    // Tail call
 }
 
-// pbundle entered with pointer to earliest element of bundle
-// to reduce from the top of stack in r0
-// exit with pointer to bundle in r0, or zero if bundle is empty
-
+// Description:
+//      pbundle entered with pointer to earliest element of bundle
+//      to reduce from the top of stack in r0
+//      exit with pointer to bundle in r0, or zero if bundle is empty
+// Parameters:
+//      r0 - pointer to earliest element of bundle to be reduced
+// Return:
+//      r0 - pointer to bundle
 void pbundle() {
     if ((tptr)r0 >= g) {
         DEBUG("%sempty bundle", DEPTH);
@@ -257,10 +269,9 @@ void pbundle() {
         } while((tptr)r1 <= g);
         r0 = ((parse_frame_t*)f)->k;
     } else {
-        DEBUG("%strivial bundle", DEPTH);
+        DEBUG("%s\"trivial\" bundle: r1==g", DEPTH);
     }
     g = (tptr)POP();
-    return;
 }
 
 // tmg translation rule interpreter (generator)
@@ -311,7 +322,7 @@ void gcontin() {
         // builtin  translation function
         DEBUG("BUILTIN FUNCTION: %lx", r0);
         return (*(void (*)(void))r0)(); // Tail call
-    } else if (-r0 < ktat) {
+    } else if (-r0 < KTAT) {
         // delivered compound translation
         // instruction counter is in ktable
         // set the k environment for understanding 1, 2 ...
@@ -327,11 +338,12 @@ void gcontin() {
     }
 }
 
-// execute rule called for by 1 2 ...
-// found relative to instruction counter in the k environment
-// this frame becomes th p environment for
-// any parameters passed with this invocation
-// e.g. for 1(x) see also .tq
+// Description:
+//      execute rule called for by 1 2 ...
+//      found relative to instruction counter in the k environment
+//      this frame becomes th p environment for
+//      any parameters passed with this invocation
+//      e.g. for 1(x) see also .tq
 void _tp() {
     DEBUG("%s_tp(): f=%lx, g=%lx", DEPTH, (tword)(f-(tptr)stkb), (tword)(g-(tptr)stkb));
     r0 = *(char*)i;
@@ -356,8 +368,8 @@ void _tp() {
         i = (tptr)-*i;
         if ((tword)i < 0)
             errcom("not a bundle");
-        if ((tword)i >= ktat) {
-            fprintf(dfile, "bad address in _tp: %ld > %ld", (tword)i, ktat);
+        if ((tword)i >= KTAT) {
+            fprintf(dfile, "bad address in _tp: %ld > %ld", (tword)i, KTAT);
             errcom(NULL);
         }
         i = (tptr)((tword)i + ktab - r2);
@@ -424,7 +436,10 @@ void _process() {
 
 // tmg output routines
 
-// adds 1 or 2 (or more, depending on architecture) characters in r0 to output
+// Description:
+//      adds 1 or 2 (or more, depending on architecture) characters in r0 to output
+// Parameters:
+//      r0 - a word containing the string; may be not nul-terminated
 void putch() {
     PUSH(0);
     PUSH(r0);
@@ -459,7 +474,7 @@ void obuild() {
         outb[r1++] = *(char*)r0;
         r0++;           // TODO: use outw directly
         outw = r1;
-    } while (r1 <= outt);
+    } while (r1 <= OUTT);
     flush();
     return obuild();    // Tail call
 }
@@ -525,7 +540,8 @@ int main(int argc, char* argv[]) {
     if (verbose) {
         fprintf(dfile, "Driving table size = %lu words (%lu bytes)\n", 
                         sizeof(start)/sizeof(*start), sizeof(start));
-        fprintf(dfile, "Table range: %08lx..%08lx\n", (tuword)start, (tuword)start + sizeof(start));
+        fprintf(dfile, "Driving table range: %08lx..%08lx\n", (tuword)start, (tuword)start + sizeof(start));
+        fprintf(dfile, "Ktable range: %08lx..%08lx\n", (tuword)ktab, (tuword)ktab + sizeof(ktab));
     }
 
     // Compute function address range
@@ -535,13 +551,15 @@ int main(int argc, char* argv[]) {
         (tptr)&parse,
         (tptr)&contin,
         // tmgb functions
-        (tptr)&trans,
+        (tptr)&trans,   (tptr)&_tp,
         (tptr)&_l,      (tptr)&_p,      (tptr)&_t,      (tptr)&_u,      (tptr)&_st,
         (tptr)&_da,     (tptr)&_ia,     (tptr)&_db,     (tptr)&_ib,
         (tptr)&_px,     (tptr)&_pxs,    (tptr)&_tx,     (tptr)&_txs,
         (tptr)&_ge,     (tptr)&_ne,     (tptr)&_eq,
         (tptr)&_a,      (tptr)&_s,      (tptr)&_n,      (tptr)&_o,      (tptr)&_x,
         (tptr)&decimal, (tptr)&octal,
+        (tptr)&smark,   (tptr)&any,     (tptr)&string,
+        (tptr)&scopy,   (tptr)&_scopy,
     };
     func_max = 0;
     func_min = (tptr)SIZE_MAX;

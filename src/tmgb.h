@@ -8,7 +8,7 @@
 
 // Defined in tmga.c
 extern bool verbose;
-extern uint8_t* classtab;
+extern tword* classtab;
 
 extern void  alt();
 extern tword iget();
@@ -18,20 +18,32 @@ extern void  generate();
 extern void  obuild();
 extern void  parse();
 extern void  putch();
+extern void  salt();
 extern void  succ();
 extern void  tgoto();
 extern void  _tp();
 
-char putbuff[256];      // Used in putdec
+char putbuff[256];      // Used in putdec (size can be reduced)
 
 // Variables from tmgb
 #define INPT 128        // Input buffer size; NOTE: Must be power of two
+tword ctestc = 0;       // Statistic: ctest calls
 char  inpb[INPT];       // Input buffer
-tword inpr = 0;         // Input file offset
+tword inpr = 1;         // Input file offset
 tword jgetc = 0;        // Statistic: jget calls
 tword litc = 0;         // 
 tword readc = 0;        // Input read statistic
 tword trswitch = 0;     // Trace switch
+
+// Variables from tmgb/cstr.s:
+//      current string manipulations
+//      keep a initial fragment handy for quick access
+//      go to allocator for the rest
+#define CSTRT 16        // top of quick access current string
+char  cstrb[CSTRT];     // base of quick access fragment
+tword cstrr;            // read pointer. (Index of cstrb.)
+tword cstrw = 0;        // current string write pointer. (Index of cstrb.)
+sblock_t* symp = NULL;  // pointer to dynamically allocated current string
 
 // Function declarations
 void _a();
@@ -59,17 +71,28 @@ void _txs();
 void _u();
 void _x();
 
+void any();
+void ctest();
 void decimal();
 void _decimal();
+void getcstr();
+void ignore();
 void jget();
 void kput();
 void octal();
 void _octal();
 void putcall();
+void putcstr();
 void putdec();
 void puthex();
 void putoct();
+void rewcstr();
+void scopy();
+void _scopy();
+void size();
+void smark();
 void sprv();
+void string();
 void trans();
 void trace();
 void update();
@@ -80,6 +103,7 @@ void update();
 void _a() {
     sprv();
     stack[sp+2] += stack[sp];
+    DEBUG("    infix + = %ld", stack[sp+2]);
     return _p();    // Tail call
 }
 
@@ -148,6 +172,7 @@ void _l() {
 void _n() {
     sprv();
     stack[sp+2] &= stack[sp];
+    DEBUG("    infix & = %ld", stack[sp+2]);
     return _p();    // Tail call
 }
 
@@ -163,6 +188,7 @@ void _ne() {
 void _o() {
     sprv();
     stack[sp+2] |= stack[sp];
+    DEBUG("    infix | = %ld", stack[sp+2]);
     return _p();    // Tail call
 }
 
@@ -177,24 +203,29 @@ void _p() {
 
 void _px() {
     iget();
+    // Unlike in the original, r0 contains address of address of C-string
+    // (rather than address of the string directly)
+    r0 = *(tptr)r0;
     return _pxcommon(); // Tail call
 }
 
 void _pxs() {
     r0 = (tword)i++;
+    DEBUG("    _pxs(): address of word-length C-string: %lx", r0);
     return _pxcommon(); // Tail call
 }
 
-// TODO: what does it do?
-// .pn:1 .pxs;012   - expects a newline?
+// .pn:1 .pxs;012   - expects a newline? TODO: what does it do exactly?
+// Parameters:
+//      r0 - address of C-string
 void _pxcommon() {
     litc++;
     PUSH(((parse_frame_t*)f)->n);
     PUSH(((parse_frame_t*)f)->j);
     PUSH(r0);
-    while ((char)stack[sp]) {
+    while (*(char*)stack[sp]) {
         jget();
-        if (r0!=(char)stack[sp]) {
+        if (r0!=*(char*)stack[sp]) {
             POP();
             ((parse_frame_t*)f)->j = POP();
             ((parse_frame_t*)f)->n = POP();     // Restore input cursor on failure
@@ -214,11 +245,13 @@ void _pxcommon() {
 void _s() {
     sprv();
     stack[sp+2] -= stack[sp];
+    DEBUG("    infix - = %ld", stack[sp+2]);
     return _p();    // Tail call
 }
 
 // infix =
 void _st() {
+    DEBUG("    infix =");
     sprv();
     POP_PREV();
     POP_PREV();
@@ -254,9 +287,9 @@ void _tx() {
 }
 
 void _txs() {
-    DEBUG("    _txs()");
     r0 = (tword)i;
     i++;
+    DEBUG("    _txs(): address of word-length C-string: %lx", r0);
     obuild();
     return generate();  // Tail call
 }
@@ -271,7 +304,44 @@ void _u() {
 void _x() {
     sprv();
     stack[sp+2] ^= stack[sp];
+    DEBUG("    infix ^ = %ld", stack[sp+2]);
     return _p();    // Tail call
+}
+
+void any() {
+    DEBUG("    any()");
+    PUSH(((parse_frame_t*)f)->j);
+    iget();
+    ctest();
+    if (carry) {
+        POP();
+        return succ();  // Tail call
+    } else {
+        ((parse_frame_t*)f)->j = POP();
+        return fail();  // Tail call
+    }
+}
+
+// Description:
+//      Gets one character from the input and tests against current character class
+// Parameters:
+//      r0 - pointer to character class
+void ctest() {
+    DEBUG("    ctest(): character class = %ld", *(tptr)r0);
+    ctestc++;
+    PUSH(r0);
+    jget();
+    DEBUG("    ctest(): classtab[r0] = %ld", classtab[r0]);
+    //r0 <<= 1;
+    if (*(tptr)POP() & classtab[r0]) {
+        carry = false;
+        //r0 >>= 1;
+        putcstr();
+        ((parse_frame_t*)f)->j++;
+        carry = true;
+    } else {
+        carry = false;
+    }
 }
 
 void decimal() {
@@ -290,6 +360,32 @@ void _decimal() {
     return generate();    // Tail call
 }
 
+// TODO: how it works? What it does?
+void getcstr() {
+    r1 = cstrr;
+    if (r1 >= cstrw) {
+        r0 = 0;         // end of string
+        return;
+    }
+    cstrr++;
+    if (r1 < CSTRT) {
+        r0 = cstrb[r1];
+        return;
+    }
+    if (r1 == CSTRT) {      // WHY???
+        r1 = (tword)symp;
+        rewinds();
+    }
+    r1 = (tword)symp;
+    getschar();
+}
+
+void ignore() {
+    iget();
+    ((parse_frame_t*)f)->n = *(tptr)r0;
+    return succ();  // Tail call
+}
+
 // Description:
 //      Get next character from input which is not in ignored class.
 // Return:
@@ -306,11 +402,13 @@ void jget() {
             inpr = r0;                  // Remember current input file offset
             fseek(input, inpr, SEEK_SET);
             r0 = fread(inpb, 1, INPT, input);
+            DEBUG("    jget: bytes read %ld", r0);
             for (; r0<INPT; r0++)
                 inpb[r0] = 0;           // Rest of buffer is zeroed, loop will exit on '\0'
         }
         do {
             r0 = inpb[r1];
+            DEBUG("    jget: char=\"%c\" (%d)", (char)r0>=32 && (char)r0<127 ? (char)r0 : '?', (uint8_t)r0);
             //r0 <<= 1;                 // Conversion to word offset
             if (!(classtab[r0] & ((parse_frame_t*)f)->n))   // n - address of ignored character class
                 goto done;
@@ -323,10 +421,12 @@ done:
     return;
 }
 
+// Parameters:
+//      r0 - contents to be put into ktable
 void kput() {
     ((parse_frame_t*)f)->k -= sizeof(tword);
     r1 = -((parse_frame_t*)f)->k;
-    if (r1 >= ktat)
+    if (r1 >= KTAT)
         errcom("translation overflow");
     *((tptr)(ktab + r1)) = r0;
 }
@@ -348,8 +448,35 @@ void _octal() {
 }
 
 void putcall() {
+    DEBUG("    putcall: r0=%lx", r0);
     kput();
     *g++ = ((parse_frame_t*)f)->k;
+}
+
+// TODO: how it works? What it does?
+// Description:
+//      Put character into current string.
+// Parameters:
+//      r0 - char
+void putcstr() {
+    r1 = cstrw++;
+    if (r1 < CSTRT) {           // is it quick access?
+        cstrb[r1] = (char)r0;   // yes, stash the char
+        return;
+    }
+    if (r1 == CSTRT) {          // WHY???
+        PUSH(r0);               // first char to allocator
+        r1 = (tword)symp;
+        if (!r1) {
+            r0 = 64;
+            allocate();
+            symp = (sblock_t*)r1;
+        }
+        creates();              // Rewind write pointer of string pointed by r1
+        r0 = POP();
+    }
+    r1 = (tword)symp;
+    putschar();
 }
 
 // Description:
@@ -386,14 +513,82 @@ void putoct() {
     putch();
 }
 
+// Description:
+//      rewind current string
+void rewcstr() {
+    cstrr = 0;      // Resets read pointer of the current string
+}
+
+// Description:
+//      TMG builtin.
+void scopy() {
+    DEBUG("    scopy()");
+    r0 = 1 + (tword)&_scopy;
+    putcall();
+    rewcstr();
+    r2 = -(tword)((parse_frame_t*)f)->k + sizeof(tword);
+    do {
+        getcstr();
+        if (!r0) break;
+        ktab[r2++] = (uint8_t)r0;
+        if (r2 >= KTAT)
+            errcom("translation overflow");
+    } while(1);
+    ktab[r2] = 0;
+    //r2 = BIT0_CLEAR(r2);
+    r2 = -r2;
+    ((parse_frame_t*)f)->k = r2;
+    return succ();  // Tail call
+}
+
+// Description:
+//      Part of scopy() used via putcall.
+void _scopy() {
+    DEBUG("    _scopy(): \"%s\"", (char*)i);
+    r0 = (tword)i;              // Pointer to C-string to be sent to output
+    obuild();
+    return generate();  // Tail call
+}
+
+void size() {
+    iget();
+    *(tptr)r0 = cstrw;
+    return succ();  // Tail call
+}
+
+void smark() {
+    DEBUG("    smark()");
+    jget();
+    cstrw = 0;
+    return succ();  // Tail call
+}
+
 // from: arith.s
 // make sp hold a simple rvalue (forget it might be a table value)
 void sprv() {
     DEBUG("    sprv()");
     if (stack[sp+1]==-1) {
+        DEBUG("    - 2x POP_PREV()");
         POP_PREV();
         POP_PREV();
     }
+}
+
+// Description:
+//      Advances input pointer (j) as long as it matches the character class
+//      NOTE: It will always succeed. Even if zero characters match.
+void string() {
+    DEBUG("    string()");
+    PUSH(0);
+    iget();         // Retrieve pointer to character class into r0
+    do {
+        stack[sp] = ((parse_frame_t*)f)->j;
+        PUSH(r0);
+        ctest();
+        r0 = POP();
+    } while (carry);
+    ((parse_frame_t*)f)->j = POP();
+    return succ();  // Tail call
 }
 
 void trans() {
