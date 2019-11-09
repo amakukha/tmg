@@ -12,10 +12,10 @@
 // This implementation provides a verbose mode for the compiler (-v option).
 // Additionally, when compiled with the DEBUG_MODE macro set, verbose mode
 // will print detailed debugging information.
-#define DEBUG_MODE 1
+#define DEBUG_MODE 0
 
 // Original tracing capability; must be set together with trswitch in tmgb.h
-#define TRACING 1       
+#define TRACING 0    
 
 // Flush the output every time obuild is called. Useful in debugging mode.
 #define NOBUFFER DEBUG_MODE

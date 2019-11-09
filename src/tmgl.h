@@ -1,4 +1,8 @@
+#define SRC_LANGUAGE "echo"
+
 const tword labels[];
+
+// Driving table for a sample program (see examples/echo.t)
 
 tword start[] = {
 #define __1        (tword)&labels[0]
@@ -173,6 +177,8 @@ tword start[] = {
 	1 + (tword)&_txs,
 	(tword)'\n',
 };
+
+// Global label addresses inside the driving table
 
 const tword labels[] = {
 	(tword)&start[1],       // __1
