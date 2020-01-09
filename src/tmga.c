@@ -122,7 +122,7 @@ void contin() {
         DEBUG("MACHINE-CODED: %lx", r0);
         return (*(void (*)(void))r0)(); // Tail call
     } else {
-        fprintf(dfile, "bad address in parsing: %08lx\n", r0);
+        fprintf(dfile, "TMG error: bad address in parsing: %08lx\n", r0);
         errcom(NULL);
     }
 }
@@ -303,6 +303,7 @@ void gcontin() {
     ((parse_frame_t*)f)->x = r0;    // checked
     DEBUG("%s           x==%lx", DEPTH, r0);
     r0 = BIT0_CLEAR(r0);
+    DEBUG("%s          r0==%lx", DEPTH, r0);
     if ((tptr)r0 >= start && (tptr)r0 < ARRAY_END(start)) {
         // tmg-coded translation subroutine
         // execute it in current environment
@@ -329,11 +330,12 @@ void gcontin() {
         // to designate this frame
         DEBUG("COMPOUND");
         ((translation_frame_t*)f)->ek = f;
-        r0 = (tword)(ktab - r0);
+        r0 = (tword)(ktab - r0);            // Effectively &ktab[-r0], r0 is negative
         i = (tptr)r0;
+        DEBUG("COMPOUND: r0=%lx", r0);
 	return gcontin();   // Tail call
     } else {
-        fprintf(dfile, "bad address in translation: %lx", r0);
+        fprintf(dfile, "TMG error: bad address in translation: %lx", r0);
         errcom(NULL);
     }
 }
@@ -369,7 +371,7 @@ void _tp() {
         if ((tword)i < 0)
             errcom("not a bundle");
         if ((tword)i >= KTAT) {
-            fprintf(dfile, "bad address in _tp: %ld > %ld", (tword)i, KTAT);
+            fprintf(dfile, "TMG error: bad address in _tp: %ld > %ld", (tword)i, KTAT);
             errcom(NULL);
         }
         i = (tptr)((tword)i + ktab - r2);

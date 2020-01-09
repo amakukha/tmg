@@ -360,7 +360,8 @@ void _decimal() {
     return generate();    // Tail call
 }
 
-// TODO: how it works? What it does?
+// Description:
+//     TODO: how it works? What it does?
 void getcstr() {
     r1 = cstrr;
     if (r1 >= cstrw) {
@@ -421,8 +422,12 @@ done:
     return;
 }
 
+// Description:
+//      Puts word r0 into table ktab
 // Parameters:
-//      r0 - contents to be put into ktable
+//      r0 - Contents to be put into ktable
+// Side effect:
+//      r1 - Contains ktab offset in bytes where r0 was put
 void kput() {
     ((parse_frame_t*)f)->k -= sizeof(tword);
     r1 = -((parse_frame_t*)f)->k;
@@ -520,7 +525,7 @@ void rewcstr() {
 }
 
 // Description:
-//      TMG builtin.
+//      TMG builtin. Copies a string into ktab.
 void scopy() {
     DEBUG("    scopy()");
     r0 = 1 + (tword)&_scopy;
@@ -535,7 +540,7 @@ void scopy() {
             errcom("translation overflow");
     } while(1);
     ktab[r2] = 0;
-    //r2 = BIT0_CLEAR(r2);
+    r2 = BIT0_CLEAR(r2);
     r2 = -r2;
     ((parse_frame_t*)f)->k = r2;
     return succ();  // Tail call

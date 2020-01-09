@@ -270,7 +270,6 @@ void alterword() {
 //      (r2) - for write must inc w (Number of the buffer)
 //      failure (c-bit) - set if char not in either buffer
 void bufchar() {
-    PUSH(r1);
     for (tword r3 = 0; r3 < NBUF; r3++) {
         r2 = r3;
         //r2 <<= 1;     // accounting for word size
@@ -278,12 +277,11 @@ void bufchar() {
             // This byte is in the buffer!
             // Convert file offset into memory address in the buffer.
             r0 = r0 - b1s[r2] + r3*BUFSIZE + (tuword)b1;
-            r1 = POP();
             failure = false;
             return;
         }
     }
-    r1 = POP();
+    DEBUG("    bufchar: byte not in buffer");
     failure = true;
 }
 
@@ -492,7 +490,7 @@ inline void getb() {
     DEBUG("    getb() <--");
     PUSH(r1);
     PUSH(r0);
-    r1 = (tuword)b1 + r2*BUFSIZE;      // Current buffer starting byte
+    r1 = (tuword)b1 + r2*BUFSIZE;       // Current buffer starting byte
     if (w1[r2] > 0)
         clean(r2, (char*)r1);
     r0 = BIT_CLEAR(0777, stack[sp]);    // get lowest multiple of 512.
@@ -513,11 +511,12 @@ inline void getb() {
 //      (r0) - r0 (for read) (Memory address of the byte.)
 //      (r2) - must inc w for w (Buffer number.)
 void getbuf() {
-    // Determine what buffer was used longest time ago to replace it
+    // Determine what buffer was used longest time ago to replace it with the
+    // needed one
     tword r4 = 1;
-    r2 = 0;
+    r2 = 0;         // Index of the min. usage time
     while (r4 < NBUF) {
-        if (u1[r4]<u1[r2])
+        if (u1[r4] < u1[r2])
             r2 = r4;
         r4++;
     }
@@ -541,7 +540,8 @@ void getschar() {
     lookchar();
     if (!failure) {
         ((sblock_t*)r1)->r++;       // Advance read pointer
-        //tst r0
+        //tst r0                    // Sets n- and z-bits, clears v- (overflow) and c-bits
+        failure = false;
     }
 }
 
@@ -619,31 +619,32 @@ void initl() {
 // Parameters:
 //      r1 - Pointer to header (sblock_t)
 // Return:
-//      r0 - Char
+//      r0 - Char (one byte)
 //      failure - Set on EOF
 void lookchar() {
     DEBUG("    lookchar()");
     PUSH(r2);
     plausible();
-    if (((sblock_t*)r1)->w <= ((sblock_t*)r1)->r) goto noch;
-    r0 = ((sblock_t*)r1)->r;
-    bufchar();
-    if (failure)
-        getbuf();
-    if (++flag)
-        u1[r2] = flag;
-    else
-        fixct();
-    r2 = POP();
-    r0 = *(char*)r0;
-    //tst   r0  /clears c-bit
-    failure = false;
-    DEBUG("    lookchar: EOF");
-    return;
-noch:
-    r2 = POP();
-    r0 = 0;
-    failure = true;
+    if (((sblock_t*)r1)->w > ((sblock_t*)r1)->r) {
+        r0 = ((sblock_t*)r1)->r;
+        bufchar();
+        if (failure)
+            getbuf();
+        if (++flag)
+            u1[r2] = flag;
+        else
+            fixct();
+        r2 = POP();
+        r0 = *(char*)r0;
+        //tst   r0  /clears c-bit       // Sets n- and z-bits, clears v- (overflow) and c-bits
+        failure = false;
+    } else {
+    //noch:
+        DEBUG("    lookchar: EOF");
+        r2 = POP();
+        r0 = 0;
+        failure = true;
+    }
 }
 
 // Description:

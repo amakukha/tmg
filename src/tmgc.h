@@ -12,10 +12,10 @@
 // This implementation provides a verbose mode for the compiler (-v option).
 // Additionally, when compiled with the DEBUG_MODE macro set, verbose mode
 // will print detailed debugging information.
-#define DEBUG_MODE 0
+#define DEBUG_MODE 1
 
 // Original tracing capability; must be set together with trswitch in tmgb.h
-#define TRACING 0    
+#define TRACING 1
 
 // Flush the output every time obuild is called. Useful in debugging mode.
 #define NOBUFFER DEBUG_MODE
@@ -51,7 +51,7 @@ tptr  i;        // interpreted instruction counter during parse and translation
 // Original code has these mnemonic synonyms defined:
 // sef := sec; clf := clc; bfs := bcs; bfc := bcc
 #define failure carry
-bool carry;
+bool carry;     // Corresponds to PDP-11 c-bit
 
 // PDP-11 stack
 tword stack[1024];                      // stack for (sp)
@@ -116,7 +116,6 @@ typedef struct translation_frame {
 
 // TODO: why original fs (frame size) is 10 instead of 8?
 #define fs  (sizeof(translation_frame_t)+sizeof(tword))     // frame size
-
 
 // Convenience macros
 #define ARRAY_END(x)        (x + sizeof(x)/sizeof(*x))
