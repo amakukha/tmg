@@ -25,6 +25,8 @@ References
  - McIlroy, M. D. [*A Manual for the Tmg Compiler-writing
 Language*](https://amakukha.github.io/tmg/TMG_Manual_McIlroy_1972.html) (1972)
  - McClure, R. M. *TMG — A syntax-directed compiler*, Proc. ACM 20th Natl. Conf. (1965) 262-274
+ - Thompson, K., Ritchie, D. M. [*UNIX Programmer's Manual. Sixth Edition*](https://ia800600.us.archive.org/19/items/v6-manual/v6-manual.pdf) (May, 1975)
  - Ritchie, D. M. [*UNIX Assembler Reference Manual*](http://www.tom-yam.or.jp/2238/ref/as.pdf) (circa 1974)
- - [*PAL-11R Assembler Programmer's Manual*](http://www.bitsavers.org/pdf/dec/pdp11/dos-batch/DEC-11-ASDB-D_PAL-11R_Assembler_Programmers_Manual_May71.pdf) (May 1971)
+ - [*PAL-11R Assembler Programmer's Manual*](http://www.bitsavers.org/pdf/dec/pdp11/dos-batch/DEC-11-ASDB-D_PAL-11R_Assembler_Programmers_Manual_May71.pdf). Digital Equipment Corporation. (May, 1971)
  - [PDP-11 architecture](https://en.wikipedia.org/wiki/PDP-11_architecture) Wikipedia article
+
