@@ -47,11 +47,12 @@ tptr  f;        // stack frame pointer during parse and translation
 tptr  g;        // stack frame end during parse
 tptr  i;        // interpreted instruction counter during parse and translation
 
-// Carry bit (c-bit) was used as a failure indicator.
+bool carry;     // Corresponds to PDP-11 c-bit
+
+// Carry bit (c-bit) is sometimes used as a failure indicator.
 // Original code has these mnemonic synonyms defined:
 // sef := sec; clf := clc; bfs := bcs; bfc := bcc
 #define failure carry
-bool carry;     // Corresponds to PDP-11 c-bit
 
 // PDP-11 stack
 tword stack[1024];                      // stack for (sp)
@@ -119,7 +120,7 @@ typedef struct translation_frame {
 
 // Convenience macros
 #define ARRAY_END(x)        (x + sizeof(x)/sizeof(*x))
-#define BIT_CLEAR(mask,x)   ((~(tuword)mask) & ((tuword)(x)))
+#define BIT_CLEAR(mask,x)   ((~(tuword)(mask)) & ((tuword)(x)))
 #define BIT0_CLEAR(x)       BIT_CLEAR(1, x)
 #define NEG(x)              ((~(tuword)(x)) + 1)
 #define PUSH(x)             (stack[--sp] = (tword)(x))

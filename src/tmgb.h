@@ -326,6 +326,8 @@ void any() {
 //      Gets one character from the input and tests against current character class
 // Parameters:
 //      r0 - pointer to character class
+// Return:
+//      Carry bit set if the charater belongs to the character class
 void ctest() {
     DEBUG("    ctest(): character class = %ld", *(tptr)r0);
     ctestc++;
@@ -395,15 +397,16 @@ void jget() {
     jgetc++;
     do {
         r1 = ((parse_frame_t*)f)->j;    // input cursor
-        r0 = BIT_CLEAR(INPT-1, r1);     // Clear lower 7 bits (INPT is 128); input file offset
+        r0 = BIT_CLEAR(INPT-1, r1);     // Clear lower 7 bits of r1 (INPT is 128); input file offset
         r1 = BIT_CLEAR(r0, r1);         // Leave lower 7 bits of r1
         if (r0 != inpr) {               // Input buffer needs to be updated?
             // Read next portion of buffer from the input file
+            DEBUG("    jget: reading next portion, %ld != %ld", r0, inpr);
             readc++;
             inpr = r0;                  // Remember current input file offset
             fseek(input, inpr, SEEK_SET);
             r0 = fread(inpb, 1, INPT, input);
-            DEBUG("    jget: bytes read %ld", r0);
+            DEBUG("    jget: offset = %ld, bytes read %ld", inpr, r0);
             for (; r0<INPT; r0++)
                 inpb[r0] = 0;           // Rest of buffer is zeroed, loop will exit on '\0'
         }
@@ -584,15 +587,15 @@ void sprv() {
 //      NOTE: It will always succeed. Even if zero characters match.
 void string() {
     DEBUG("    string()");
-    PUSH(0);
+    PUSH(0);        // Temporary
     iget();         // Retrieve pointer to character class into r0
     do {
-        stack[sp] = ((parse_frame_t*)f)->j;
+        stack[sp] = ((parse_frame_t*)f)->j;     // Update Temporary
         PUSH(r0);
         ctest();
         r0 = POP();
     } while (carry);
-    ((parse_frame_t*)f)->j = POP();
+    ((parse_frame_t*)f)->j = POP();             // Retrieve Temporary
     return succ();  // Tail call
 }
 
