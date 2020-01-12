@@ -1,3 +1,5 @@
 *.h linguist-language=C
+*.t linguist-detectable=false
 examples/* linguist-detectable=false
 src/tmgl.h linguist-generated=true
+test/*/tmgl.h linguist-generated=true
