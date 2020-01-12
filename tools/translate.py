@@ -42,6 +42,7 @@ class Translator:
         'octal', '.tp', 'decimal', 'ignore',
         'alt', 'salt', 'generate', 'succ', 'fail',
         'smark', 'any', 'string', 'scopy',
+        'bundle', 'reduce',
     ]
 
     KNOWN_DICT = { 'goto': 'tgoto' }

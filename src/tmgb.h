@@ -17,6 +17,7 @@ extern void  fail();
 extern void  generate();
 extern void  obuild();
 extern void  parse();
+extern void  pbundle();
 extern void  putch();
 extern void  salt();
 extern void  succ();
@@ -72,6 +73,8 @@ void _u();
 void _x();
 
 void any();
+void bundle();
+void _bundle();
 void ctest();
 void decimal();
 void _decimal();
@@ -86,6 +89,7 @@ void putcstr();
 void putdec();
 void puthex();
 void putoct();
+void reduce();
 void rewcstr();
 void scopy();
 void _scopy();
@@ -322,6 +326,20 @@ void any() {
     }
 }
 
+void bundle() {
+    r0 = (tword)f + sizeof(parse_frame_t);
+    return _bundle();   // Tail call
+}
+
+void _bundle() {
+    pbundle();
+    //tst r0        // Sets n- and z-bits, clears v- (overflow) and c-bits
+    failure = false;
+    if (r0)
+        *g++ = r0;
+    return succ();  // Tail call
+}
+
 // Description:
 //      Gets one character from the input and tests against current character class
 // Parameters:
@@ -519,6 +537,15 @@ void putoct() {
     if (r0) putoct();
     r0 = POP() + '0';
     putch();
+}
+
+void reduce() {
+    iget();
+    r1 = *(tptr)r0;
+    r0 = (tword)g;
+    //r1 <<= 1;         // Accounting for word size
+    r0 -= r1*sizeof(tword);
+    return _bundle();   // Tail call
 }
 
 // Description:

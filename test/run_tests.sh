@@ -17,12 +17,15 @@ cp ../src/*.h ../src/*.c ../src/build.sh build/
 mask=[0123456789]
 if [[ $# -ne 0 ]]; then
     mask="$1"
+else
+    echo "Test                             Result"
+    echo "======                           ======"
 fi
 for dir in $mask*; do
     if [[ ! -d $dir ]]; then continue; fi
     len=${#dir}
     pad=$( echo "                                " | cut -c $len- )
-    echo -n "$dir" "$pad"
+    echo -n "$dir$pad"
 
     fail=0
 
