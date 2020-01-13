@@ -128,100 +128,84 @@ tword start[] = {
 	(tword)')',
 // __2:
 	1 + (tword)&succ,
-#undef _1
-#define _1         (tword)&start[81]
-	1 + (tword)&_tp,
-	1,
-#undef _2
-#define _2         (tword)&start[83]
-	1 + (tword)&_tp,
-	1,
 // __value:
 #define __ident    (tword)&labels[15]
 	__ident,
-	(tword)&alt,
-#define __5        (tword)&labels[16]
-	__5,
-	(tword)&trans,
-	1 + _1,
-	(tword)&tgoto,
-#define __4        (tword)&labels[17]
+	(tword)&salt,
+#define __4        (tword)&labels[16]
 	__4,
-// __5:
-#define __number   (tword)&labels[18]
+#define __number   (tword)&labels[17]
 	__number,
-	(tword)&trans,
-	1 + _2,
 // __4:
 	1 + (tword)&succ,
 // __done:
 	1 + (tword)&succ,
 #undef _2
-#define _2         (tword)&start[97]
+#define _2         (tword)&start[87]
 	(tword)"ADD ",
 #undef _1
-#define _1         (tword)&start[98]
+#define _1         (tword)&start[88]
 	1 + (tword)&_tx,
 	_2,
 #undef _4
-#define _4         (tword)&start[100]
+#define _4         (tword)&start[90]
 	(tword)"SUB ",
 #undef _3
-#define _3         (tword)&start[101]
+#define _3         (tword)&start[91]
 	1 + (tword)&_tx,
 	_4,
 // __addop:
 	(tword)&_pxs,
 	(tword)'+',
 	(tword)&alt,
-#define __7        (tword)&labels[19]
-	__7,
+#define __6        (tword)&labels[18]
+	__6,
 	(tword)&trans,
 	1 + _1,
 	(tword)&tgoto,
-#define __6        (tword)&labels[20]
-	__6,
-// __7:
+#define __5        (tword)&labels[19]
+	__5,
+// __6:
 	(tword)&_pxs,
 	(tword)'-',
 	(tword)&trans,
 	1 + _3,
-// __6:
+// __5:
 	1 + (tword)&succ,
 #undef _2
-#define _2         (tword)&start[116]
+#define _2         (tword)&start[106]
 	(tword)"MUL ",
 #undef _1
-#define _1         (tword)&start[117]
+#define _1         (tword)&start[107]
 	1 + (tword)&_tx,
 	_2,
 #undef _4
-#define _4         (tword)&start[119]
+#define _4         (tword)&start[109]
 	(tword)"DIV ",
 #undef _3
-#define _3         (tword)&start[120]
+#define _3         (tword)&start[110]
 	1 + (tword)&_tx,
 	_4,
 // __mulop:
 	(tword)&_pxs,
 	(tword)'*',
 	(tword)&alt,
-#define __11       (tword)&labels[21]
-	__11,
+#define __10       (tword)&labels[20]
+	__10,
 	(tword)&trans,
 	1 + _1,
 	(tword)&tgoto,
-#define __10       (tword)&labels[22]
-	__10,
-// __11:
+#define __7        (tword)&labels[21]
+	__7,
+// __10:
 	(tword)&_pxs,
 	(tword)'/',
 	(tword)&trans,
 	1 + _3,
-// __10:
+// __7:
 	1 + (tword)&succ,
 #undef _1
-#define _1         (tword)&start[135]
+#define _1         (tword)&start[125]
 	1 + (tword)&_tp,
 	1,
 // __ident:
@@ -234,7 +218,7 @@ tword start[] = {
 	1 + (tword)&trans,
 	1 + _1,
 #undef _1
-#define _1         (tword)&start[145]
+#define _1         (tword)&start[135]
 	1 + (tword)&_tp,
 	1,
 // __number:
@@ -254,7 +238,7 @@ tword start[] = {
 	4,
 // __alpha:
 	0,
-#define __classtab (tword)&start[159]
+#define __classtab (tword)&start[149]
 	0,
 	0,
 	0,
@@ -383,10 +367,10 @@ tword start[] = {
 	0,
 	0,
 	0,
-#define _pn        (tword)&start[287]
+#define _pn        (tword)&start[277]
 	1 + (tword)&_pxs,
 	(tword)'\n',
-#define _tn        (tword)&start[289]
+#define _tn        (tword)&start[279]
 	1 + (tword)&_txs,
 	(tword)'\n',
 };
@@ -395,28 +379,27 @@ tword start[] = {
 
 const tword labels[] = {
 	(tword)&start[1],       // __1
-	(tword)&start[155],     // __space
-	(tword)&start[158],     // __alpha
-	(tword)&start[156],     // __letter
-	(tword)&start[157],     // __digit
+	(tword)&start[145],     // __space
+	(tword)&start[148],     // __alpha
+	(tword)&start[146],     // __letter
+	(tword)&start[147],     // __digit
 	(tword)&start[20],      // __expr
 	(tword)&start[36],      // __term
-	(tword)&start[103],     // __addop
-	(tword)&start[96],      // __done
+	(tword)&start[93],      // __addop
+	(tword)&start[86],      // __done
 	(tword)&start[53],      // __factor
-	(tword)&start[122],     // __mulop
+	(tword)&start[112],     // __mulop
 	(tword)&start[68],      // __primary
-	(tword)&start[85],      // __value
+	(tword)&start[81],      // __value
 	(tword)&start[75],      // __3
 	(tword)&start[80],      // __2
-	(tword)&start[137],     // __ident
-	(tword)&start[92],      // __5
-	(tword)&start[95],      // __4
-	(tword)&start[147],     // __number
-	(tword)&start[111],     // __7
-	(tword)&start[115],     // __6
-	(tword)&start[130],     // __11
-	(tword)&start[134],     // __10
+	(tword)&start[127],     // __ident
+	(tword)&start[85],      // __4
+	(tword)&start[137],     // __number
+	(tword)&start[101],     // __6
+	(tword)&start[105],     // __5
+	(tword)&start[120],     // __10
+	(tword)&start[124],     // __7
 };
 
 // Used builtins:

@@ -9,27 +9,46 @@ Assumptions:
 
 from sys import argv
 
-def statements(fn):
-    cum = ''
-    string = False
-    for line in open(fn):
-        for s in line.split(';'):
-            s = s.lstrip()
-            while s and s[0]=='<':
-                if '>' not in s:
-                    raise ValueError(s)
-                p = s.index('>')
-                literal, s = s[:p+1], s[p+1:]
-                if s and s[0]=='>':
-                    literal += s[0]
-                    s = s[1:]
-                s = s.lstrip()
-                yield literal
+def line_statements(line, cnt):
+    line = line.lstrip()
+    while line:
+        if line and line[0]=='<':
+            # Yield string statement
+            p = line.index('>')
+            literal, line = line[:p+1], line[p+1:]
+            while literal[-2:-1] == '\\':
+                p = line.index('>')
+                literal, line = literal + line[:p+1], line[p+1:]
+            if line and line[0]=='>':
+                literal, line = literal + line[0], line[1:]
+            yield literal.replace("\\>",">")
+        else:
+            # Split statements on semicolon
+            if ';' in line:
+                s, line = line.split(';', 1)
+            else:
+                s, line = line, ''
+            # Yield all the labels
             while ':' in s:
-                label, s = s.split(':',1)
+                label, s = s.split(':', 1)
                 yield label.strip() + ':'
+            # Yield the rest of the statement (may be empty string)
             ls = s.lstrip()
-            yield ls.rstrip() if ls and ls[0]!="'" else ls[:2]+ls[2:].rstrip()
+            if ls and ls[0]=="'":
+                # Single character constant
+                yield ls[:2]+ls[2:].rstrip() 
+            else:
+                # Other
+                yield ls.rstrip()
+        line = line.lstrip()
+
+def file_statements(fn):
+    cnt = 0
+    for line in open(fn):
+        cnt += 1
+        for s in line_statements(line, cnt):
+            if s:
+                yield s
 
 class Translator:
 
@@ -184,6 +203,6 @@ class Translator:
 if __name__=='__main__':
     t = Translator()
     t.start()
-    for s in statements(argv[1]):
+    for s in file_statements(argv[1]):
         t.translate(s)
     t.end()
