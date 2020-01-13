@@ -1,9 +1,9 @@
 /* Translates infix expression with operator precedence to Polish postfix */
 /* Based on: "A Manual for the Tmg Compiler-writing Language" by McIlroy */
 
-/* NOTE: ignoring spaces is in this example is equivalent to removing all the
+/* NOTE: ignoring spaces in this example is equivalent to removing all the
  *       spaces in the source file before parsing. This can produce 
- *       unexpected results */
+ *       counterintuitive results */
 
 program: ignore(space) [alpha = letter | digit] parse(expr);
 expr:    term
