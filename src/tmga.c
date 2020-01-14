@@ -67,28 +67,27 @@ void _tp();
 // Return:
 //      r0 - Retrieved word from the driving table. OR parameter.
 //      r1 - (IFF r0 is a parameter) environment pointer.
-tword iget() {
-    if ((tptr)i >= start && (tptr)i < ARRAY_END(start)) {
+void iget() {
+    if ((tptr)i >= start && (tptr)i < ARRAY_END(start))
         DEBUG("    iget: i=%lx [%ld]=%ld", (tuword)i, ((tword)((tptr)i-start)), *i);
-    } else {
+    else
         DEBUG("    iget: i=%lx", (tuword)i);
-    }
     r1 = (tword)f;
     r0 = *i++;
     if (r0 < 0) {
         // negative instruction is a pointer to a parameter in this
         // stack frame: fetch that instead, put environment pointer in r1
+        DEBUG("    iget: negative r0=%ld -> parameter", r0);
         PUSH(r0 & 1);               // save the exit bit
-        r0 = stack[sp];
+        r0 &= ~(tuword)stack[sp];   // Clear exit bit in r0
         do {                        // chase parameter
             r1 = (tword)((parse_frame_t*)r1)->env; 
-            r0 += (tword)((parse_frame_t*)r1)->si;
+            r0 = (tword)( ((parse_frame_t*)r1)->si + (r0 >> 1) );   // It is expected that negative values are doubled
             r0 = *(tptr)r0;
         } while (r0 < 0);
         r1 = (tword)((parse_frame_t*)r1)->env; 
         r0 |= (tword)POP();         // Restore the exit bit
     }
-    return r0;
 }
 
 void contin() {
@@ -104,7 +103,8 @@ void contin() {
     // get interpreted instruction
     // save its exit bit (bit 0) on stack
     // distinguish type of instruction by ranges of value
-    ((parse_frame_t*)f)->x = iget(); 
+    iget();
+    ((parse_frame_t*)f)->x = r0;
     DEBUG("%s          x==%lx", DEPTH, ((parse_frame_t*)f)->x);
     r0 = BIT0_CLEAR(r0);
     if ((tptr)r0 >= start && (tptr)r0 < ARRAY_END(start)) {
@@ -136,7 +136,8 @@ void alt() {
 
 void salt() {
     DEBUG("%ssalt", DEPTH);
-    i = (tptr)iget();
+    iget();
+    i = (tptr)r0;
     return contin();    // Tail call
 }
 
@@ -155,7 +156,8 @@ void fail() {
     failc++;
     if (!(((parse_frame_t*)f)->x & 1)) {    // Exit bit not set
         DEBUG("%sexit bit not set", DEPTH);
-        ((parse_frame_t*)f)->x = iget();    // checked both
+        iget();
+        ((parse_frame_t*)f)->x = r0;        // checked both
         DEBUG("%s        x==%lx", DEPTH, ((parse_frame_t*)f)->x);
         r0 &= ~(tword)1;
         if (r0 == (tword)&alt)      // TODO: why does it go to salt if equal to alt and v.v.?
@@ -214,11 +216,13 @@ void errcom(const char* error) {
     exit(1);
 }
 
-// advance stack frame to invoke a parsing rule
-// copy  cursor, water mark, ignored class to new frame
-// set intial frame length to default (g1)
-// check end of stack
-// r0,r1 are new i,environment
+// Description:
+//      advance stack frame to invoke a parsing rule
+//      copy  cursor, water mark, ignored class to new frame
+//      set intial frame length to default (g1)
+//      check end of stack
+// Parameters:
+//      r0,r1 are new i,environment
 void adv() {
     advc++;
     DEBUG("%s>adv()", DEPTH);
@@ -235,7 +239,8 @@ void adv() {
     if ((uint8_t*)g >= stke)
         errcom("stack overflow");
     i = (tptr)r0;                       // Initially this contains &start[0]
-    _f->env = (tptr)r1;
+    DEBUG("%s>adv(): env=0x%lX, f=0x%lX", DEPTH, (tuword)r1, (tuword)f);
+    ((parse_frame_t*)f)->env = (tptr)r1;
     return contin();    // Tail call
 }
 
@@ -542,8 +547,8 @@ int main(int argc, char* argv[]) {
     if (verbose) {
         fprintf(dfile, "Driving table size = %lu words (%lu bytes)\n", 
                         sizeof(start)/sizeof(*start), sizeof(start));
-        fprintf(dfile, "Driving table range: %08lx..%08lx\n", (tuword)start, (tuword)start + sizeof(start));
-        fprintf(dfile, "Ktable range: %08lx..%08lx\n", (tuword)ktab, (tuword)ktab + sizeof(ktab));
+        fprintf(dfile, "Driving table range: 0x%08lX..0x%08lX\n", (tuword)start, (tuword)start + sizeof(start));
+        fprintf(dfile, "Ktable range: 0x%08lX..0x%08lX\n", (tuword)ktab, (tuword)ktab + sizeof(ktab));
     }
 
     // Compute function address range
@@ -570,7 +575,7 @@ int main(int argc, char* argv[]) {
         if (funcs[j] < func_min)  func_min = funcs[j];
     }
     if (verbose)
-        fprintf(dfile, "Functions range: %08lx..%08lx\n", (tuword)func_min, (tuword)func_max);
+        fprintf(dfile, "Functions range: 0x%08lX..0x%08lX\n", (tuword)func_min, (tuword)func_max);
 
     // set up tables
     // initialize stack

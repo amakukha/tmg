@@ -54,17 +54,17 @@ class Translator:
 
     KNOWN_LIST = [
         '.l', '.p', '.t', '.u', '.st',
-        '.ge','.ne','.eq',
+        '.eq','.ne','.le','.lt','.ge','.gt',
         '.da', '.ia', '.db', '.ib',
-        '.a', '.s', '.n', '.o', '.x',
+        '.a', '.s', '.m', '.n', '.o', '.x',
         'parse', 'trans', '.tx', '.txs', '.px', '.pxs',
         'octal', '.tp', 'decimal', 'ignore',
         'alt', 'salt', 'generate', 'succ', 'fail',
         'smark', 'any', 'string', 'scopy',
-        'bundle', 'reduce',
+        'bundle', 'reduce', 'params', 'push',
     ]
 
-    KNOWN_DICT = { 'goto': 'tgoto' }
+    KNOWN_DICT = { 'goto': 'tgoto', 'char': 'tchar' }
 
     def __init__(self):
         self.cur = 0
@@ -151,6 +151,12 @@ class Translator:
                 s = '0' + s   # octal
             if s=='012':
                 s = "(tword)'\\n'"
+        elif s and s[0]=='[' and s[-1]==']':
+            # Constant expressions
+            s = {
+                '[-1\<1]': '(tword)((tuword)-1<<1)',
+                '[-2\<1]': '(tword)((tuword)-2<<1)',
+            }[s]
 
         # Translate character literal
         elif len(s)==2 and s[0]=="'":

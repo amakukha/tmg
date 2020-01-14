@@ -10,19 +10,19 @@
 extern bool verbose;
 extern tword* classtab;
 
-extern void  alt();
-extern tword iget();
-extern void  errcom(const char* msg);
-extern void  fail();
-extern void  generate();
-extern void  obuild();
-extern void  parse();
-extern void  pbundle();
-extern void  putch();
-extern void  salt();
-extern void  succ();
-extern void  tgoto();
-extern void  _tp();
+extern void alt();
+extern void iget();
+extern void errcom(const char* msg);
+extern void fail();
+extern void generate();
+extern void obuild();
+extern void parse();
+extern void pbundle();
+extern void putch();
+extern void salt();
+extern void succ();
+extern void tgoto();
+extern void _tp();
 
 char putbuff[256];      // Used in putdec (size can be reduced)
 
@@ -53,9 +53,13 @@ void _db();
 void _eq();
 void _false();
 void _ge();
+void _gt();
 void _ia();
 void _ib();
 void _l();
+void _le();
+void _lt();
+void _m();
 void _n();
 void _ne();
 void _o();
@@ -63,6 +67,8 @@ void _p();
 void _px();
 void _pxcommon();
 void _pxs();
+void _q();
+void _r();
 void _s();
 void _st();
 void _t();
@@ -75,6 +81,7 @@ void _x();
 void any();
 void bundle();
 void _bundle();
+void tchar();       // Original name char, collision with C type
 void ctest();
 void decimal();
 void _decimal();
@@ -84,6 +91,8 @@ void jget();
 void kput();
 void octal();
 void _octal();
+void params();
+void push();
 void putcall();
 void putcstr();
 void putdec();
@@ -134,15 +143,25 @@ void _eq() {
         return _false();    // Tail call
 }
 
-// from tmgb/reln.s, original name false
+// From tmgb/reln.s, original name false
 void _false() {
     stack[sp+2] = 0;
     return _p();    // Tail call
 }
 
+// Greater or equal
 void _ge() {
     sprv();
     if (stack[sp+2] >= stack[sp])
+        return _true();     // Tail call
+    else
+        return _false();    // Tail call
+}
+
+// Greater than
+void _gt() {
+    sprv();
+    if (stack[sp+2] > stack[sp])
         return _true();     // Tail call
     else
         return _false();    // Tail call
@@ -165,11 +184,46 @@ void _ib() {
 // load named value
 // rvalue into (sp), lvalue into 2(sp)
 void _l() {
+    DEBUG("    _l:");
     iget();
     PUSH(r0);
     PUSH(*(tptr)r0);
-    DEBUG("    loaded: %lx",*(tptr)r0);
+    DEBUG("    _l: loaded rvalue=0x%lX, lvalue=0x%lX", r0, *(tptr)r0);
     return succ();  // Tail call
+}
+
+// Less or equal
+void _le() {
+    sprv();
+    if (stack[sp+2] <= stack[sp])
+        return _true();     // Tail call
+    else
+        return _false();    // Tail call
+}
+
+// Less than
+void _lt() {
+    sprv();
+    if (stack[sp+2] < stack[sp])
+        return _true();     // Tail call
+    else
+        return _false();    // Tail call
+}
+
+// Multiplication
+// NOTE: MPY / MUL instruction seems to have worked differently from the
+//       one described in the "PDP11 Processor Handbook"
+void _m() {
+    DEBUG("    _m");
+    sprv();
+    // Short version
+    stack[sp+2] *= stack[sp];
+    // Long version (with r0,r1 side effects)
+    //r0 = stack[sp];
+    //r1 = r0*stack[sp+2];
+    //stack[sp+2] = r1;
+    DEBUG("    infix * = %ld", stack[sp+2]);
+    return _p();    // Tail call
 }
 
 // infix &
@@ -255,10 +309,11 @@ void _s() {
 
 // infix =
 void _st() {
-    DEBUG("    infix =");
+    DEBUG("    _st: infix =");
     sprv();
     POP_PREV();
     POP_PREV();
+    return _u();    // Tail call
 }
 
 // test stack
@@ -273,7 +328,7 @@ void _t() {
     }
 }
 
-// from tmgb/reln.s, original name true
+// From tmgb/reln.s, original name true
 void _true() {
     stack[sp+2] = 1;
     return _p();    // Tail call
@@ -340,6 +395,21 @@ void _bundle() {
     return succ();  // Tail call
 }
 
+void tchar() {
+    jget();
+    if (!r0) {
+        // tst (i)+     // Sets n- and z-bits, clears v- (overflow) and c-bits
+        i++;
+        failure = false;
+        return fail();  // Tail call
+    }
+    PUSH(r0);
+    iget();
+    *(tptr)r0 = POP();
+    ((parse_frame_t*)f)->j++;
+    return succ();  // Tail call
+}
+
 // Description:
 //      Gets one character from the input and tests against current character class
 // Parameters:
@@ -352,7 +422,7 @@ void ctest() {
     PUSH(r0);
     jget();
     DEBUG("    ctest(): classtab[r0] = %ld", classtab[r0]);
-    //r0 <<= 1;
+    //r0 <<= 1;     // Conversion to word offset
     if (*(tptr)POP() & classtab[r0]) {
         carry = false;
         //r0 >>= 1;
@@ -471,6 +541,48 @@ void _octal() {
     r0 = *i;
     putoct();
     return generate();  // Tail call
+}
+
+// Description:
+//     Builtin: params(n)
+void params() {
+    DEBUG("    params: r0=%ld", r0);
+    iget();
+    r0 = *(tptr)r0;
+    //r0 <<= 1;     // Accounting for word size
+    r1 = (tword)((parse_frame_t*)f)->env;
+    ((parse_frame_t*)r1)->si += r0;
+    return succ();  // Tail call
+}
+
+// Description:
+//     Builtin: push(n, list)
+void push() {
+    DEBUG("    push");
+    iget();
+    r2 = *(tptr)r0;         // First parameter - n
+    DEBUG("    push: n=%ld", r2);
+    r1 = r2;
+    // Push each parameter from the `list`
+    do {
+        PUSH(r1);
+        iget();
+        r1 = POP();
+        PUSH(r0);           // Remember address
+        PUSH(*(tptr)r0);    // Remember value
+    } while (--r2 > 0);
+    PUSH(r1);
+    succ();
+    DEBUG("    push after succ");
+    // preserve c bit from here on
+    r2 = POP();             // Original n
+    do {
+        tword value   = POP();
+        tword address = POP(); 
+        *(tptr)address = value;
+    } while (--r2 > 0);
+    // pass sret or fret back to invoking rule
+    return;
 }
 
 void putcall() {
@@ -598,7 +710,7 @@ void smark() {
     return succ();  // Tail call
 }
 
-// from: arith.s
+// From: arith.s
 // make sp hold a simple rvalue (forget it might be a table value)
 void sprv() {
     DEBUG("    sprv()");
@@ -628,7 +740,8 @@ void string() {
 
 void trans() {
     DEBUG("    trans()");
-    *g++ = iget();
+    iget();
+    *g++ = r0;
     return succ();  // Tail call
 }
 
@@ -643,17 +756,18 @@ void trace() {
     putch();
 }
 
-// from: arith.s
+// From: arith.s
 // update a stored value, used by all assignments
 // NOTE: all stack offsets are smaller by 1, because calls don't use `stack`
 void update() {
     DEBUG("    update()");
     if (stack[sp+1] != -1) {
-        DEBUG("    0(): %lx", stack[sp+1]);
+        DEBUG("    update: *0x%lX <- %ld", stack[sp+1], stack[sp]);
         *(tptr)stack[sp+1] = stack[sp];
+        DEBUG("    updated");
         return;
     }
-    DEBUG("    1()");
+    DEBUG("    update: -1");
     // TODO: what's the meaning of this?
     r1 = stack[sp+2];
     r0 = stack[sp+3];
