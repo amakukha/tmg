@@ -23,16 +23,16 @@ Quotes about TMG
 --
 TMG was an early inspiration for Donald Knuth and his TAOCP. According to him:
 > I was impressed by the metacompiler of Val Schorre and by the more powerful (though
-> less elegant) “transmogrifier” of Bob McClure. I told Peter [Wegner] about my draft manuscript for
+> less elegant) "transmogrifier" of Bob McClure. I told Peter [Wegner] about my draft manuscript for
 > Chapter 12 of The Art of Computer Programming, which included an example system of a similar kind,
-> called TROL (“Translation-Oriented Language”).
+> called TROL ("Translation-Oriented Language").
 
 Stephen C. Johnson, creator of YACC, about his experience of working with TMG:
 > There was a compiler/compiler in use at the Labs, imported I think by Doug
 > McIlroy, called TMG.  It was a backtracking recursive descent compiler
 > that could compile almost anything but was unbearably slow and, if it
 > encountered a syntax error would backtrack back to the first character of
-> the input file and say, in effect, “something's wrong in here somewhere”.
+> the input file and say, in effect, "something's wrong in here somewhere".
 
 Doug McIlroy, creator of the Unix dialect of TMG:
 > And in some ways, TMG was nicer than YACC. Not specification of grammar, but it actually
@@ -40,7 +40,7 @@ Doug McIlroy, creator of the Unix dialect of TMG:
 > translation after that.
 
 Tom Duff, Bell Labs employee:
-> It [TMG] made syntax-directed translation really easy, but with an abstruse
+> It made syntax-directed translation really easy, but with an abstruse
 > syntax and semantics that any esoteric language enthusiast could appreciate.
 
 References
