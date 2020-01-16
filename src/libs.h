@@ -111,12 +111,16 @@ void fixct();
 void getb();
 void getbuf();
 void getschar();        // Originally getchar, collision with stdio.h
+void getword();
 int ilog2(tuword x);
 void initl();
+void length();
 void lookchar();
+void lookword();
 void plausible();
 void preposterous();
 void putschar();        // Originally putchar, collision with stdio.h
+void putword();
 void release();
 void reset();
 void rewinds();         // Originally rewind, collision with stdio.h
@@ -131,12 +135,11 @@ void show_block_string();
 // Description:
 //      allocate a new block
 // Parameters:
-//      requested size in bytes in r0
+//      r0 - requested size in bytes (preserved)
 //      (convert to words, adjust for header, round up
 //      to a power of two)
 // Return:
 //      r1 - pointer to header of allocated block
-//      r0 is preserved
 void allocate() {
     DEBUG("    allocate(): size=%ld", r0);
     PUSH(r0);
@@ -206,13 +209,13 @@ yyy:
 
 // TODO: check this routine
 // Description:
-//      routine to rewrite the character pointer to by
+//      routine to rewrite the character pointed to by
 //      read pointer.  The read pointer is advanced.
 //      the string is extended if necessary.
 //      there is no error return.
 // Parameters:
 //      r0 - character
-//      r1 - ...
+//      r1 - The string.
 void alterchar() {
     DEBUG("    alterchar()");
     PUSH(r2);
@@ -233,8 +236,9 @@ void alterchar() {
     bufchar();
     if (failure)
         getbuf();
-    *(tptr)r0 = nchar;
-    r0 = nchar;                 // to preserve r0 for user
+    
+    *(char*)r0 = (char)nchar;   // movb nchar,(r0)
+    r0 = nchar;                 // to preserve r0 for user. (Important for alterword.)
     ((sblock_t*)r1)->r++;
     w1[r2] = 1;                 // Buffer was modified
     if (((sblock_t*)r1)->r >= ((sblock_t*)r1)->w)
@@ -245,12 +249,13 @@ void alterchar() {
         fixct();
     r1 = POP();
     r2 = POP();
-    return;
 }
 
-// TODO: what does it do?
 // Description:
 //      routine to alter a word in the string
+// Parameters:
+//      r0 - Word (two bytes).
+//      r1 - The string.
 void alterword() {
     DEBUG("    alterword()");
     alterchar();
@@ -546,6 +551,20 @@ void getschar() {
 }
 
 // Description:
+//      routine to get a word from the string
+//      (Unlike lookword advances the read pointer.)
+// Parameters:
+//      r1 - The string.
+// Return:
+//      r0 - Word (two bytes)
+//      failure - Set on EOF
+void getword() {
+    lookword();
+    if (!failure)
+        ((sblock_t*)r1)->r += 2;
+}
+
+// Description:
 //      routine to find integer part of log2(x)
 //      (Generalized to tword.)
 int ilog2(tuword x) {
@@ -612,6 +631,17 @@ void initl() {
 }
 
 // Description:
+//      routine to return the length of a string
+//      (From: /usr/source/s1/dc4.s)
+// Parameters:
+//      r1 - The string.
+// Return:
+//      r0 - Length.
+void length() {
+    r0 = ((sblock_t*)r1)->w - ((sblock_t*)r1)->a;
+}
+
+// Description:
 //      routine to look at next character from string
 //      pointed to by r1;  character returned in r0
 //      c-bit set if character not available (end of file)
@@ -635,7 +665,7 @@ void lookchar() {
         else
             fixct();
         r2 = POP();
-        r0 = *(char*)r0;
+        r0 = *(char*)r0;                // movb (r0),r0;  NOTE: this is supposed to sign-extend
         //tst   r0  /clears c-bit       // Sets n- and z-bits, clears v- (overflow) and c-bits
         failure = false;
     } else {
@@ -645,6 +675,29 @@ void lookchar() {
         r0 = 0;
         failure = true;
     }
+}
+
+// Description:
+//      routine to look at a word from the string
+//      (Unlike getword, it's not supposed to advance the read pointer on success.)
+// Parameters:
+//      r1 - The string.
+// Return:
+//      r0 - Word (two bytes); Zero on EOF
+//      failure - Set on EOF
+void lookword() {
+    DEBUG("    lookword()");
+    lookchar();
+    if (failure)
+        return;
+    nchar = (unsigned char)r0;      // movb r0,nchar;  NOTE: this clears upper bits of nchar
+    ((sblock_t*)r1)->r++;
+    lookchar();
+    if (failure)
+        return; // Isn't it bad that we don't restore ->r here?
+    nchar |= (r0 & 0xFF) << 8;      // movb r0,nchar+1
+    ((sblock_t*)r1)->r--;
+    r0 = nchar;
 }
 
 // Description:
@@ -698,12 +751,11 @@ botch:
 
 // Description:
 //      routine to put a character into the string
-//      pointed to by r1;  character in r0
-//      r0 is preserved; r1 points to the string
-//      after return and must be saved.
+//      pointed to by r1
 // Parameters:
-//      r0 - char
-//      r1 - pointer to header (sblock_t) 
+//      r0 - char (preserved)
+//      r1 - points to the string. (Pointer to the header sblock_t) 
+//           after return and must be saved.
 void putschar() {
     DEBUG("    putschar(): char=%ld", r0);
     PUSH(r2);
@@ -726,10 +778,10 @@ void putschar() {
     bufchar();
     if (failure)
         getbuf();
-    *(char*)r0 = nchar;
+    *(char*)r0 = (char)nchar;   // movb nchar,(r0)
     w1[r2] = 1;     // Buffer was modified
 
-    r0 = nchar;     // to preserve r0 for user
+    r0 = nchar;     // to preserve r0 for user. (Important for putword routine.)
     ((sblock_t*)r1)->w++;
     flag++;
     if (++flag)
@@ -738,6 +790,19 @@ void putschar() {
         fixct();
     r1 = POP();
     r2 = POP();
+}
+
+// Description:
+//      routine to put a word onto the string
+// Parameters:
+//      r0 - Word (two bytes).
+//      r1 - The string.
+void putword() {
+    DEBUG("    putword(): 0x%lx", r0 & 0xFFFF);
+    putschar();
+    r0 = SWAP_BYTES(r0);
+    putschar();
+    r0 = SWAP_BYTES(r0);
 }
 
 // Description:
@@ -789,11 +854,12 @@ void rewinds() {
 //      routine to move the read pointer of a string to the
 //      relative position indicated by r0.  the string is
 //      extended if necessary - there is no error return.
+//      (NOTE: comment from V6/usr/source/s1/form5.s)
 // Parameters:
 //      r0 - position
-//      r1 - ... (The string.)
+//      r1 - The string (that is pointer to header sblock_t).
 void seekchar() {
-    DEBUG("    seekchar()");
+    DEBUG("    seekchar(): pos=%ld", r0);
     PUSH(r1);
     PUSH(r0);
     do {

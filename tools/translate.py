@@ -62,6 +62,7 @@ class Translator:
         'alt', 'salt', 'generate', 'succ', 'fail',
         'smark', 'any', 'string', 'scopy',
         'bundle', 'reduce', 'params', 'push',
+        'find', 'enter', 'table', '.f',
     ]
 
     KNOWN_DICT = { 'goto': 'tgoto', 'char': 'tchar' }
@@ -73,7 +74,10 @@ class Translator:
         self.builtins = set()   # list of all builtins used
 
     def start(self):
+        print('//#define SRC_LANGUAGE "input language"')
+        print('//#define DST_LANGUAGE "output language"\n')
         print('const tword labels[];\n')
+        print('// Driving table for the program\n')
         print('tword start[] = {')
 
     def translate(self, s):
@@ -183,6 +187,7 @@ class Translator:
     def end(self):
         print('};\n')
         if self.labels:
+            print('// Global label addresses inside the driving table\n')
             print('const tword labels[] = {')
             for n,s,t in sorted(self.labels.values()):
                 if t is None: continue

@@ -1,2 +1,4 @@
 *alloc.d
 *.swp
+test/build/*
+test/out.tmp

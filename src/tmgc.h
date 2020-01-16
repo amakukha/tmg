@@ -126,7 +126,7 @@ typedef struct translation_frame {
 #define PUSH(x)             (stack[--sp] = (tword)(x))
 #define POP()               (stack[sp++])
 #define POP_PREV()          do { stack[sp+1]=stack[sp]; sp++; } while(0)        // mov (sp)+,(sp)
-#define SWAP_BYTES(x)       (((x & 0xFF)<<8) | ((x & 0xFF00)>>8))
+#define SWAP_BYTES(x)       (((x & 0xFF)<<8) | ((x & 0xFF00)>>8))               // swab r0
 
 // Debugging output enabled?
 #if DEBUG_MODE

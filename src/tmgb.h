@@ -41,16 +41,26 @@ tword trswitch = 0;     // Trace switch
 //      keep a initial fragment handy for quick access
 //      go to allocator for the rest
 #define CSTRT 16        // top of quick access current string
-char  cstrb[CSTRT];     // base of quick access fragment
+char  cstrb[CSTRT];     // base of quick access fragment. (Quick access part of the current string.)
 tword cstrr;            // read pointer. (Index of cstrb.)
 tword cstrw = 0;        // current string write pointer. (Index of cstrb.)
-sblock_t* symp = NULL;  // pointer to dynamically allocated current string
+sblock_t* symp = NULL;  // pointer to dynamically allocated (part of the) current string
+
+// Structure from tmgb/find.s
+//typedef struct table_record {
+//    tword index;
+//    tword tablep;
+//    tword temp;
+//    tword which;
+//} table_record_t;
+//#define framel sizeof(table_record_t)       // just for reference, not to be used
 
 // Function declarations
 void _a();
 void _da();
 void _db();
 void _eq();
+void _f();
 void _false();
 void _ge();
 void _gt();
@@ -85,6 +95,9 @@ void tchar();       // Original name char, collision with C type
 void ctest();
 void decimal();
 void _decimal();
+void enter();
+void find();
+void _find();
 void getcstr();
 void ignore();
 void jget();
@@ -106,6 +119,7 @@ void size();
 void smark();
 void sprv();
 void string();
+void table();
 void trans();
 void trace();
 void update();
@@ -141,6 +155,22 @@ void _eq() {
         return _true();     // Tail call
     else
         return _false();    // Tail call
+}
+
+// Description:
+//      Get word value from a table.
+//      This is called when table indexing syntax is used: t[i]
+void _f() {
+    DEBUG("    _f:");
+    r0 = stack[sp];     // Position for seekchar
+    stack[sp+3] = r0;
+    r1 = stack[sp+2];   // Pointer to the string (sblock_t)
+    seekchar();
+    getword();
+    DEBUG("    _f: val=%ld", r0);
+    stack[sp] = r0;
+    stack[sp+1] = -1;
+    return succ();  // Tail call
 }
 
 // From tmgb/reln.s, original name false
@@ -451,24 +481,132 @@ void _decimal() {
 }
 
 // Description:
-//     TODO: how it works? What it does?
+//      Builtin enter(t,i).
+//      look up the current string in table t;
+//      enter if not there; assign its index to variable i;
+//      fail if current string is empty 
+void enter() {
+    PUSH(0);        // which(sp)
+    return _find(); // Tail call
+}
+
+// Description:
+//      Builtin find(t,i).
+//      look up the current string in table t;
+//      assign its index to variable i;
+//      fail if not there (or the current string is empty)
+void find() {
+    PUSH(1);        // which(sp) // Instead of pc
+    return _find(); // Tail call
+}
+
+// TODO: not entirely clear how it works
+void _find() {
+    rewcstr();
+    getcstr();
+    if (!r0) {
+        // The current string is empty -> find/enter fails
+        POP();
+        return fail();  // Tail call
+    }
+    PUSH(0);            // temp(sp)
+    iget();             // Get first parameter: the table pointer
+    PUSH(*(tptr)r0);    // tablep(sp)
+    PUSH(0);            // index(sp)
+right:
+    //add     $rptr,index(sp)
+    //br      1f
+    stack[sp] += 4;
+    goto next;
+left:
+    //add     $lptr,index(sp)
+    stack[sp] += 2;
+next:                   // get index of next entry
+    r1 = stack[sp+1];   // tablep (Which is an sblock_t*.) 
+    r0 = stack[sp];     // index + 3 +/- 1
+    seekchar();
+    getword();
+    //tst r0    // Sets n- and z-bits, clears v- (overflow) and c-bits
+    if (!r0)            // No table entry found for the current string
+        goto nomore;
+    stack[sp] = r0;
+    r0 += 6;            // add $sptr,r0     (Location of the table entry string is in r0 now.)
+    //r0 = (tword)((symbol_t*)r0)->sptr;
+    seekchar();
+    rewcstr();
+    do {                // comparison loop. (Compare the current string with the table entry string.)
+        r1 = stack[sp+1];   // tablep
+        getschar();     // Character from the table entry
+        PUSH(r0);
+        getcstr();      // Character from the current string
+        tword pop = POP();
+        if (r0 > pop)   // Current string is greater -> go to the right.
+            goto right;
+        if (r0 < pop)   // Current string is lower -> go to the left.
+            goto left;
+        //tst r0
+        if (!r0)        // Reached the end of the current string
+            goto found;
+    } while (1);
+
+nomore:         // not in table
+    if (stack[sp+3]) {     // which(sp); (If non-zero, then it was a find() call.)
+        // exit from find
+        //tst (i)+
+        i++;
+        sp += 4;        // Instead of 4x POP()
+        return fail();
+    }
+
+    // Enter the current string into the table
+    r1 = stack[sp+1];   // tablep
+    length();
+    stack[sp+2] = r0;   // temp <- Length
+    r0 = 0;
+    putword();          // scratch word. (User-accessible table data.)
+    putword();          // left pointer
+    putword();          // right pointer
+    r0 = stack[sp];     // index
+    seekchar();         // Move the read pointer of the string to this newly added table entry
+    r0 = stack[sp+2];   // temp == Length
+    stack[sp] = r0;     // index
+    alterword();
+    rewcstr();
+    do {                // copy loop
+        getcstr();
+        r1 = stack[sp+1];   // tablep
+        putschar();
+    } while (r0);
+
+found:
+    // Table entry for the current string was found or added
+    iget();             // Get second parameter: index variable
+    *(tptr)r0 = stack[sp];     // Save index into the supplied variable
+    sp += 4;            // Instead of 4x POP()
+    return succ();  // Tail call
+}
+
+// Description:
+//      Get next character from the current string 
+// Return:
+//      r0 - Character from the current string 
 void getcstr() {
     r1 = cstrr;
     if (r1 >= cstrw) {
-        r0 = 0;         // end of string
+        r0 = 0;             // end of string
         return;
     }
     cstrr++;
-    if (r1 < CSTRT) {
-        r0 = cstrb[r1];
+    if (r1 < CSTRT) {       // Within the quick access fragment?
+        r0 = cstrb[r1];     // Yes. 
         return;
     }
-    if (r1 == CSTRT) {      // WHY???
+    if (r1 == CSTRT) {      // Reached the end of the quick access fragment -> prepare sblock
         r1 = (tword)symp;
         rewinds();
     }
     r1 = (tword)symp;
-    getschar();
+    getschar();             // Read character from the sblock
 }
 
 void ignore() {
@@ -591,7 +729,6 @@ void putcall() {
     *g++ = ((parse_frame_t*)f)->k;
 }
 
-// TODO: how it works? What it does?
 // Description:
 //      Put character into current string.
 // Parameters:
@@ -599,10 +736,10 @@ void putcall() {
 void putcstr() {
     r1 = cstrw++;
     if (r1 < CSTRT) {           // is it quick access?
-        cstrb[r1] = (char)r0;   // yes, stash the char
+        cstrb[r1] = (char)r0;   // yes, stash the char (In the quick access fragment)
         return;
     }
-    if (r1 == CSTRT) {          // WHY???
+    if (r1 == CSTRT) {          // Quick access fragment got full -> prepare sblock
         PUSH(r0);               // first char to allocator
         r1 = (tword)symp;
         if (!r1) {
@@ -667,7 +804,7 @@ void rewcstr() {
 }
 
 // Description:
-//      TMG builtin. Copies a string into ktab.
+//      TMG builtin. Copies the current string into ktab.
 void scopy() {
     DEBUG("    scopy()");
     r0 = 1 + (tword)&_scopy;
@@ -682,7 +819,7 @@ void scopy() {
             errcom("translation overflow");
     } while(1);
     ktab[r2] = 0;
-    r2 = BIT0_CLEAR(r2);
+    r2 = BIT0_CLEAR(r2);    // TODO: this is like .even directive; maybe needs change for 32- and 64-bit architectures?
     r2 = -r2;
     ((parse_frame_t*)f)->k = r2;
     return succ();  // Tail call
@@ -735,6 +872,23 @@ void string() {
         r0 = POP();
     } while (carry);
     ((parse_frame_t*)f)->j = POP();             // Retrieve Temporary
+    return succ();  // Tail call
+}
+
+// Description:
+//      Builtin table(t).
+//      make a new table; assign its designator to t
+void table() {
+    r0 = 8;         // Requested initial size for the table string
+    allocate();
+    PUSH(r1);       // Save pointer to header of allocated block 
+    r0 = 0;
+    putword();      // Field `custom`
+    putword();      // Field `lptr`
+    putword();      // Field `rptr`
+    putschar();     // Field `sptr`
+    iget();
+    *(tptr)r0 = POP();      // Return pointer to the table string (sblock_t*)
     return succ();  // Tail call
 }
 

@@ -1,4 +1,13 @@
+// Port of the Unix compiler-compiler TMG to C99.
+// Based on the original PDP-11 assembly code by M. D. McIlroy.
+// (c) 2020, Andriy Makukha, 2-clause BSD License.
+
+#define SRC_LANGUAGE "octal number"
+#define DST_LANGUAGE "decimal number"
+
 const tword labels[];
+
+// Driving table for a sample program
 
 tword start[] = {
 #define __1        (tword)&labels[0]
@@ -234,6 +243,8 @@ tword start[] = {
 	1 + (tword)&_txs,
 	(tword)'\n',
 };
+
+// Global label addresses inside the driving table
 
 const tword labels[] = {
 	(tword)&start[1],       // __1
