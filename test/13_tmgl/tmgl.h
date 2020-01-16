@@ -1,7 +1,3 @@
-// Port of the Unix compiler-compiler TMG to C99.
-// Based on the original PDP-11 assembly code by M. D. McIlroy.
-// (c) 2020, Andriy Makukha, 2-clause BSD License.
-
 #define SRC_LANGUAGE "TMGL"
 #define DST_LANGUAGE "TMG driving table for PDP-11"
 

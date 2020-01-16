@@ -1,0 +1,235 @@
+1 ..1
+.1=.
+1
+..1:loop:
+
+parse
+line1
+.l;n
+.db
+.p
+parse
+line2
+.l;n
+.l;.1
+.ge
+.t
+alt;done
+1 loop
+.2=.
+< on the wall, \0>;.even
+.1=.
+.tp;.byte 1,0;
+.tx;.2
+.tp;.byte 1,0;
+.txs;'.
+1 .tn
+line1:
+
+beer
+1 trans;1 .1
+.2=.
+<If one of those bottles should happen to fall, \0>;.even
+.3=.
+< on the wall.\0>;.even
+.1=.
+.tx;.2
+.tp;.byte 1,0;
+.tx;.3
+1 .tn
+line2:
+
+beer
+1 trans;1 .1
+.2=.
+< bottle\0>;.even
+.3=.
+< of beer\0>;.even
+.1=.
+.tp;.byte 2,0;
+.tx;.2
+.tp;.byte 1,0;
+1 .tx;.3
+beer:
+
+left
+plural
+1 trans;1 .1
+.1=.
+1
+.3=.
+1 .tp;.byte 1,0;
+.5=.
+<no more\0>;.even
+.4=.
+1 .tx;.5
+left:
+
+.l;n
+.l;.1
+.ge
+.t
+alt;..3
+decimal
+n
+trans;1 .3
+goto;..2
+..3:trans;1 .4
+..2:
+1 succ
+.1=.
+1
+.3=.
+1 .txs;'s
+.4=.
+1 generate
+plural:
+
+.l;n
+.l;.1
+.ne
+.t
+alt;..5
+trans;1 .3
+goto;..4
+..5:trans;1 .4
+..4:
+1 succ
+done:
+
+1 succ
+n:
+143
+
+.globl classtab
+classtab:
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+.pn:1 .pxs;12
+.tn:1 .txs;12

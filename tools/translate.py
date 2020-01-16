@@ -22,6 +22,10 @@ def line_statements(line, cnt):
             if line and line[0]=='>':
                 literal, line = literal + line[0], line[1:]
             yield literal.replace("\\>",">")
+        elif line and line[0]=="'":
+            # Single character constant
+            s, line = line, ''
+            yield s[:2]+s[2:].rstrip() 
         else:
             # Split statements on semicolon
             if ';' in line:
@@ -33,13 +37,7 @@ def line_statements(line, cnt):
                 label, s = s.split(':', 1)
                 yield label.strip() + ':'
             # Yield the rest of the statement (may be empty string)
-            ls = s.lstrip()
-            if ls and ls[0]=="'":
-                # Single character constant
-                yield ls[:2]+ls[2:].rstrip() 
-            else:
-                # Other
-                yield ls.rstrip()
+            yield s.strip()
         line = line.lstrip()
 
 def file_statements(fn):
@@ -57,12 +55,16 @@ class Translator:
         '.eq','.ne','.le','.lt','.ge','.gt',
         '.da', '.ia', '.db', '.ib',
         '.a', '.s', '.m', '.n', '.o', '.x',
-        'parse', 'trans', '.tx', '.txs', '.px', '.pxs',
+        '.sl', '.sr', '.lv', '.rv',
+        '.cm', '.ng', '.nt',
+        '.tx', '.txs', '.px', '.pxs',
+        'parse', 'diag', 'trans', 
         'octal', '.tp', 'decimal', 'ignore',
         'alt', 'salt', 'generate', 'succ', 'fail',
         'smark', 'any', 'string', 'scopy',
         'bundle', 'reduce', 'params', 'push',
-        'find', 'enter', 'table', '.f',
+        'find', 'enter', 'table', 'discard', '.f',
+        'gpar', '.tq',
     ]
 
     KNOWN_DICT = { 'goto': 'tgoto', 'char': 'tchar' }
@@ -116,7 +118,7 @@ class Translator:
 
         # Translate global labels:
         # - Label definition
-        elif len(s)>1 and s[-1]==':':
+        elif len(s)>1 and s[0]!="'" and s[-1]==':':     # Don't confuse for the ': character literal!
             l = self.label(s[:-1])
             if l in self.labels:
                 # Add reference to the labels array
@@ -168,6 +170,8 @@ class Translator:
 
         # - Label usage: everything unknown must be a global label
         elif s:
+            if s[0]=="'":
+                raise ValueError(s+' '+repr(s))
             s = self.label(s)
             if s not in self.labels:
                 # Never met before -> define via labels array

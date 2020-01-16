@@ -11,6 +11,7 @@ extern bool verbose;
 extern tword* classtab;
 
 extern void alt();
+extern void diag();
 extern void iget();
 extern void errcom(const char* msg);
 extern void fail();
@@ -57,6 +58,7 @@ sblock_t* symp = NULL;  // pointer to dynamically allocated (part of the) curren
 
 // Function declarations
 void _a();
+void _cm();
 void _da();
 void _db();
 void _eq();
@@ -69,9 +71,12 @@ void _ib();
 void _l();
 void _le();
 void _lt();
+void _lv();
 void _m();
 void _n();
 void _ne();
+void _ng();
+void _nt();
 void _o();
 void _p();
 void _px();
@@ -79,10 +84,14 @@ void _pxcommon();
 void _pxs();
 void _q();
 void _r();
+void _rv();
 void _s();
+void _sl();
+void _sr();
 void _st();
 void _t();
 void _true();
+void _tq();
 void _tx();
 void _txs();
 void _u();
@@ -95,10 +104,12 @@ void tchar();       // Original name char, collision with C type
 void ctest();
 void decimal();
 void _decimal();
+void discard();
 void enter();
 void find();
 void _find();
 void getcstr();
+void gpar();
 void ignore();
 void jget();
 void kput();
@@ -132,6 +143,12 @@ void _a() {
     stack[sp+2] += stack[sp];
     DEBUG("    infix + = %ld", stack[sp+2]);
     return _p();    // Tail call
+}
+
+// unary ~
+void _cm() {
+    stack[sp] = ~stack[sp];
+    return succ();  // Tail call
 }
 
 // potsfix --
@@ -240,6 +257,14 @@ void _lt() {
         return _false();    // Tail call
 }
 
+// Description:
+//      unary &, prefixed to an lvalue
+//      return lvalue
+void _lv() {
+    stack[sp] = stack[sp+1];            // Lvalue becomes rvalue. New rvalue is the address.
+    return succ();  // Tail call
+}
+
 // Multiplication
 // NOTE: MPY / MUL instruction seems to have worked differently from the
 //       one described in the "PDP11 Processor Handbook"
@@ -272,6 +297,19 @@ void _ne() {
         return _false();    // Tail call
 }
 
+// unary -
+void _ng() {
+    stack[sp] = -stack[sp];
+    return succ();  // Tail call
+}
+
+// unary !
+void _nt() {
+    //stack[sp] = !stack[sp];
+    stack[sp] = stack[sp] ? 0 : 1;
+    return succ();
+}
+
 // infix |
 void _o() {
     sprv();
@@ -301,6 +339,24 @@ void _pxs() {
     r0 = (tword)i++;
     DEBUG("    _pxs(): address of word-length C-string: %lx", r0);
     return _pxcommon(); // Tail call
+}
+
+void _q() {
+    // TODO
+}
+
+void _r() {
+    // TODO
+}
+
+// Description:
+//      unary *, prefixed to an rvalue:
+//      indirection, take rvalue to be lvalue
+//      (NOTE: lvalue - something that can be assigned; to the left of assignment.)
+void _rv() {
+    stack[sp+1] = stack[sp];            // Rvalue becomes lvalue (address stored in rvalue "materializes").
+    stack[sp] = *(tptr)stack[sp+1];     // Rvalue changes to be the contents of that address.
+    return succ();
 }
 
 // .pn:1 .pxs;012   - expects a newline? TODO: what does it do exactly?
@@ -337,6 +393,20 @@ void _s() {
     return _p();    // Tail call
 }
 
+// Shift left <<
+void _sl() {
+    // TODO: do we need to set c-bit?
+    stack[sp+2] <<= stack[sp];
+    return _p();    // Tail call
+}
+
+// Shift right >>
+void _sr() {
+    // TODO: do we need to set c-bit?
+    stack[sp+2] >>= stack[sp];
+    return _p();    // Tail call
+}
+
 // infix =
 void _st() {
     DEBUG("    _st: infix =");
@@ -362,6 +432,25 @@ void _t() {
 void _true() {
     stack[sp+2] = 1;
     return _p();    // Tail call
+}
+
+// TODO: what is it? what it does?
+void _tq() {
+    DEBUG("    _tq()");
+    r0 = *i++;
+    ((translation_frame_t*)f)->si = i;
+    r1 = (tword)((translation_frame_t*)f)->ep;
+    translation_frame_t* _f_fs = (translation_frame_t*)((tword)f + fs);      // For convenience
+    _f_fs->ep = ((translation_frame_t*)r1)->ep;
+    _f_fs->ek = ((translation_frame_t*)r1)->ek;
+    r1 = (tword)((translation_frame_t*)r1)->si;
+    r0 *= sizeof(tword);    //r0 <<= 1;   // Accounting for word size
+    r1 -= r0;
+    i = (tptr)(*(tptr)r1);
+    f = (tptr)((tword)f + fs);      // Alternatively: f = _f_fs;
+    ((parse_frame_t*)f)->x = 0;     // Clear exit bit
+    generate();
+    return generate();  // Tail call
 }
 
 void _tx() {
@@ -478,6 +567,16 @@ void _decimal() {
     r0 = *i;
     putdec();
     return generate();    // Tail call
+}
+
+// Description:
+//      Builtin: discard(t)
+//      discard table t
+void discard() {
+    iget();         // Retrieve the parameter
+    r1 = *(tptr)r0;
+    release();
+    succ();
 }
 
 // Description:
@@ -607,6 +706,14 @@ void getcstr() {
     }
     r1 = (tword)symp;
     getschar();             // Read character from the sblock
+}
+
+void gpar() {
+    r0 = *i++;
+    r1 = (tword)((translation_frame_t*)f)->ep;
+    //r0 <<= 1;         // Accounting for word size
+    ((translation_frame_t*)r1)->si += r0;
+    return generate();  // Tail call
 }
 
 void ignore() {
