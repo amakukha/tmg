@@ -342,11 +342,15 @@ void _pxs() {
 }
 
 void _q() {
-    // TODO
+    sprv();
+    stack[sp+2] /= stack[sp];
+    return _p();
 }
 
 void _r() {
-    // TODO
+    sprv();
+    stack[sp+2] %= stack[sp];
+    return _p();
 }
 
 // Description:

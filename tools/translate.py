@@ -58,6 +58,7 @@ class Translator:
         '.sl', '.sr', '.lv', '.rv',
         '.cm', '.ng', '.nt',
         '.tx', '.txs', '.px', '.pxs',
+        '.r', '.q',
         'parse', 'diag', 'trans', 
         'octal', '.tp', 'decimal', 'ignore',
         'alt', 'salt', 'generate', 'succ', 'fail',
