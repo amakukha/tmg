@@ -1,0 +1,220 @@
+1 ..1
+..1:program:
+
+.l;alpha
+.l;letter
+.l;digit
+.o
+.st
+.p
+1 parse
+expr
+.1=.
+.tp;.byte 3,0;
+.tp;.byte 1,0;
+1 .tp;.byte 2,0;
+expr:
+
+.pxs;'(
+alt;exp1
+expr
+operator
+expr
+.pxs;')
+1 trans;1 .1
+.2=.
+<LOAD \0>;.even
+.1=.
+.tx;.2
+.tp;.byte 1,0;
+1 .txs;' 
+exp1:
+
+ident
+1 trans;1 .1
+.2=.
+<ADD \0>;.even
+.1=.
+1 .tx;.2
+operator:
+op0:
+
+.pxs;'+
+alt;op1
+1 trans;1 .1
+.2=.
+<SUB \0>;.even
+.1=.
+1 .tx;.2
+op1:
+
+.pxs;'-
+alt;op2
+1 trans;1 .1
+.2=.
+<MPY \0>;.even
+.1=.
+1 .tx;.2
+op2:
+
+.pxs;'*
+alt;op3
+1 trans;1 .1
+.2=.
+<DIV \0>;.even
+.1=.
+1 .tx;.2
+op3:
+
+.pxs;'/
+1 trans;1 .1
+.1=.
+1 .tp;.byte 1,0;
+ident:
+
+smark
+any
+letter
+string
+alpha
+scopy
+1 trans;1 .1
+letter:
+1
+digit:
+2
+alpha:
+0
+
+.globl classtab
+classtab:
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+2
+2
+2
+2
+2
+2
+2
+2
+2
+2
+0
+0
+0
+0
+0
+0
+0
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+0
+0
+0
+0
+0
+0
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+1
+0
+0
+0
+0
+0
+.pn:1 .pxs;12
+.tn:1 .txs;12
