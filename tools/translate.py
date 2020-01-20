@@ -148,7 +148,7 @@ class Translator:
 
         # Translate string literal
         elif len(s)>3 and s[0] == '<' and s[-3:] == '\\0>':
-            s = '(tword)"%s"' % s[1:-3]
+            s = '(tword)"%s"' % s[1:-3].replace('"','\\"')
 
         # Translate numeric literals
         elif len(s)>2 and s[-1] == '.' and s[:-1].isdigit():
@@ -167,7 +167,8 @@ class Translator:
 
         # Translate character literal
         elif len(s)==2 and s[0]=="'":
-            s = "(tword)'%c'" % s[1]
+            ch = s[1] if s[1]!="'" else "\\'"
+            s = "(tword)'{}'".format(ch)
 
         # - Label usage: everything unknown must be a global label
         elif s:

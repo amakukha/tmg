@@ -12,8 +12,11 @@
 BUILD_DIR="build"
 TMP="out.tmp"
 
-mkdir -p build
-cp ../src/*.h ../src/*.c ../src/build.sh build/
+mkdir -p "$BUILD_DIR"
+if [[ -f "$BUILD_DIR/tmga" ]]; then rm "$BUILD_DIR/tmga"; fi 
+cp ../src/*.h ../src/*.c ../src/build.sh "$BUILD_DIR/"
+rm "$BUILD_DIR/tmgl.h";
+
 mask=[0123456789]
 if [[ $# -ne 0 ]]; then
     mask="$1"
@@ -29,14 +32,33 @@ for dir in $mask*; do
 
     fail=0
 
-    # Build executable
+    # Create or find tmgl.h
     if [[ -f $dir/tmgl.h ]]; then
         cp "$dir/tmgl.h" "$BUILD_DIR/"
+    else
+        # Find a TMG file
+        tmg=""
+        for fn in "$dir"/*.t; do
+            tmg="$fn"
+            break
+        done
+        if [[ -f $tmg ]]; then
+            #cd ../src/
+            #./tmg "../test/$tmg" "../test/$dir/tmgl.h"
+            #cd ../test
+            # TODO this needs to change later to drop dependency on Python
+            ../src/tmga "$tmg" > "$dir/tmgl.s"
+            ../tools/translate.py "$dir/tmgl.s" > "$BUILD_DIR/tmgl.h"
+        else
+            echo "not found: neither tmgl.h nor TMG file"
+        fi
+    fi
+
+    # Build executable
+    if [[ -f $BUILD_DIR/tmgl.h ]]; then
         cd "$BUILD_DIR"
         ./build.sh
         cd ..
-    else
-        echo "tmgl.h not found"
     fi
 
     # Test executable
