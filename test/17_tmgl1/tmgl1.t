@@ -4,10 +4,11 @@
 /* It simplifies further translation by: */
 /* - putting the string and character literals on separate lines */
 /* - using underscores instead of dots in names and labels */
-/* - removing .byte and .even directives */
+/* - removing .byte, .even and .globl directives */
+/* - removing zero-byte from the end of strings */
 /* - using commas instead of semicolons */
 /* - adding exit bit instead of juxtaposing */
-/* - finishes the output with a newline */
+/* - finishing the output with a newline */
 /* (c) 2020, Andrii Makukha, 2-clause BSD License. */
 
 begin:	ignore(blanks) [wordsz = &classes - &nclass]
@@ -20,8 +21,8 @@ pr2:	comment\pr2
 	putcharcl
 	parse(last);
 
-first:	parse(( fref = {<1 + > 1 *}))
-	getfref line = { 2<:> 1 };
+first:	parse(( fref = { <1 + > 1 *}))
+	getfref line = { 2 <:> 1 };
 
 error:	smark ignore(none) any(!<<>>) string(!<<;>>) scopy 
 	( <;> = {<;>} | null )
@@ -171,7 +172,7 @@ shortlit: ignore(none) smark any(litch) <>> scopy = { <s,> * <'> 1 <',> };
 
 /* TODO */
 longlit: ignore(none) (<>> = { <\> <>> } | null) litb <>>
-	 = { <<> 2 1 <\0> <>,> * };
+	 = { <<> 2 1 <>,> };
 
 litb:	smark string(litch) scopy <\>/done
 	litb = { 2 <\\> 1 };
@@ -258,7 +259,7 @@ testn:	[++n<200?];
 
 /* TODO */
 putcharcl: zeron [classes=0] 
-	parse(( = { * <.globl classtab> * <classtab:> * } ))
+	parse(( = { * <classtab:> * } ))
 ptc1:	[w = *(wordsz*n+&classes)] parse((octal(w) = {1*}))
 	bundle testn\ptc1;
 
