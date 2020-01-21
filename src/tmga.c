@@ -122,8 +122,9 @@ void contin() {
         DEBUG("MACHINE-CODED: %lx", r0);
         return (*(void (*)(void))r0)(); // Tail call
     } else {
-        fprintf(dfile, "TMG error: bad address in parsing: %08lx\n", r0);
-        errcom(NULL);
+        char msg[100];
+        snprintf(msg, sizeof(msg), "bad address in parsing: %08lx\n", r0);
+        errcom(msg);
     }
 }
 
@@ -212,7 +213,7 @@ void succ() {
 
 void errcom(const char* error) {
     if (error)
-        fprintf(dfile, "%s\n", error);
+        fprintf(dfile, "TMG error: %s\n", error);
     exit(1);
 }
 
@@ -340,8 +341,9 @@ void gcontin() {
         DEBUG("COMPOUND: r0=%lx", r0);
 	return gcontin();   // Tail call
     } else {
-        fprintf(dfile, "TMG error: bad address in translation: %lx", r0);
-        errcom(NULL);
+        char msg[100];
+        snprintf(msg, sizeof(msg), "bad address in translation: %lx", r0);
+        errcom(msg);
     }
 }
 
@@ -376,8 +378,9 @@ void _tp() {
         if ((tword)i < 0)
             errcom("not a bundle");
         if ((tword)i >= KTAT) {
-            fprintf(dfile, "TMG error: bad address in _tp: %ld > %ld", (tword)i, KTAT);
-            errcom(NULL);
+            char msg[100];
+            snprintf(msg, sizeof(msg), "bad address in _tp: %ld > %ld", (tword)i, KTAT);
+            errcom(msg);
         }
         i = (tptr)((tword)i + ktab - r2);
     }
