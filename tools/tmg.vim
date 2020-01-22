@@ -32,7 +32,7 @@ syn match tmgParam  '[$][0123456789]\+' display
 " Translation rule
 syn match tmgName '\a\(\a\|\d\)*'
 syn match tmgTransNumber '\d\+' contained display
-syn match tmgNewLine '[*]' contained display
+syn match tmgNewLine '[*]' display
 " TODO distinguish parsing rules () and translation rule parameters
 syn region tmgTransRule start="{" end="}" fold transparent contains=tmgTransNumber,tmgNewLine,tmgString,tmgParam,tmgName
 

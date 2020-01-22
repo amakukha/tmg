@@ -1,6 +1,6 @@
 // Port of the Unix compiler-compiler TMG to C99.
 // Based on the original PDP-11 assembly code by M. D. McIlroy.
-// (c) 2019, Andriy Makukha, 2-clause BSD License.
+// (c) 2020, Andriy Makukha, 2-clause BSD License.
 //
 // Structure of this implementation closely follows the structure of the
 // original code. Comments starting with a lowercase letter were either
@@ -358,7 +358,7 @@ void _tp() {
     r0 = *(char*)i;
     r2 = *((char*)i + 1); 
     i++;    // Using only two bytes of the word
-    //r0 = (r0 + 1)<<1;    // Shift left (<< 1) is probably word size multiplier
+    //r0 = (r0 + 1)<<1;    // Accounting for word size
     r0 = (r0 + 1)*sizeof(tword);
     translation_frame_t* _f = (translation_frame_t*)f;    // Cast for convenience
     translation_frame_t* _n = (translation_frame_t*)((tword)f + fs);
@@ -370,7 +370,7 @@ void _tp() {
     f = (tptr)_n;
     DEBUG_DEEPER;
     ((translation_frame_t*)f)->ek = f;
-    //r2 <<= 1;     // Shift left is probably word size multiplier
+    //r2 <<= 1;     // Accounting for word size
     r2 *= sizeof(tword);
     if (r2 != 0) {
         //element is 1.1, 1.2, .. 2.1,...
@@ -593,7 +593,7 @@ int main(int argc, char* argv[]) {
     r0 = (tword)start;
     adv();
     flush();
-    //unlink("alloc.d");
+    //unlink("alloc.d");    // TODO
 
     return 0;
 }
