@@ -4,7 +4,7 @@
 /* It simplifies further translation by: */
 /* - putting the string and character literals on separate lines */
 /* - using underscores instead of dots in names and labels */
-/* - removing .byte, .even and .globl directives */
+/* - removing .even and .globl directives */
 /* - removing zero-byte from the end of strings */
 /* - using commas instead of semicolons */
 /* - adding exit bit instead of juxtaposing */
@@ -163,7 +163,7 @@ tdot:	(<.> number | ={<0>})
 
 targ:	name|remote(tbody);
 
-tpt:	{ <_tp,> * 2 <,> };
+tpt:	{ <_tp,.byte > 2 <,> 1 };
 
 literal: ( shortlit
 	 | remote(longlit) = { <,> 1 } );

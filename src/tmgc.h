@@ -17,6 +17,9 @@
 // Original tracing capability; must be set together with trswitch in tmgb.h
 #define TRACING 1
 
+// Compile this with more memory than the original code?
+#define MORE_MEMORY
+
 // Flush the output every time obuild is called. Useful in debugging mode.
 #define NOBUFFER DEBUG_MODE
 
@@ -55,7 +58,7 @@ bool carry;     // Corresponds to PDP-11 c-bit
 #define failure carry
 
 // PDP-11 stack
-tword stack[1024];                      // stack for (sp)
+tword stack[1024];                      // Stack for (sp), a.k.a. stack pointer register
 tword sp = sizeof(stack)/sizeof(*stack);
 
 // tmg tables and global definitions
@@ -63,9 +66,15 @@ tword sp = sizeof(stack)/sizeof(*stack);
 // These constants are multiplied by four to account for larger words (64-bit vs 32)
 // Constants could also be increased to provide bigger buffers and k table
 
+#ifdef MORE_MEMORY
+#define OUTT (1<<12)                    // output buffer top
+#define STKT (1<<19)                    // stack top for (f), not for (sp)
+#define KTAT ((1<<17)*sizeof(tword))    // k table top
+#else
 #define OUTT 64                         // output buffer top
 #define STKT (1<<16)                    // stack top for (f), not for (sp)
-#define KTAT (1200*sizeof(tword))	// k table top
+#define KTAT (1200*sizeof(tword))       // k table top
+#endif // MORE_MEMORY
 
 FILE* input;                    // input
 FILE* cfile;                    // current output
