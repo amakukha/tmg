@@ -22,9 +22,8 @@ outro:  labelarray = {
             <// Global label addresses inside the driving table> * *
             <const tword labels[] = {> * 1 <};> * };
 
-error:	smark ignore(none) any(ascii) string(nonl) scopy
-	( * = {} | null )
-	= { * <??? err: > 2 1 * };
+error:	smark ignore(none) any(ascii) string(nonl) scopy ( * | () )
+	= { * <??? err: > 1 * };
 
 linenl: ignore(spaces) line *;
 line:   strlit
@@ -35,17 +34,15 @@ line:   strlit
     |   = {};
 
                                            /* Translation of local labels */
-loclbl: <_> ignore(none) 
-        smark any(digit) string(digit) scopy 
-        <=.> ( <,> = {} | null ) decimal(cnt)
-        = { <#undef  _> 3 *
-            <#define _> 3 <	(tword)&start[> 1 <]> * };
+loclbl: <_> number <=.> ( <,> | () ) decimal(cnt)
+        = { <#undef  _> 2 *
+            <#define _> 2 <	(tword)&start[> 1 <]> * };
 
                                         /* Translation of string literals */
 strlit: <<> ignore(none) ( litesc | null )
-        litb <>> ( <,> = {} | null ) [cnt++]
-        = { <	(tword)"> 3 2 <",> * };
-litesc: <\> ( <>> = { <>> } | = { <\> } ) = { 1 };
+        litb <>> ( <,> | () ) [cnt++]
+        = { <	(tword)"> 2 1 <",> * };
+litesc: <\> ( <>> = { <>> } | = { <\> } );
 litb:	smark string(litch) scopy stresc/done 
         litb = { 3 2 1 };
 stresc: <"> = { <\"> };
@@ -53,18 +50,17 @@ stresc: <"> = { <\"> };
                                      /* Translation of character literals */
 chrlit: <'> ( <'> = { <\'> }
             | <\> smark any(ascii) scopy = { <\> 1 }
-            | smark any(ascii) scopy = { 1 })
+            | smark any(ascii) scopy )
         <'> ( <,> = {} | null ) [cnt++]
         = { <	(tword)'> 2 <',> * };
 
                                                  /* Translation of labels */
 labels: label labels/done = { 2 1 };
-label:  ( <__> number | name ) <:> decimal(cnt)
-        = { <#define __> 2 <	(tword)&start[> 1 <]> * };
-name:   ident scopy;
-ident:  smark ignore(none) any(letter) string(alpha);
-number: smark num scopy;
-num:    ignore(none) any(digit) string(digit);
+label:  lblnam tabval(ltab, lcnt)/newlbl
+        = { <// > 2 <:> * };
+newlbl: decimal(cnt) [k = -1] tabput(ltab, k)
+        = { <#define > 2 <	(tword)&start[> 1 <]> * };
+lblnam: ( <__> number | name ) <:> = { <__> 1 };
 
                                   /* Translation of statements and values */
 values: ignore(spaces) extval values/done = { 2 1 };
@@ -74,9 +70,9 @@ extbit: <1 + > = { <1 + > };
 valsep: value ( <,> = {} | null ) = (1){ 2({$1}) };
 value: vallit [cnt++] = (1){ <	> $1 1 <,> * }
      | valbtn [cnt++] = (1){ <	> $1 <(tword)&> 1 <,> * }
-     | vallbl tabval(ltab, lcnt)/newlbl [cnt++] 
+     | vallbl tabval(ltab, lcnt)/nuvlbl [cnt++] 
        = (1){ <	> $1 2 <,> * };
-newlbl: decimal(lcnt) tabput(ltab, lcnt) [cnt++] = (1){ 
+nuvlbl: decimal(lcnt) tabput(ltab, lcnt) [cnt++] = (1){ 
             <#define > 2 <	(tword)&labels[> 1 <]> * 
             <	> $1 2 <,> *
         };
@@ -85,8 +81,6 @@ vallbl: <__> smark num scopy = { <__> 1 }
       |      smark usrdef scopy = { <__> 1 };
 valbtn: <_> wrd = { <_> 1 }
       | builtn;
-wrd:    smark ignore(none) any(lowup) string(lowup) scopy;
-usrdef: ignore(none) any(nbrk) string(nbrk);
 
 tabput: params(2) enter($2,i) [$2[i] = $1++];
 tabval: params(2)  find($2,i) [i=$1-$2[i]] decimal(i);
@@ -133,8 +127,18 @@ built2: <bundle>      = { <bundle> }
                                          /* Rendering of the labels array */
 labelarray: = nil;
 
+                                                               /* Lexemes */
+name:   ident scopy;
+ident:  smark ignore(none) any(letter) string(alpha);
+number: smark num scopy;
+num:    ignore(none) any(digit) string(digit);
+
+wrd:    smark ignore(none) any(lowup) string(lowup) scopy;
+usrdef: ignore(none) any(nbrk) string(nbrk);
+
                                                              /* Variables */
 i:      0;
+k:      0;
 cnt:    0;          /* Word counter */
 lcnt:   0;          /* Label counter */
 ltab:   0;          /* Labels dictionary */ 
@@ -162,5 +166,5 @@ blanks:	<<
 	>>;
 nonl:   !<<
 >>;
-nbrk:   !<<,
+nbrk:   !<<,;
 >>;
