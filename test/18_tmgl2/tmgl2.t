@@ -6,8 +6,21 @@
 
 begin:  ignore(blanks)
         table(ltab)
+        parse(intro)
 pr2:    parse(linenl)\pr2    
-        diag(error)\pr2;
+        diag(error)\pr2
+        parse(outro);
+
+intro:  = { <//#define SRC_LANGUAGE "input language"> *
+            <//#define DST_LANGUAGE "output language"> * *
+            <const tword labels[];> * *
+            <// Driving table for the program> * *
+            <tword start[] = {> * };
+
+outro:  labelarray = { 
+            <};> * *
+            <// Global label addresses inside the driving table> * *
+            <const tword labels[] = {> * 1 <};> * };
 
 error:	smark ignore(none) any(ascii) string(nonl) scopy
 	( * = {} | null )
@@ -68,9 +81,8 @@ newlbl: decimal(lcnt) tabput(ltab, lcnt) [cnt++] = (1){
             <	> $1 2 <,> *
         };
 vallit: ( <_> = { <_> } | null ) number = { 2 1 };
-vallbl: smark ( any(under) any(under) num | usrdef ) scopy;
-/*   = { <__> 1 }
-      | usrdef; */
+vallbl: <__> smark num scopy = { <__> 1 }
+      |      smark usrdef scopy = { <__> 1 };
 valbtn: <_> wrd = { <_> 1 }
       | builtn;
 wrd:    smark ignore(none) any(lowup) string(lowup) scopy;
@@ -79,6 +91,7 @@ usrdef: ignore(none) any(nbrk) string(nbrk);
 tabput: params(2) enter($2,i) [$2[i] = $1++];
 tabval: params(2)  find($2,i) [i=$1-$2[i]] decimal(i);
 
+                                     /* Recognition of builtin references */
 builtn: built1 | built2;
 built1: <a> ( <ccept>   = { <accept> }
             | <lt>      = { <alt> }
@@ -117,17 +130,21 @@ built2: <bundle>      = { <bundle> }
       | <reduce>      = { <reduce> }
       | <unstack>     = { <unstack> };
 
+                                         /* Rendering of the labels array */
+labelarray: = nil;
+
+                                                             /* Variables */
 i:      0;
 cnt:    0;          /* Word counter */
 lcnt:   0;          /* Label counter */
 ltab:   0;          /* Labels dictionary */ 
 
-/* Idioms */
+                                                                /* Idioms */
 done:   ;           /* Same as:     done: = { 1 }; */
 null:	= nil;      /* Delivers empty translation */
 nil:	{};
 
-/* Character classes */
+                                                     /* Character classes */
 under:  <<_>>;
 digit:	<<0123456789>>;
 lowup:	<<abcdefghijklmnopqrstuvwxyz>>

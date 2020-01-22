@@ -1,3 +1,11 @@
+//#define SRC_LANGUAGE "input language"
+//#define DST_LANGUAGE "output language"
+
+const tword labels[];
+
+// Driving table for the program
+
+tword start[] = {
 	(tword)"1 \0",
 	(tword)"??? \0",
 	(tword)".pn:1 .pxs;12\0",
@@ -94,3 +102,9 @@
 	(tword)"..\0",
 	(tword)"=.\0",
 	(tword)"1 \0",
+};
+
+// Global label addresses inside the driving table
+
+const tword labels[] = {
+};
