@@ -109,7 +109,7 @@ parg:	rname | remote(specparg);
 specparg: number
 	| charcl
 	| <<> longlit
-	| <*> = { <\n\0> }
+	| <*> = { <\n> }
 	| <(> ( <)> = { <1 + succ,> }
 		| push(3,dtt,ndt,sndt) [dtt=0]
 			prule <)> oldtab(dtt)

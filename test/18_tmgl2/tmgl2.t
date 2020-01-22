@@ -5,6 +5,7 @@
 /* (c) 2020, Andrii Makukha, 2-clause BSD License. */
 
 begin:  ignore(blanks)
+        table(ltab)
 pr2:    parse(linenl)\pr2    
         diag(error)\pr2;
 
@@ -24,13 +25,13 @@ line:   strlit
 loclbl: <_> ignore(none) 
         smark any(digit) string(digit) scopy 
         <=.> ( <,> = {} | null ) decimal(cnt)
-        = { <#undef  _> 2 *
-            <#define _> 2 <  (tword)&start[> 1 <]> * };
+        = { <#undef  _> 3 *
+            <#define _> 3 <	(tword)&start[> 1 <]> * };
 
                                         /* Translation of string literals */
 strlit: <<> ignore(none) ( litesc | null )
         litb <>> ( <,> = {} | null ) [cnt++]
-        = { <(tword)"> 3 2 <",> * };
+        = { <	(tword)"> 3 2 <",> * };
 litesc: <\> ( <>> = { <>> } | = { <\> } ) = { 1 };
 litb:	smark string(litch) scopy stresc/done 
         litb = { 3 2 1 };
@@ -41,29 +42,42 @@ chrlit: <'> ( <'> = { <\'> }
             | <\> smark any(ascii) scopy = { <\> 1 }
             | smark any(ascii) scopy = { 1 })
         <'> ( <,> = {} | null ) [cnt++]
-        = { <(tword)'> 2 <',> * };
+        = { <	(tword)'> 2 <',> * };
 
                                                  /* Translation of labels */
 labels: label labels/done = { 2 1 };
 label:  ( <__> number | name ) <:> decimal(cnt)
-        = { <#define __> 2 <  (tword)&start[> 1 <]> * };
+        = { <#define __> 2 <	(tword)&start[> 1 <]> * };
 name:   ident scopy;
 ident:  smark ignore(none) any(letter) string(alpha);
-number: smark ignore(none) any(digit) string(digit) scopy;
+number: smark num scopy;
+num:    ignore(none) any(digit) string(digit);
 
                                   /* Translation of statements and values */
 values: ignore(spaces) extval values/done = { 2 1 };
-extval: ( extbit | null ) value ( <,> = {} | null ) = { 3 2 <,> * };
+extval: extbit valsep = { 1({2}) }
+      |        valsep = { 1(nil) };
 extbit: <1 + > = { <1 + > };
-value:  number
-     |  <_> ( number        = {  <_> 1 }
-            | <_> number    = { <__> 1 }
-            | wrd           = {  <_> 1 } ) = { 1 }
-     |  builtn
-     |  other;
+valsep: value ( <,> = {} | null ) = (1){ 2({$1}) };
+value: vallit [cnt++] = (1){ <	> $1 1 <,> * }
+     | valbtn [cnt++] = (1){ <	> $1 <(tword)&> 1 <,> * }
+     | vallbl tabval(ltab, lcnt)/newlbl [cnt++] 
+       = (1){ <	> $1 2 <,> * };
+newlbl: decimal(lcnt) tabput(ltab, lcnt) [cnt++] = (1){ 
+            <#define > 2 <	(tword)&labels[> 1 <]> * 
+            <	> $1 2 <,> *
+        };
+vallit: ( <_> = { <_> } | null ) number = { 2 1 };
+vallbl: smark ( any(under) any(under) num | usrdef ) scopy;
+/*   = { <__> 1 }
+      | usrdef; */
+valbtn: <_> wrd = { <_> 1 }
+      | builtn;
 wrd:    smark ignore(none) any(lowup) string(lowup) scopy;
-other:  smark ignore(none) any(nbrk) string(nbrk) scopy
-        = { <__> 1 };       /* Label name */
+usrdef: ignore(none) any(nbrk) string(nbrk);
+
+tabput: params(2) enter($2,i) [$2[i] = $1++];
+tabval: params(2)  find($2,i) [i=$1-$2[i]] decimal(i);
 
 builtn: built1 | built2;
 built1: <a> ( <ccept>   = { <accept> }
@@ -103,7 +117,10 @@ built2: <bundle>      = { <bundle> }
       | <reduce>      = { <reduce> }
       | <unstack>     = { <unstack> };
 
-cnt:    0;
+i:      0;
+cnt:    0;          /* Word counter */
+lcnt:   0;          /* Label counter */
+ltab:   0;          /* Labels dictionary */ 
 
 /* Idioms */
 done:   ;           /* Same as:     done: = { 1 }; */
@@ -111,6 +128,7 @@ null:	= nil;      /* Delivers empty translation */
 nil:	{};
 
 /* Character classes */
+under:  <<_>>;
 digit:	<<0123456789>>;
 lowup:	<<abcdefghijklmnopqrstuvwxyz>>
 	<<ABCDEFGHIJKLMNOPQRSTUVWXYZ>>;
