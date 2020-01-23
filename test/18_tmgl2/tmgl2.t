@@ -63,10 +63,9 @@ newlbl: decimal(cnt) [k = -1] tabput(ltab, k)
 lblnam: ( <__> number | name ) <:> = { <__> 1 };
 
                                   /* Translation of statements and values */
-values: ignore(spaces) (comvals | null) 
-        ( * = { * } | extval((*)) )
-        = { 2 1 };  /* TODO this is ugly: will backtrace on meeting a single extval((*)) in line */
-comvals:extval((<,>|<;>)) comvals/done = { 2 1 };
+values: ignore(spaces)
+comvals:extval((<,>|<;>))/nlval comvals/done = { 2 1 };
+nlval:  extval((*)) done;
 extval: params(1) 
       ( extbit valsep($1) = { 1({2}) }
       |        valsep($1) = { 1(nil) } );
@@ -82,7 +81,7 @@ nuvlbl: decimal(lcnt) tabput(ltab, lcnt) [cnt++] = (1){
             <	> $1 2 <,> *
         };
 vallit: params(1) 
-      ( <.byte> number <,> number $1 = { 2 }
+      ( <.byte> number <,0> $1
       | ( <_> = { <_> } | null ) number $1 = { 2 1 } );
 vallbl: params(1) 
       ( <__> smark num scopy $1 = { <__> 1 }
@@ -94,7 +93,7 @@ valbtn: params(1)
 tabput: params(2) enter($2,i) [$2[i] = $1++];
 tabval: params(2)  find($2,i) [i=$1-$2[i]] decimal(i);
 
-                                     /* Recognition of builtin references */
+                        /* Recognition and renaming of builtin references */
 builtn: built1 | built2;
 built1: <a> ( <ccept>   = { <accept> }
             | <lt>      = { <alt> }
