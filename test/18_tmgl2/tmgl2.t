@@ -1,11 +1,11 @@
 /* Implementation of TMG in TMGL. */
 /* Converts TMGL program into a TMG driving table in C in two phases. */
 /* Phase 2: converts the output of phase 1 into a C header file. */
-/* Based on the original TMGL implementation by M. Douglas McIlroy. */
 /* (c) 2020, Andrii Makukha, 2-clause BSD License. */
 
-begin:  ignore(blanks)
+begin:  [wsz = &k - &i]
         table(ltab)
+        ignore(blanks)
         parse(intro)
 pr2:    parse(line)\pr2    
         diag(error)\pr2
@@ -56,9 +56,9 @@ chrlit: <'> ( <'> = { <\'> }
 
                                                  /* Translation of labels */
 labels: label labels/done = { 2 1 };
-label:  lblnam tabval(ltab, lcnt)/newlbl
+label:  lblnam find(ltab, i)/newlbl [ltab[i] = cnt]
         = { <// > 2 <:> * };
-newlbl: decimal(cnt) [k = -1] tabput(ltab, k)
+newlbl: decimal(cnt) tabput(ltab, 0)
         = { <#define > 2 <	(tword)&start[> 1 <]> * };
 lblnam: ( <__> number | name ) <:> = { <__> 1 };
 
@@ -74,9 +74,9 @@ valsep: params(1) value($1) = (1){ 2({$1}) };
 value:  params(1)
      ( vallit($1) [cnt++] = (1){ <	> $1 1 <,> * }
      | valbtn($1) [cnt++] = (1){ <	> $1 <(tword)&> 1 <,> * }
-     | vallbl($1) tabval(ltab, lcnt)/nuvlbl [cnt++] 
+     | vallbl($1) find(ltab, i)/nuvlbl [cnt++]
        = (1){ <	> $1 2 <,> * } );
-nuvlbl: decimal(lcnt) tabput(ltab, lcnt) [cnt++] = (1){ 
+nuvlbl: decimal(lcnt) lblput [cnt++] = (1){
             <#define > 2 <	(tword)&labels[> 1 <]> * 
             <	> $1 2 <,> *
         };
@@ -90,8 +90,8 @@ valbtn: params(1)
       ( <_> wrd $1 = { <_> 1 }
       | builtn $1 );
 
-tabput: params(2) enter($2,i) [$2[i] = $1++];
-tabval: params(2)  find($2,i) [i=$1-$2[i]] decimal(i);
+lblput: tabput(ltab, 0) [*(wsz*lcnt + &lindex) = i] [lcnt++];
+tabput: params(2) enter($2,i) [$2[i] = $1];
 
                         /* Recognition and renaming of builtin references */
 builtn: built1 | built2;
@@ -133,7 +133,17 @@ built2: <bundle>      = { <bundle> }
       | <unstack>     = { <unstack> };
 
                                          /* Rendering of the labels array */
-labelarray: = nil;
+labelarray: [lcnt > 0?]/null
+            [lcnt*wsz <= (&lindexend - &lindex)?]/labelerror
+            [k = 0]
+loop:       [i = *(wsz*k + &lindex)]
+            [t = ltab[i]]
+            decimal(t) = { <	(tword)&start[> 1 <],> * }
+            [++k < lcnt?]/done
+            loop
+            = { 2 1 };
+labelerror: diag(labelerr)
+labelerr:   = { <// ERROR: label index array too small> * }; 
 
                                                                /* Lexemes */
 name:   ident scopy;
@@ -147,9 +157,11 @@ usrdef: ignore(none) any(nbrk) string(nbrk);
                                                              /* Variables */
 i:      0;
 k:      0;
+t:      0;          /* Temporary */
 cnt:    0;          /* Word counter */
 lcnt:   0;          /* Label counter */
 ltab:   0;          /* Labels dictionary */ 
+wsz:    0;          /* Architecture word size */
 
                                                                 /* Idioms */
 done:   ;           /* Same as:     done: = { 1 }; */
