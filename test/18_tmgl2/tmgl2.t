@@ -60,7 +60,10 @@ label:  lblnam find(ltab, i)/newlbl [ltab[i] = cnt]
         = { <// > 2 <:> * };
 newlbl: decimal(cnt) tabput(ltab, 0)
         = { <#define > 2 <	(tword)&start[> 1 <]> * };
-lblnam: ( <__> number | name ) <:> = { <__> 1 };
+lblnam: smark
+        ( any(under) ( <_> number = { <__> 1 }
+                     | any(tpcls) any(ncls) scopy  )
+        | name = { <__> 1 } ) <:>;
 
                                   /* Translation of statements and values */
 values: ignore(spaces)
@@ -70,25 +73,29 @@ extval: params(1)
       ( extbit valsep($1) = { 1({2}) }
       |        valsep($1) = { 1(nil) } );
 extbit: <1 + > = { <1 + > };
-valsep: params(1) value($1) = (1){ 2({$1}) };
+valsep: params(1) value($1) = (1){ 1({$1}) };   /* NOTE: different $1! */
 value:  params(1)
      ( vallit($1) [cnt++] = (1){ <	> $1 1 <,> * }
      | valbtn($1) [cnt++] = (1){ <	> $1 <(tword)&> 1 <,> * }
-     | vallbl($1) find(ltab, i)/nuvlbl [cnt++]
-       = (1){ <	> $1 2 <,> * } );
+     | vallbl($1) hndlbl = (1){ 1({$1}) * } );
+hndlbl: find(ltab, i)/nuvlbl [cnt++]
+       = (1){ <	> $1 1 <,> * };
 nuvlbl: decimal(lcnt) lblput [cnt++] = (1){
-            <#define > 2 <	(tword)&labels[> 1 <]> * 
-            <	> $1 2 <,> *
-        };
+            <#define > 1 <	(tword)&labels[> 1 <]> * 
+            <	> $1 1 <,> *
+        };  /* NOTE: changing first 1 to 2 doesn't work */
 vallit: params(1) 
       ( <.byte> number <,0> $1
       | ( <_> = { <_> } | null ) number $1 = { 2 1 } );
-vallbl: params(1) 
-      ( <__> smark num scopy $1 = { <__> 1 }
-      |      smark usrdef scopy $1 = { <__> 1 } );
+vallbl: params(1) smark 
+      ( any(under) ( any(tpcls) any(ncls) scopy
+                   | <_> number = { <__> 1 } )
+      | usrdef = { <__> 1 } ) $1;
 valbtn: params(1)
       ( <_> wrd $1 = { <_> 1 }
       | builtn $1 );
+valtnpn:params(1) tnpn $1;
+
 
 lblput: tabput(ltab, 0) [*(wsz*lcnt + &lindex) = i] [lcnt++];
 tabput: params(2) enter($2,i) [$2[i] = $1];
@@ -152,7 +159,8 @@ number: smark num scopy;
 num:    ignore(none) any(digit) string(digit);
 
 wrd:    smark ignore(none) any(lowup) string(lowup) scopy;
-usrdef: ignore(none) any(nbrk) string(nbrk);
+usrdef: smark ignore(none) any(nbrk)  string(nbrk) scopy;
+tnpn:   smark ignore(none) any(under) any(tpcls) any(ncls) scopy;
 
                                                              /* Variables */
 i:      0;
@@ -188,6 +196,9 @@ nonl:   !<<
 >>;
 nbrk:   !<<,;
 >>;
+tpcls:  <<tp>>; /* Used to recognize _tn and _pn as labels (special case) */
+ncls:   <<n>>;
+
 
                                                 /* Array for labels index */
 
