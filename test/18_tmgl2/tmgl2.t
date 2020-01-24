@@ -86,8 +86,11 @@ vallit: params(1)
 vallbl: params(1) 
       ( <__> smark num scopy $1 = { <__> 1 }
       |      smark usrdef scopy $1 = { <__> 1 } );
-valbtn: params(1)
-      ( <_> wrd $1 = { <_> 1 }
+valbtn: params(1) ignore(none)
+      ( <_> ( any(tpcls) ( any(ncls) ( $1 fail
+                                     | string(lowup) scopy $1 = { <_> 1 } )
+                         | string(lowup) scopy $1 = { <_> 1 } )
+            | any(lowup) string(lowup) scopy $1 = { <_> 1 } )
       | builtn $1 );
 
 lblput: tabput(ltab, 0) [*(wsz*lcnt + &lindex) = i] [lcnt++];
@@ -188,6 +191,8 @@ nonl:   !<<
 >>;
 nbrk:   !<<,;
 >>;
+tpcls:  <<tp>>;
+ncls:   <<n>>;
 
                                                 /* Array for labels index */
 
