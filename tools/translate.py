@@ -130,7 +130,7 @@ class Translator:
             else:
                 # Define label locally
                 self.known[l] = 1
-                print('#define {label:<10s} (tword)&start[{cur:d}]'.format(label=l, cur=self.cur))
+                print('#define {label:s}\t(tword)&start[{cur:d}]'.format(label=l, cur=self.cur))
                 s = ''
 
         # Translate local labels
@@ -138,7 +138,7 @@ class Translator:
         elif s and s[0]=='.' and s[-2:]=='=.' and s[1:-2].isdigit():
             num = int(s[1:-2])
             name = '_' + str(num)
-            print("#undef {name}\n#define {name:<10s} (tword)&start[{cur:d}]".format(name=name, cur=self.cur))
+            print("#undef\t{name}\n#define {name:s}\t(tword)&start[{cur:d}]".format(name=name, cur=self.cur))
             s = ''
 
         # - Local label usage
@@ -178,7 +178,7 @@ class Translator:
             if s not in self.labels:
                 # Never met before -> define via labels array
                 n = len(self.labels)
-                d = '#define {label:<10s} (tword)&labels[{n:d}]'.format(label=s, n=n)
+                d = '#define {label:s}\t(tword)&labels[{n:d}]'.format(label=s, n=n)
                 print(d)
                 self.labels[s] = [n, s, None]
 
@@ -197,7 +197,7 @@ class Translator:
             print('const tword labels[] = {')
             for n,s,t in sorted(self.labels.values()):
                 if t is None: continue
-                print('\t{tran:<24s}// {name}'.format(tran=t+',', name=s))
+                print('\t{tran:s},\t// {name}'.format(tran=t, name=s))
             print('};')
             for n,s,t in sorted(self.labels.values()):
                 if t is None:
