@@ -69,9 +69,9 @@ void _tp();
 //      r1 - (IFF r0 is a parameter) environment pointer.
 void iget() {
     if ((tptr)i >= start && (tptr)i < ARRAY_END(start))
-        DEBUG("    iget: i=%lx [%ld]=%ld", (tuword)i, ((tword)((tptr)i-start)), *i);
+        DEBUG("    iget: i=0x%lx [%ld]=%ld", (tuword)i, ((tword)((tptr)i-start)), *i);
     else
-        DEBUG("    iget: i=%lx", (tuword)i);
+        DEBUG("    iget: i=0x%lx", (tuword)i);
     r1 = (tword)f;
     r0 = *i++;
     if (r0 < 0) {
@@ -105,7 +105,7 @@ void contin() {
     // distinguish type of instruction by ranges of value
     iget();
     ((parse_frame_t*)f)->x = r0;
-    DEBUG("%s          x==%lx", DEPTH, ((parse_frame_t*)f)->x);
+    DEBUG("%s          x==0x%lx", DEPTH, ((parse_frame_t*)f)->x);
     r0 = BIT0_CLEAR(r0);
     if ((tptr)r0 >= start && (tptr)r0 < ARRAY_END(start)) {
         // tmg-coded rule, execute and test its success
@@ -119,11 +119,11 @@ void contin() {
         }
     } else if ((tptr)r0 >= func_min && (tptr)r0 <= func_max) {
         // machine coded function
-        DEBUG("MACHINE-CODED: %lx", r0);
+        DEBUG("MACHINE-CODED: 0x%lx", r0);
         return (*(void (*)(void))r0)(); // Tail call
     } else {
         char msg[100];
-        snprintf(msg, sizeof(msg), "bad address in parsing: %08lx\n", r0);
+        snprintf(msg, sizeof(msg), "bad address in parsing: 0x%08lx\n", r0);
         errcom(msg);
     }
 }
@@ -159,7 +159,7 @@ void fail() {
         DEBUG("%sexit bit not set", DEPTH);
         iget();
         ((parse_frame_t*)f)->x = r0;        // checked both
-        DEBUG("%s        x==%lx", DEPTH, ((parse_frame_t*)f)->x);
+        DEBUG("%s        x==0x%lx", DEPTH, ((parse_frame_t*)f)->x);
         r0 &= ~(tword)1;
         if (r0 == (tword)&alt)      // TODO: why does it go to salt if equal to alt and v.v.?
             return salt();  // Tail call
@@ -306,10 +306,10 @@ void gcontin() {
 #endif
     // get interpreted instruction, decode by range of values
     r0 = (tword)*i++;
-    ((parse_frame_t*)f)->x = r0;    // checked
-    DEBUG("%s           x==%lx", DEPTH, r0);
+    ((parse_frame_t*)f)->x = r0;
+    DEBUG("%s           x==0x%lx", DEPTH, r0);
     r0 = BIT0_CLEAR(r0);
-    DEBUG("%s          r0==%lx", DEPTH, r0);
+    DEBUG("%s          r0==0x%lx", DEPTH, r0);
     if ((tptr)r0 >= start && (tptr)r0 < ARRAY_END(start)) {
         // tmg-coded translation subroutine
         // execute it in current environment
@@ -327,7 +327,7 @@ void gcontin() {
         return generate();  // Tail call
     } else if ((tptr)r0 >= func_min && (tptr)r0 <= func_max) {
         // builtin  translation function
-        DEBUG("BUILTIN FUNCTION: %lx", r0);
+        DEBUG("BUILTIN FUNCTION: 0x%lx", r0);
         return (*(void (*)(void))r0)(); // Tail call
     } else if (-r0 < KTAT) {
         // delivered compound translation
@@ -338,11 +338,11 @@ void gcontin() {
         ((translation_frame_t*)f)->ek = f;
         r0 = (tword)(ktab - r0);            // Effectively &ktab[-r0], r0 is negative
         i = (tptr)r0;
-        DEBUG("COMPOUND: r0=%lx", r0);
+        DEBUG("COMPOUND: r0=0x%lx", r0);
 	return gcontin();   // Tail call
     } else {
         char msg[100];
-        snprintf(msg, sizeof(msg), "bad address in translation: %lx", r0);
+        snprintf(msg, sizeof(msg), "bad address in translation: 0x%08lx", r0);
         errcom(msg);
     }
 }
@@ -354,7 +354,7 @@ void gcontin() {
 //      any parameters passed with this invocation
 //      e.g. for 1(x) see also .tq
 void _tp() {
-    DEBUG("%s_tp(): f=%lx, g=%lx", DEPTH, (tword)(f-(tptr)stkb), (tword)(g-(tptr)stkb));
+    DEBUG("%s_tp(): f=0x%lx, g=0x%lx", DEPTH, (tword)(f-(tptr)stkb), (tword)(g-(tptr)stkb));
     r0 = *(char*)i;
     r2 = *((char*)i + 1); 
     i++;    // Using only two bytes of the word

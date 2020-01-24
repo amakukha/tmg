@@ -589,6 +589,7 @@ void discard() {
 //      enter if not there; assign its index to variable i;
 //      fail if current string is empty 
 void enter() {
+    DEBUG("    enter()");
     PUSH(0);        // which(sp)
     return _find(); // Tail call
 }
@@ -599,12 +600,14 @@ void enter() {
 //      assign its index to variable i;
 //      fail if not there (or the current string is empty)
 void find() {
+    DEBUG("    find()");
     PUSH(1);        // which(sp) // Instead of pc
     return _find(); // Tail call
 }
 
 // TODO: not entirely clear how it works
 void _find() {
+    DEBUG("    _find(): find=%ld", stack[sp]);
     rewcstr();
     getcstr();
     if (!r0) {
@@ -612,6 +615,7 @@ void _find() {
         POP();
         return fail();  // Tail call
     }
+    DEBUG("    _find(): chr=%c", (char)r0);
     PUSH(0);            // temp(sp)
     iget();             // Get first parameter: the table pointer
     PUSH(*(tptr)r0);    // tablep(sp)
