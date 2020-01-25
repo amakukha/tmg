@@ -138,7 +138,7 @@ class Translator:
         elif s and s[0]=='.' and s[-2:]=='=.' and s[1:-2].isdigit():
             num = int(s[1:-2])
             name = '_' + str(num)
-            print("#undef\t{name}\n#define {name:s}\t(tword)&start[{cur:d}]".format(name=name, cur=self.cur))
+            print("#undef  {name}\n#define {name:s}\t(tword)&start[{cur:d}]".format(name=name, cur=self.cur))
             s = ''
 
         # - Local label usage

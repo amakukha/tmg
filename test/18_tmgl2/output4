@@ -1,0 +1,26 @@
+//#define SRC_LANGUAGE "input language"
+//#define DST_LANGUAGE "output language"
+
+const tword labels[];
+
+// Driving table for the program
+
+tword start[] = {
+#define _tn	(tword)&labels[0]
+	_tn,
+#define _pn	(tword)&labels[1]
+	_pn,
+	1 + _tn,
+	1 + _pn,
+// _tn:
+	1,
+// _pn:
+	2,
+};
+
+// Global label addresses inside the driving table
+
+const tword labels[] = {
+	(tword)&start[4],
+	(tword)&start[5],
+};

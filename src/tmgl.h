@@ -71,10 +71,10 @@ tword start[] = {
 	1 + (tword)&parse,
 #define __last	(tword)&labels[11]
 	__last,
-#undef	_3
+#undef  _3
 #define _3	(tword)&start[37]
 	(tword)"1 ",
-#undef	_2
+#undef  _2
 #define _2	(tword)&start[38]
 	(tword)&_tx,
 	_3,
@@ -82,13 +82,13 @@ tword start[] = {
 	1,
 #define _tn	(tword)&labels[12]
 	1 + _tn,
-#undef	_1
+#undef  _1
 #define _1	(tword)&start[43]
 #define __fref	(tword)&labels[13]
 	__fref,
 	1 + (tword)&trans,
 	1 + _2,
-#undef	_4
+#undef  _4
 #define _4	(tword)&start[46]
 	(tword)&_tp,
 	2,
@@ -104,20 +104,20 @@ tword start[] = {
 	__line,
 	1 + (tword)&trans,
 	1 + _4,
-#undef	_1
+#undef  _1
 #define _1	(tword)&start[58]
 	1,
-#undef	_2
+#undef  _2
 #define _2	(tword)&start[59]
 	2,
-#undef	_3
+#undef  _3
 #define _3	(tword)&start[60]
 	1 + (tword)&_txs,
 	(tword)';',
-#undef	_5
+#undef  _5
 #define _5	(tword)&start[62]
 	(tword)"??? ",
-#undef	_4
+#undef  _4
 #define _4	(tword)&start[63]
 	_tn,
 	(tword)&_tx,
@@ -153,7 +153,7 @@ tword start[] = {
 // __2:
 	1 + (tword)&trans,
 	1 + _4,
-#undef	_1
+#undef  _1
 #define _1	(tword)&start[90]
 	(tword)&_tp,
 	2,
@@ -194,7 +194,7 @@ tword start[] = {
 // __4:
 	1 + (tword)&trans,
 	1 + _1,
-#undef	_1
+#undef  _1
 #define _1	(tword)&start[115]
 	(tword)&_tp,
 	2,
@@ -212,7 +212,7 @@ tword start[] = {
 	__done,
 	1 + (tword)&trans,
 	1 + _1,
-#undef	_1
+#undef  _1
 #define _1	(tword)&start[128]
 	(tword)&_tp,
 	2,
@@ -227,7 +227,7 @@ tword start[] = {
 	__done,
 	1 + (tword)&trans,
 	1 + _1,
-#undef	_1
+#undef  _1
 #define _1	(tword)&start[139]
 	(tword)&_tp,
 	1,
@@ -240,13 +240,13 @@ tword start[] = {
 	(tword)':',
 	1 + (tword)&trans,
 	1 + _1,
-#undef	_2
+#undef  _2
 #define _2	(tword)&start[148]
 	(tword)".pn:1 .pxs;12",
-#undef	_3
+#undef  _3
 #define _3	(tword)&start[149]
 	(tword)".tn:1 .txs;12",
-#undef	_1
+#undef  _1
 #define _1	(tword)&start[150]
 	(tword)&_tx,
 	_2,
@@ -257,10 +257,10 @@ tword start[] = {
 // __last:
 	1 + (tword)&trans,
 	1 + _1,
-#undef	_1
+#undef  _1
 #define _1	(tword)&start[158]
 	(tword)"/*",
-#undef	_2
+#undef  _2
 #define _2	(tword)&start[159]
 	4,
 // __comment:
@@ -277,10 +277,10 @@ tword start[] = {
 	(tword)'/',
 	1 + (tword)&alt,
 	__co1,
-#undef	_1
+#undef  _1
 #define _1	(tword)&start[172]
 	0,
-#undef	_2
+#undef  _2
 #define _2	(tword)&start[173]
 	(tword)&gpar,
 	1,
@@ -288,12 +288,12 @@ tword start[] = {
 	2,
 	1 + (tword)&_tp,
 	1,
-#undef	_3
+#undef  _3
 #define _3	(tword)&start[179]
 	(tword)&gpar,
 	1,
 	1 + (tword)&generate,
-#undef	_4
+#undef  _4
 #define _4	(tword)&start[182]
 	(tword)&gpar,
 	1,
@@ -306,16 +306,16 @@ tword start[] = {
 	1,
 #define __q1	(tword)&labels[33]
 	__q1,
-#undef	_5
+#undef  _5
 #define _5	(tword)&start[191]
 	1 + (tword)&_tp,
 	1,
 #define __xbit	(tword)&labels[34]
 	__xbit,
-#undef	_7
+#undef  _7
 #define _7	(tword)&start[194]
 	(tword)"1 succ",
-#undef	_6
+#undef  _6
 #define _6	(tword)&start[195]
 	(tword)&_tp,
 	1,
@@ -393,7 +393,7 @@ tword start[] = {
 // __13:
 // __12:
 	1 + (tword)&succ,
-#undef	_1
+#undef  _1
 #define _1	(tword)&start[247]
 	(tword)"proc(",
 // __proc:
@@ -402,15 +402,15 @@ tword start[] = {
 	__none,
 	1 + (tword)&_px,
 	_1,
-#undef	_1
+#undef  _1
 #define _1	(tword)&start[253]
 	1 + (tword)&octal,
 #define __npa	(tword)&labels[51]
 	__npa,
-#undef	_3
+#undef  _3
 #define _3	(tword)&start[255]
 	(tword)"params;",
-#undef	_2
+#undef  _2
 #define _2	(tword)&start[256]
 	(tword)&_tx,
 	_3,
@@ -436,10 +436,10 @@ tword start[] = {
 	1 + __newtab,
 	__pat,
 	__npa,
-#undef	_1
+#undef  _1
 #define _1	(tword)&start[273]
 	0,
-#undef	_2
+#undef  _2
 #define _2	(tword)&start[274]
 	__name,
 	(tword)&_l,
@@ -447,14 +447,14 @@ tword start[] = {
 	__i,
 	(tword)&_ia,
 	1 + (tword)&_p,
-#undef	_3
+#undef  _3
 #define _3	(tword)&start[279]
 	1 + (tword)&octal,
 	__i,
-#undef	_5
+#undef  _5
 #define _5	(tword)&start[281]
 	(tword)"push;",
-#undef	_4
+#undef  _4
 #define _4	(tword)&start[282]
 	(tword)&_tx,
 	_5,
@@ -481,7 +481,7 @@ tword start[] = {
 	_3,
 	1 + (tword)&trans,
 	1 + _4,
-#undef	_1
+#undef  _1
 #define _1	(tword)&start[306]
 	(tword)&gpar,
 	1,
@@ -489,7 +489,7 @@ tword start[] = {
 	1,
 	__nil,
 	__q1,
-#undef	_2
+#undef  _2
 #define _2	(tword)&start[312]
 	(tword)&gpar,
 	1,
@@ -513,10 +513,10 @@ tword start[] = {
 	1 + _2,
 // __16:
 	1 + (tword)&succ,
-#undef	_2
+#undef  _2
 #define _2	(tword)&start[328]
 	(tword)"salt;",
-#undef	_1
+#undef  _1
 #define _1	(tword)&start[329]
 	(tword)&gpar,
 	2,
@@ -540,20 +540,20 @@ tword start[] = {
 	2,
 	1 + (tword)&_txs,
 	(tword)':',
-#undef	_5
+#undef  _5
 #define _5	(tword)&start[350]
 	(tword)"alt;",
-#undef	_4
+#undef  _4
 #define _4	(tword)&start[351]
 	_tn,
 	(tword)&_tx,
 	_5,
 	1 + (tword)&_tp,
 	1,
-#undef	_6
+#undef  _6
 #define _6	(tword)&start[356]
 	(tword)"goto;",
-#undef	_3
+#undef  _3
 #define _3	(tword)&start[357]
 	(tword)&gpar,
 	2,
@@ -627,7 +627,7 @@ tword start[] = {
 // __23:
 // __22:
 	1 + (tword)&succ,
-#undef	_1
+#undef  _1
 #define _1	(tword)&start[416]
 	(tword)&gpar,
 	2,
@@ -662,7 +662,7 @@ tword start[] = {
 // __25:
 // __24:
 	1 + (tword)&succ,
-#undef	_1
+#undef  _1
 #define _1	(tword)&start[441]
 	(tword)&gpar,
 	2,
@@ -671,10 +671,10 @@ tword start[] = {
 	__q1,
 	1 + (tword)&_tq,
 	2,
-#undef	_2
+#undef  _2
 #define _2	(tword)&start[448]
 	1,
-#undef	_3
+#undef  _3
 #define _3	(tword)&start[449]
 	(tword)&gpar,
 	2,
@@ -716,7 +716,7 @@ tword start[] = {
 // __27:
 // __26:
 	1 + (tword)&succ,
-#undef	_1
+#undef  _1
 #define _1	(tword)&start[478]
 	(tword)&gpar,
 	1,
@@ -727,7 +727,7 @@ tword start[] = {
 	_tn,
 	1 + (tword)&_tp,
 	1,
-#undef	_2
+#undef  _2
 #define _2	(tword)&start[487]
 	(tword)&gpar,
 	1,
@@ -735,24 +735,24 @@ tword start[] = {
 	1,
 	1 + (tword)&_tp,
 	1,
-#undef	_4
+#undef  _4
 #define _4	(tword)&start[493]
 	(tword)"alt;",
-#undef	_3
+#undef  _3
 #define _3	(tword)&start[494]
 	1 + (tword)&_tx,
 	_4,
-#undef	_5
+#undef  _5
 #define _5	(tword)&start[496]
 	(tword)"\\",
-#undef	_7
+#undef  _7
 #define _7	(tword)&start[497]
 	(tword)"salt;",
-#undef	_6
+#undef  _6
 #define _6	(tword)&start[498]
 	1 + (tword)&_tx,
 	_7,
-#undef	_10
+#undef  _10
 #define _10	(tword)&start[500]
 	(tword)&gpar,
 	1,
@@ -843,7 +843,7 @@ tword start[] = {
 // __43:
 // __42:
 	1 + (tword)&succ,
-#undef	_2
+#undef  _2
 #define _2	(tword)&start[564]
 	0,
 // __pdot:
@@ -876,7 +876,7 @@ tword start[] = {
 	__ndt,
 	(tword)&_ia,
 	1 + (tword)&_p,
-#undef	_1
+#undef  _1
 #define _1	(tword)&start[591]
 	1 + (tword)&any,
 #define __letter	(tword)&labels[97]
@@ -903,36 +903,36 @@ tword start[] = {
 	__specparg,
 // __45:
 	1 + (tword)&succ,
-#undef	_2
+#undef  _2
 #define _2	(tword)&start[608]
 	(tword)"\\n\\0",
-#undef	_1
+#undef  _1
 #define _1	(tword)&start[609]
 	1 + (tword)&_tx,
 	_2,
-#undef	_4
+#undef  _4
 #define _4	(tword)&start[611]
 	(tword)"1 succ",
-#undef	_3
+#undef  _3
 #define _3	(tword)&start[612]
 	1 + (tword)&_tx,
 	_4,
-#undef	_5
+#undef  _5
 #define _5	(tword)&start[614]
 	3,
-#undef	_6
+#undef  _6
 #define _6	(tword)&start[615]
 	0,
-#undef	_7
+#undef  _7
 #define _7	(tword)&start[616]
 	1 + (tword)&_tp,
 	1,
 	__nil,
 	__xbit,
-#undef	_11
+#undef  _11
 #define _11	(tword)&start[620]
 	(tword)"1 succ",
-#undef	_10
+#undef  _10
 #define _10	(tword)&start[621]
 	(tword)&_tp,
 	1,
@@ -1020,7 +1020,7 @@ tword start[] = {
 // __47:
 // __46:
 	1 + (tword)&succ,
-#undef	_1
+#undef  _1
 #define _1	(tword)&start[685]
 	1,
 // __iseasy:
@@ -1031,7 +1031,7 @@ tword start[] = {
 	_1,
 	(tword)&_st,
 	1 + (tword)&_p,
-#undef	_1
+#undef  _1
 #define _1	(tword)&start[692]
 	0,
 // __ishard:
@@ -1041,7 +1041,7 @@ tword start[] = {
 	_1,
 	(tword)&_st,
 	1 + (tword)&_p,
-#undef	_1
+#undef  _1
 #define _1	(tword)&start[699]
 	2,
 // __noelem:
@@ -1051,7 +1051,7 @@ tword start[] = {
 	_1,
 	(tword)&_st,
 	1 + (tword)&_p,
-#undef	_1
+#undef  _1
 #define _1	(tword)&start[706]
 	2,
 // __ifelem:
@@ -1061,7 +1061,7 @@ tword start[] = {
 	_1,
 	(tword)&_ne,
 	1 + (tword)&_t,
-#undef	_2
+#undef  _2
 #define _2	(tword)&start[713]
 	1,
 // __ifeasy:
@@ -1071,10 +1071,10 @@ tword start[] = {
 	_2,
 	(tword)&_eq,
 	1 + (tword)&_t,
-#undef	_2
+#undef  _2
 #define _2	(tword)&start[720]
 	(tword)"trans;1 ",
-#undef	_1
+#undef  _1
 #define _1	(tword)&start[721]
 	(tword)&gpar,
 	1,
@@ -1084,10 +1084,10 @@ tword start[] = {
 	_2,
 	1 + (tword)&_tp,
 	1,
-#undef	_4
+#undef  _4
 #define _4	(tword)&start[729]
 	(tword)".px",
-#undef	_3
+#undef  _3
 #define _3	(tword)&start[730]
 	(tword)&gpar,
 	1,
@@ -1097,10 +1097,10 @@ tword start[] = {
 	_4,
 	1 + (tword)&_tp,
 	1,
-#undef	_6
+#undef  _6
 #define _6	(tword)&start[738]
 	(tword)".pn",
-#undef	_5
+#undef  _5
 #define _5	(tword)&start[739]
 	(tword)&gpar,
 	1,
@@ -1108,21 +1108,21 @@ tword start[] = {
 	1,
 	1 + (tword)&_tx,
 	_6,
-#undef	_10
+#undef  _10
 #define _10	(tword)&start[745]
 	(tword)".t",
-#undef	_7
+#undef  _7
 #define _7	(tword)&start[746]
 	1 + (tword)&_tx,
 	_10,
-#undef	_12
+#undef  _12
 #define _12	(tword)&start[748]
 	(tword)".p",
-#undef	_11
+#undef  _11
 #define _11	(tword)&start[749]
 	1 + (tword)&_tx,
 	_12,
-#undef	_13
+#undef  _13
 #define _13	(tword)&start[751]
 	(tword)&gpar,
 	1,
@@ -1202,13 +1202,13 @@ tword start[] = {
 // __62:
 // __61:
 	1 + (tword)&succ,
-#undef	_2
+#undef  _2
 #define _2	(tword)&start[808]
 	(tword)"[-",
-#undef	_3
+#undef  _3
 #define _3	(tword)&start[809]
 	(tword)"\\<1]",
-#undef	_1
+#undef  _1
 #define _1	(tword)&start[810]
 	(tword)&_tx,
 	_2,
@@ -1237,10 +1237,10 @@ tword start[] = {
 // __71:
 	1 + (tword)&trans,
 	1 + _1,
-#undef	_2
+#undef  _2
 #define _2	(tword)&start[831]
 	(tword)"gpar;",
-#undef	_1
+#undef  _1
 #define _1	(tword)&start[832]
 	(tword)&_tx,
 	_2,
@@ -1286,10 +1286,10 @@ tword start[] = {
 	1 + __newtab,
 	__ptt,
 	__npt,
-#undef	_2
+#undef  _2
 #define _2	(tword)&start[864]
 	(tword)"1 generate",
-#undef	_1
+#undef  _1
 #define _1	(tword)&start[865]
 	1 + (tword)&_tx,
 	_2,
@@ -1311,12 +1311,12 @@ tword start[] = {
 	__trb,
 // __75:
 	1 + (tword)&succ,
-#undef	_1
+#undef  _1
 #define _1	(tword)&start[879]
 	__xbit,
 	1 + (tword)&_tp,
 	1,
-#undef	_2
+#undef  _2
 #define _2	(tword)&start[882]
 	(tword)&_tp,
 	2,
@@ -1342,26 +1342,26 @@ tword start[] = {
 	1 + _2,
 // __77:
 	1 + (tword)&succ,
-#undef	_2
+#undef  _2
 #define _2	(tword)&start[900]
 	(tword)".tx",
-#undef	_1
+#undef  _1
 #define _1	(tword)&start[901]
 	(tword)&_tx,
 	_2,
 	1 + (tword)&_tp,
 	1,
-#undef	_4
+#undef  _4
 #define _4	(tword)&start[905]
 	(tword)".tn",
-#undef	_3
+#undef  _3
 #define _3	(tword)&start[906]
 	1 + (tword)&_tx,
 	_4,
-#undef	_6
+#undef  _6
 #define _6	(tword)&start[908]
 	(tword)".tq;",
-#undef	_5
+#undef  _5
 #define _5	(tword)&start[909]
 	(tword)&_tx,
 	_6,
@@ -1437,10 +1437,10 @@ tword start[] = {
 	__tdot,
 	1 + (tword)&trans,
 	1 + __tpt,
-#undef	_2
+#undef  _2
 #define _2	(tword)&start[961]
 	(tword)".tq;",
-#undef	_1
+#undef  _1
 #define _1	(tword)&start[962]
 	(tword)&_tx,
 	_2,
@@ -1452,11 +1452,11 @@ tword start[] = {
 	__npt,
 	1 + (tword)&trans,
 	1 + _1,
-#undef	_1
+#undef  _1
 #define _1	(tword)&start[971]
 	1 + (tword)&_txs,
 	(tword)'0',
-#undef	_2
+#undef  _2
 #define _2	(tword)&start[973]
 	(tword)&_tp,
 	2,
@@ -1505,7 +1505,7 @@ tword start[] = {
 	__tbody,
 // __115:
 	1 + (tword)&succ,
-#undef	_1
+#undef  _1
 #define _1	(tword)&start[1007]
 	(tword)".tp;.byte ",
 // __tpt:
@@ -1517,7 +1517,7 @@ tword start[] = {
 	(tword)',',
 	1 + (tword)&_tp,
 	1,
-#undef	_1
+#undef  _1
 #define _1	(tword)&start[1016]
 	(tword)&_txs,
 	(tword)';',
@@ -1535,13 +1535,13 @@ tword start[] = {
 	1 + _1,
 // __116:
 	1 + (tword)&succ,
-#undef	_1
+#undef  _1
 #define _1	(tword)&start[1028]
 	(tword)">",
-#undef	_3
+#undef  _3
 #define _3	(tword)&start[1029]
 	(tword)"s;'",
-#undef	_2
+#undef  _2
 #define _2	(tword)&start[1030]
 	(tword)&_tx,
 	_3,
@@ -1559,31 +1559,31 @@ tword start[] = {
 	(tword)&scopy,
 	1 + (tword)&trans,
 	1 + _2,
-#undef	_1
+#undef  _1
 #define _1	(tword)&start[1044]
 	(tword)">",
-#undef	_3
+#undef  _3
 #define _3	(tword)&start[1045]
 	(tword)"\\",
-#undef	_4
+#undef  _4
 #define _4	(tword)&start[1046]
 	(tword)">",
-#undef	_2
+#undef  _2
 #define _2	(tword)&start[1047]
 	(tword)&_tx,
 	_3,
 	1 + (tword)&_tx,
 	_4,
-#undef	_5
+#undef  _5
 #define _5	(tword)&start[1051]
 	(tword)">",
-#undef	_7
+#undef  _7
 #define _7	(tword)&start[1052]
 	(tword)"\\0",
-#undef	_10
+#undef  _10
 #define _10	(tword)&start[1053]
 	(tword)">;.even",
-#undef	_6
+#undef  _6
 #define _6	(tword)&start[1054]
 	(tword)&_txs,
 	(tword)'<',
@@ -1617,13 +1617,13 @@ tword start[] = {
 	_5,
 	1 + (tword)&trans,
 	1 + _6,
-#undef	_1
+#undef  _1
 #define _1	(tword)&start[1080]
 	(tword)"\\",
-#undef	_3
+#undef  _3
 #define _3	(tword)&start[1081]
 	(tword)"\\\\",
-#undef	_2
+#undef  _2
 #define _2	(tword)&start[1082]
 	(tword)&_tp,
 	2,
@@ -1653,7 +1653,7 @@ tword start[] = {
 	__rv,
 // __121:
 	1 + (tword)&succ,
-#undef	_1
+#undef  _1
 #define _1	(tword)&start[1104]
 	(tword)&_tp,
 	3,
@@ -1671,7 +1671,7 @@ tword start[] = {
 	__expr,
 	1 + (tword)&trans,
 	1 + _1,
-#undef	_1
+#undef  _1
 #define _1	(tword)&start[1117]
 	(tword)&_tp,
 	3,
@@ -1681,7 +1681,7 @@ tword start[] = {
 	_tn,
 	1 + (tword)&_tp,
 	2,
-#undef	_2
+#undef  _2
 #define _2	(tword)&start[1125]
 	(tword)&_tp,
 	2,
@@ -1721,13 +1721,13 @@ tword start[] = {
 // __123:
 // __122:
 	1 + (tword)&succ,
-#undef	_2
+#undef  _2
 #define _2	(tword)&start[1150]
 	(tword)".t;alt;",
-#undef	_3
+#undef  _3
 #define _3	(tword)&start[1151]
 	(tword)"salt;",
-#undef	_1
+#undef  _1
 #define _1	(tword)&start[1152]
 	(tword)&_tx,
 	_2,
@@ -1764,31 +1764,31 @@ tword start[] = {
 	__fref,
 	1 + (tword)&trans,
 	1 + _1,
-#undef	_1
+#undef  _1
 #define _1	(tword)&start[1186]
 	(tword)&_tp,
 	2,
 	_tn,
 	1 + (tword)&_tp,
 	1,
-#undef	_2
+#undef  _2
 #define _2	(tword)&start[1191]
 	(tword)&_tp,
 	1,
 	_tn,
 	1 + (tword)&_tp,
 	2,
-#undef	_3
+#undef  _3
 #define _3	(tword)&start[1196]
 	(tword)&_tp,
 	1,
 	_tn,
 	1 + (tword)&_tp,
 	2,
-#undef	_5
+#undef  _5
 #define _5	(tword)&start[1201]
 	(tword)".l;",
-#undef	_4
+#undef  _4
 #define _4	(tword)&start[1202]
 	(tword)&_tx,
 	_5,
@@ -1854,29 +1854,29 @@ tword start[] = {
 // __127:
 // __126:
 	1 + (tword)&succ,
-#undef	_2
+#undef  _2
 #define _2	(tword)&start[1246]
 	(tword)".l;",
-#undef	_1
+#undef  _1
 #define _1	(tword)&start[1247]
 	(tword)&_tx,
 	_2,
 	1 + (tword)&_tp,
 	1,
-#undef	_4
+#undef  _4
 #define _4	(tword)&start[1251]
 	(tword)".rv",
-#undef	_3
+#undef  _3
 #define _3	(tword)&start[1252]
 	(tword)&_tp,
 	1,
 	_tn,
 	1 + (tword)&_tx,
 	_4,
-#undef	_6
+#undef  _6
 #define _6	(tword)&start[1257]
 	(tword)".f",
-#undef	_5
+#undef  _5
 #define _5	(tword)&start[1258]
 	(tword)&_tp,
 	2,
@@ -1929,20 +1929,20 @@ tword start[] = {
 	1 + _5,
 	1 + (tword)&salt,
 	__lv1,
-#undef	_2
+#undef  _2
 #define _2	(tword)&start[1299]
 	(tword)".u",
-#undef	_1
+#undef  _1
 #define _1	(tword)&start[1300]
 	(tword)&_tp,
 	1,
 	_tn,
 	1 + (tword)&_tx,
 	_2,
-#undef	_4
+#undef  _4
 #define _4	(tword)&start[1305]
 	(tword)".st",
-#undef	_3
+#undef  _3
 #define _3	(tword)&start[1306]
 	1 + (tword)&_tx,
 	_4,
@@ -1965,146 +1965,146 @@ tword start[] = {
 	1 + _3,
 // __142:
 	1 + (tword)&succ,
-#undef	_2
+#undef  _2
 #define _2	(tword)&start[1322]
 	1 + (tword)&_pxs,
 	(tword)'+',
-#undef	_1
+#undef  _1
 #define _1	(tword)&start[1324]
 	(tword)&_pxs,
 	(tword)'+',
 	1 + __not,
 	_2,
-#undef	_4
+#undef  _4
 #define _4	(tword)&start[1328]
 	(tword)".a",
-#undef	_3
+#undef  _3
 #define _3	(tword)&start[1329]
 	1 + (tword)&_tx,
 	_4,
-#undef	_6
+#undef  _6
 #define _6	(tword)&start[1331]
 	(tword)".s",
-#undef	_5
+#undef  _5
 #define _5	(tword)&start[1332]
 	1 + (tword)&_tx,
 	_6,
-#undef	_10
+#undef  _10
 #define _10	(tword)&start[1334]
 	(tword)".m",
-#undef	_7
+#undef  _7
 #define _7	(tword)&start[1335]
 	1 + (tword)&_tx,
 	_10,
-#undef	_12
+#undef  _12
 #define _12	(tword)&start[1337]
 	(tword)".q",
-#undef	_11
+#undef  _11
 #define _11	(tword)&start[1338]
 	1 + (tword)&_tx,
 	_12,
-#undef	_14
+#undef  _14
 #define _14	(tword)&start[1340]
 	(tword)".r",
-#undef	_13
+#undef  _13
 #define _13	(tword)&start[1341]
 	1 + (tword)&_tx,
 	_14,
-#undef	_16
+#undef  _16
 #define _16	(tword)&start[1343]
 	(tword)".o",
-#undef	_15
+#undef  _15
 #define _15	(tword)&start[1344]
 	1 + (tword)&_tx,
 	_16,
-#undef	_20
+#undef  _20
 #define _20	(tword)&start[1346]
 	(tword)".x",
-#undef	_17
+#undef  _17
 #define _17	(tword)&start[1347]
 	1 + (tword)&_tx,
 	_20,
-#undef	_22
+#undef  _22
 #define _22	(tword)&start[1349]
 	(tword)".n",
-#undef	_21
+#undef  _21
 #define _21	(tword)&start[1350]
 	1 + (tword)&_tx,
 	_22,
-#undef	_23
+#undef  _23
 #define _23	(tword)&start[1352]
 	(tword)"==",
-#undef	_25
+#undef  _25
 #define _25	(tword)&start[1353]
 	(tword)".eq",
-#undef	_24
+#undef  _24
 #define _24	(tword)&start[1354]
 	1 + (tword)&_tx,
 	_25,
-#undef	_26
+#undef  _26
 #define _26	(tword)&start[1356]
 	(tword)"!=",
-#undef	_30
+#undef  _30
 #define _30	(tword)&start[1357]
 	(tword)".ne",
-#undef	_27
+#undef  _27
 #define _27	(tword)&start[1358]
 	1 + (tword)&_tx,
 	_30,
-#undef	_31
+#undef  _31
 #define _31	(tword)&start[1360]
 	(tword)"<=",
-#undef	_33
+#undef  _33
 #define _33	(tword)&start[1361]
 	(tword)".le",
-#undef	_32
+#undef  _32
 #define _32	(tword)&start[1362]
 	1 + (tword)&_tx,
 	_33,
-#undef	_34
+#undef  _34
 #define _34	(tword)&start[1364]
 	(tword)">=",
-#undef	_36
+#undef  _36
 #define _36	(tword)&start[1365]
 	(tword)".ge",
-#undef	_35
+#undef  _35
 #define _35	(tword)&start[1366]
 	1 + (tword)&_tx,
 	_36,
-#undef	_37
+#undef  _37
 #define _37	(tword)&start[1368]
 	(tword)"<<",
-#undef	_41
+#undef  _41
 #define _41	(tword)&start[1369]
 	(tword)".sl",
-#undef	_40
+#undef  _40
 #define _40	(tword)&start[1370]
 	1 + (tword)&_tx,
 	_41,
-#undef	_43
+#undef  _43
 #define _43	(tword)&start[1372]
 	(tword)".lt",
-#undef	_42
+#undef  _42
 #define _42	(tword)&start[1373]
 	1 + (tword)&_tx,
 	_43,
-#undef	_44
+#undef  _44
 #define _44	(tword)&start[1375]
 	(tword)">",
-#undef	_45
+#undef  _45
 #define _45	(tword)&start[1376]
 	(tword)">",
-#undef	_47
+#undef  _47
 #define _47	(tword)&start[1377]
 	(tword)".sr",
-#undef	_46
+#undef  _46
 #define _46	(tword)&start[1378]
 	1 + (tword)&_tx,
 	_47,
-#undef	_51
+#undef  _51
 #define _51	(tword)&start[1380]
 	(tword)".gt",
-#undef	_50
+#undef  _50
 #define _50	(tword)&start[1381]
 	1 + (tword)&_tx,
 	_51,
@@ -2299,30 +2299,30 @@ tword start[] = {
 // __145:
 // __144:
 	1 + (tword)&succ,
-#undef	_2
+#undef  _2
 #define _2	(tword)&start[1513]
 	(tword)".lv",
-#undef	_1
+#undef  _1
 #define _1	(tword)&start[1514]
 	1 + (tword)&_tx,
 	_2,
-#undef	_3
+#undef  _3
 #define _3	(tword)&start[1516]
 	(tword)"++",
-#undef	_5
+#undef  _5
 #define _5	(tword)&start[1517]
 	(tword)".ib",
-#undef	_4
+#undef  _4
 #define _4	(tword)&start[1518]
 	1 + (tword)&_tx,
 	_5,
-#undef	_6
+#undef  _6
 #define _6	(tword)&start[1520]
 	(tword)"--",
-#undef	_10
+#undef  _10
 #define _10	(tword)&start[1521]
 	(tword)".db",
-#undef	_7
+#undef  _7
 #define _7	(tword)&start[1522]
 	1 + (tword)&_tx,
 	_10,
@@ -2359,23 +2359,23 @@ tword start[] = {
 // __203:
 // __202:
 	1 + (tword)&succ,
-#undef	_1
+#undef  _1
 #define _1	(tword)&start[1548]
 	(tword)"++",
-#undef	_3
+#undef  _3
 #define _3	(tword)&start[1549]
 	(tword)".ia",
-#undef	_2
+#undef  _2
 #define _2	(tword)&start[1550]
 	1 + (tword)&_tx,
 	_3,
-#undef	_4
+#undef  _4
 #define _4	(tword)&start[1552]
 	(tword)"--",
-#undef	_6
+#undef  _6
 #define _6	(tword)&start[1553]
 	(tword)".da",
-#undef	_5
+#undef  _5
 #define _5	(tword)&start[1554]
 	1 + (tword)&_tx,
 	_6,
@@ -2400,24 +2400,24 @@ tword start[] = {
 	1 + _5,
 // __206:
 	1 + (tword)&succ,
-#undef	_2
+#undef  _2
 #define _2	(tword)&start[1572]
 	(tword)".nt",
-#undef	_1
+#undef  _1
 #define _1	(tword)&start[1573]
 	1 + (tword)&_tx,
 	_2,
-#undef	_4
+#undef  _4
 #define _4	(tword)&start[1575]
 	(tword)".ng",
-#undef	_3
+#undef  _3
 #define _3	(tword)&start[1576]
 	1 + (tword)&_tx,
 	_4,
-#undef	_6
+#undef  _6
 #define _6	(tword)&start[1578]
 	(tword)".cm",
-#undef	_5
+#undef  _5
 #define _5	(tword)&start[1579]
 	1 + (tword)&_tx,
 	_6,
@@ -2470,13 +2470,13 @@ tword start[] = {
 	1 + (tword)&octal,
 #define __classmask	(tword)&labels[237]
 	__classmask,
-#undef	_1
+#undef  _1
 #define _1	(tword)&start[1613]
 	(tword)"<<",
-#undef	_2
+#undef  _2
 #define _2	(tword)&start[1614]
 	1,
-#undef	_4
+#undef  _4
 #define _4	(tword)&start[1615]
 	(tword)"<<",
 // __ccla:
@@ -2505,7 +2505,7 @@ tword start[] = {
 	_4,
 	1 + (tword)&salt,
 	__ccl1,
-#undef	_1
+#undef  _1
 #define _1	(tword)&start[1638]
 	(tword)">",
 // __cclc:
@@ -2521,13 +2521,13 @@ tword start[] = {
 	__ccle,
 	1 + (tword)&salt,
 	__ccl3,
-#undef	_1
+#undef  _1
 #define _1	(tword)&start[1648]
 	(tword)">",
-#undef	_3
+#undef  _3
 #define _3	(tword)&start[1649]
 	(tword)">",
-#undef	_2
+#undef  _2
 #define _2	(tword)&start[1650]
 	1 + (tword)&_px,
 	_3,
@@ -2617,21 +2617,21 @@ tword start[] = {
 	__testn,
 	1 + (tword)&salt,
 	__ccl6,
-#undef	_3
+#undef  _3
 #define _3	(tword)&start[1724]
 	(tword)"too many char classes",
-#undef	_2
+#undef  _2
 #define _2	(tword)&start[1725]
 	1 + (tword)&_tx,
 	_3,
-#undef	_1
+#undef  _1
 #define _1	(tword)&start[1727]
 	1 + (tword)&trans,
 	1 + _2,
 // __cherr:
 	1 + (tword)&diag,
 	_1,
-#undef	_1
+#undef  _1
 #define _1	(tword)&start[1731]
 	0,
 // __zeron:
@@ -2641,7 +2641,7 @@ tword start[] = {
 	_1,
 	(tword)&_st,
 	1 + (tword)&_p,
-#undef	_1
+#undef  _1
 #define _1	(tword)&start[1738]
 	0200,
 // __testn:
@@ -2652,16 +2652,16 @@ tword start[] = {
 	_1,
 	(tword)&_lt,
 	1 + (tword)&_t,
-#undef	_1
+#undef  _1
 #define _1	(tword)&start[1746]
 	0,
-#undef	_4
+#undef  _4
 #define _4	(tword)&start[1747]
 	(tword)".globl classtab",
-#undef	_5
+#undef  _5
 #define _5	(tword)&start[1748]
 	(tword)"classtab:",
-#undef	_3
+#undef  _3
 #define _3	(tword)&start[1749]
 	_tn,
 	(tword)&_tx,
@@ -2670,16 +2670,16 @@ tword start[] = {
 	(tword)&_tx,
 	_5,
 	1 + _tn,
-#undef	_2
+#undef  _2
 #define _2	(tword)&start[1756]
 	1 + (tword)&trans,
 	1 + _3,
-#undef	_7
+#undef  _7
 #define _7	(tword)&start[1758]
 	(tword)&_tp,
 	1,
 	1 + _tn,
-#undef	_6
+#undef  _6
 #define _6	(tword)&start[1761]
 	(tword)&octal,
 #define __w	(tword)&labels[248]
@@ -2860,7 +2860,7 @@ tword start[] = {
 	0,
 // __done:
 	1 + (tword)&succ,
-#undef	_1
+#undef  _1
 #define _1	(tword)&start[1925]
 	(tword)&_txs,
 	(tword)'.',
@@ -2876,10 +2876,10 @@ tword start[] = {
 	__csym,
 	1 + (tword)&trans,
 	1 + _1,
-#undef	_2
+#undef  _2
 #define _2	(tword)&start[1937]
 	(tword)"..",
-#undef	_1
+#undef  _1
 #define _1	(tword)&start[1938]
 	(tword)&_tx,
 	_2,
@@ -2896,7 +2896,7 @@ tword start[] = {
 	__fsym,
 	1 + (tword)&trans,
 	1 + _1,
-#undef	_1
+#undef  _1
 #define _1	(tword)&start[1950]
 	1,
 // __not:
@@ -2906,10 +2906,10 @@ tword start[] = {
 	(tword)&alt,
 	__done,
 	1 + (tword)&fail,
-#undef	_1
+#undef  _1
 #define _1	(tword)&start[1957]
 	1,
-#undef	_2
+#undef  _2
 #define _2	(tword)&start[1958]
 	(tword)&_tp,
 	2,
@@ -2931,7 +2931,7 @@ tword start[] = {
 	1 + _2,
 	1 + (tword)&salt,
 	__list1,
-#undef	_1
+#undef  _1
 #define _1	(tword)&start[1976]
 	1,
 // __remote:
@@ -2942,13 +2942,13 @@ tword start[] = {
 #define __rem1	(tword)&labels[250]
 	__rem1,
 	(tword)((tuword)-1<<1),
-#undef	_1
+#undef  _1
 #define _1	(tword)&start[1983]
 	1,
-#undef	_3
+#undef  _3
 #define _3	(tword)&start[1984]
 	(tword)"=.",
-#undef	_2
+#undef  _2
 #define _2	(tword)&start[1985]
 	(tword)&_tp,
 	2,
@@ -2987,10 +2987,10 @@ tword start[] = {
 	1 + (tword)&string,
 #define __alpha	(tword)&labels[252]
 	__alpha,
-#undef	_1
+#undef  _1
 #define _1	(tword)&start[2016]
 	1,
-#undef	_3
+#undef  _3
 #define _3	(tword)&start[2017]
 	0,
 // __oldtab:
@@ -3009,10 +3009,10 @@ tword start[] = {
 	_3,
 	(tword)&_st,
 	1 + (tword)&_p,
-#undef	_1
+#undef  _1
 #define _1	(tword)&start[2033]
 	2,
-#undef	_3
+#undef  _3
 #define _3	(tword)&start[2034]
 	0,
 // __newtab:
@@ -3046,7 +3046,7 @@ tword start[] = {
 	(tword)&_ia,
 	(tword)&_st,
 	1 + (tword)&_p,
-#undef	_1
+#undef  _1
 #define _1	(tword)&start[2063]
 	2,
 // __tabval:
@@ -3075,7 +3075,7 @@ tword start[] = {
 // __null:
 	1 + (tword)&trans,
 	1 + __nil,
-#undef	_1
+#undef  _1
 #define _1	(tword)&start[2088]
 	(tword)"1 ",
 // __xbit:
