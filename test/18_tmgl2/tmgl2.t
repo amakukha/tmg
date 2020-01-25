@@ -60,9 +60,9 @@ label:  lblnam find(ltab, i)/newlbl [ltab[i] = cnt]
         = { <// > 2 <:> * };
 newlbl: decimal(cnt) tabput(ltab, 0)
         = { <#define > 2 <	(tword)&start[> 1 <]> * };
-lblnam: smark
+lblnam: ignore(none) smark
         ( any(under) ( <_> number = { <__> 1 }
-                     | any(tpcls) any(ncls) scopy  )
+                     | any(tpcls) any(ncls) scopy = { 1 } )
         | name = { <__> 1 } ) <:>;
 
                                   /* Translation of statements and values */
@@ -90,8 +90,8 @@ vallbl: params(1) ignore(none) smark
       ( any(under) ( any(tpcls) any(ncls) scopy
                    | <_> number = { <__> 1 } )
       | usrdef = { <__> 1 } ) $1;
-valbtn: params(1) ignore(none)
-      ( <_> ( any(tpcls) ( any(ncls) ( $1 fail
+valbtn: params(1) ignore(none) smark
+      ( <_> ( any(tpcls) ( any(ncls) ( scopy $1 fail
                                      | string(lowup) scopy $1 = { <_> 1 } )
                          | string(lowup) scopy $1 = { <_> 1 } )
             | any(lowup) string(lowup) scopy $1 = { <_> 1 } )
@@ -120,7 +120,6 @@ built1: <a> ( <ccept>   = { <accept> }
             | <par>     = { <gpar> } )
       | <p> ( <arse>    = { <parse> }
             | <arams>   = { <params> }
-            | <roc>     = { <proc> }
             | <ush>     = { <push> } )
       | <s> ( <copy>    = { <scopy> }
             | <alt>     = { <salt> }
