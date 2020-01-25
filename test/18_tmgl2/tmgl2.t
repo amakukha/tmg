@@ -83,10 +83,14 @@ nuvlbl: decimal(lcnt) lblput [cnt++] = (1){
             <#define > 2 <	(tword)&labels[> 1 <]> * 
             <	> $1 2 <,> *
         };
-vallit: params(1) 
-      ( <.byte> number <,0> $1
+vallit: params(1)
+      ( <.byte> octnum((<,>)) <0> $1
       | <[-> number <\<1]> $1 = { <(tword)((tuword)-> 1 <<<1)> }
-      | ( <_> = { <_> } | null ) number $1 = { 2 1 } );
+      | <_> number $1 = { <_> 1 }
+      | octnum($1));
+octnum: params(1) smark any(digit)
+        ( $1 scopy = { 1 }
+        | ignore(none) any(digit) string(digit) $1 scopy = { <0> 1 } );
 vallbl: params(1) ignore(none) smark 
       ( any(under) ( any(tpcls) any(ncls) scopy
                    | <_> number = { <__> 1 } )
