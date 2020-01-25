@@ -85,6 +85,7 @@ nuvlbl: decimal(lcnt) lblput [cnt++] = (1){
         };
 vallit: params(1) 
       ( <.byte> number <,0> $1
+      | <[-> number <\<1]> $1 = { <(tword)((tuword)-> 1 <<<1)> }
       | ( <_> = { <_> } | null ) number $1 = { 2 1 } );
 vallbl: params(1) ignore(none) smark 
       ( any(under) ( any(tpcls) any(ncls) scopy
