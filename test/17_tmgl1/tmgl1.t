@@ -6,7 +6,6 @@
 /* - using underscores instead of dots in names and labels */
 /* - removing .even and .globl directives */
 /* - removing zero-byte from the end of strings */
-/* - using commas instead of semicolons */
 /* - adding exit bit instead of juxtaposing */
 /* - finishing the output with a newline */
 /* (c) 2020, Andrii Makukha, 2-clause BSD License. */
@@ -42,8 +41,8 @@ labels:	label labels/done = { 2 * 1 };
 
 label:	name <:> = { 1 <:> };
 
-last:	= {	<_pn:1 + _pxs,> * <'\n'> *
-		<_tn:1 + _txs,> * <'\n'> * };     /* TODO */
+last:	= {	<_pn:1 + _pxs;> * <'\n'> *
+		<_tn:1 + _txs;> * <'\n'> * };
 
 comment: </*>
 co1:	ignore(!<<*>>) <*> ignore(none) </>/co1;
@@ -53,18 +52,18 @@ statement: [csym=0] oldtab(dtt) oldtab(pat)
 	| = (1){} noelem )
 stt1:	bundle	( frag = (1){ 2(nil) * 1(q1) }\stt1
 		| <;>	( ifelem = { 1(xbit) }
-			| ={ 1(nil) * <1 + succ,> }
+			| ={ 1(nil) * <1 + succ;> }
 		)	);
 
 prc:	smark ignore(none) <proc(>;
 
 plst:	list(pident)/null remote((octal(npa)))
-	= { <params,> * 1 * };
+	= { <params;> * 1 * };
 
 pident:	ident newtab(pat,npa);
 
 tlst:	<;>/null [i=0] list((name [i++])) remote((octal(i)))
-	= { <push,> * 1 * 2 * };
+	= { <push;> * 1 * 2 * };
 
 frag:	prule = (1){ 1(nil,q1) }
 	| labels noelem = (1){ 1 };
@@ -73,9 +72,9 @@ frag:	prule = (1){ 1(nil,q1) }
 
 prule:	[sndt=ndt] disj
 	( <|> [ndt=sndt] fref
-		( ifeasy prule = (2){ 3(nil,nil) * <salt,> * 2 *
+		( ifeasy prule = (2){ 3(nil,nil) * <salt;> * 2 *
 				 1(q2,q1) * 2 <:> }
-		| prule fref = (2){ 4({ * <alt,> * 1},q1) * <goto,> * 3 *
+		| prule fref = (2){ 4({ * <alt;> * 1},q1) * <goto;> * 3 *
 				1 <:> 2(q2,q1) * 3 <:>} )
 		noelem
 	| () );
@@ -95,7 +94,7 @@ pprim:	( special
 			( <(> ignore(blanks) list(parg) <)>
 				= (1){$1 2 * 1}
 			| = (1){$1 1}  )))
-	( (</> = { <alt,> * } | <\> = { <salt,> * })
+	( (</> = { <alt;> * } | <\> = { <salt;> * })
 		rname = (1){3(nil)*$1 2 1}
 	| () );
 
@@ -110,11 +109,11 @@ specparg: number
 	| charcl
 	| <<> longlit
 	| <*> = { <\n> }
-	| <(> ( <)> = { <1 + succ,> }
+	| <(> ( <)> = { <1 + succ;> }
 		| push(3,dtt,ndt,sndt) [dtt=0]
 			prule <)> oldtab(dtt)
 			( ifelem = {1(nil,xbit) }
-			| = {1(nil,nil) * <1 + succ,>} 
+			| = {1(nil,nil) * <1 + succ;>} 
 		)	);
 
 iseasy:	[easy = 1];
@@ -124,7 +123,7 @@ ifelem:	[easy!=2?];
 ifeasy:	[easy==1?];
 
 special: <=> (rname | remote(trule))
-		= (1){ $1 <trans,> * <1 + > 1 }
+		= (1){ $1 <trans;> * <1 + > 1 }
 	| <<> literal = (1){ $1 <_px> 1 }
 	| <*> = (1){ $1 <_pn> }
 	| <[> expr
@@ -134,11 +133,11 @@ special: <=> (rname | remote(trule))
 
 rname:	( name tabval(pat,npa)/done
 	| <$> number )
-	= { <[-> 1 <\<1]> };    /* TODO */
+	= { <[-> 1 <\<1]> };
 
 trule:	oldtab(ptt)
 	( tbody
-	| <(> (number|tra) <)> tbody = {<gpar,> * 2 * 1 } );
+	| <(> (number|tra) <)> tbody = {<gpar;> * 2 * 1 } );
 tra:	list(tident) octal(npt);
 
 tident:	ident newtab(ptt,npt);
@@ -150,12 +149,12 @@ trb:	telem	( <}> = {  xbit 1 }
 
 telem:	<<> literal = { <_tx> 1 }
 	| <*> = { <_tn> }
-	| <$> number = { <_tq,> * 1 }
+	| <$> number = { <_tq;> * 1 }
 	| number tdot = tpt
 	| name te1\done te2\done;
 
 te1:	tabval(dtt,ndt) tdot = tpt;
-te2:	tabval(ptt,npt) = { <_tq,> * 1 };
+te2:	tabval(ptt,npt) = { <_tq;> * 1 };
 
 tdot:	(<.> number | ={<0>})
 	( <(> list(targ) <)> | null)
@@ -163,16 +162,15 @@ tdot:	(<.> number | ={<0>})
 
 targ:	name|remote(tbody);
 
-tpt:	{ <_tp,.byte > 2 <,> 1 };
+tpt:	{ <_tp;.byte > 2 <,> 1 };
 
 literal: ( shortlit
-	 | remote(longlit) = { <,> 1 } );
+	 | remote(longlit) = { <;> 1 } );
 
-shortlit: ignore(none) smark any(litch) <>> scopy = { <s,> * <'> 1 <',> };
+shortlit: ignore(none) smark any(litch) <>> scopy = { <s;> * <'> 1 <';> };
 
-/* TODO */
 longlit: ignore(none) (<>> = { <\> <>> } | null) litb <>>
-	 = { <<> 2 1 <>,> };
+	 = { <<> 2 1 <>;> };
 
 litb:	smark string(litch) scopy <\>/done
 	litb = { 2 <\\> 1 };
@@ -186,16 +184,16 @@ rv1:	bundle	( infix prime = { 3 * 1 * 2 }\rv1
 		| rva = { 2 * 1 }
 		| () );
 rva:	<?> rv <:> rv fref fref 
-	= { <_t,> * <alt,> * 2 * 4 * <salt,> * 1 * 2 <:> 3 * 1 <:> };
+	= { <_t;> * <alt;> * 2 * 4 * <salt;> * 1 * 2 <:> 3 * 1 <:> };
 
 prime:
 	lv suffix/done = { 2 * 1 }
 	| prefix lv = { 1 * 2 }
 	| <(> expr <)> 
 	| unary prime = { 1 * 2 }
-	| remote(number) = { <_l,> * 1 };
+	| remote(number) = { <_l;> * 1 };
 
-lv:	( rname = { <_l,> * 1 }
+lv:	( rname = { <_l;> * 1 }
 	| <(> lv <)>
 	| <*> prime = { 1 * <_rv> } )
 lv1:	<[>/done bundle expr <]> = { 2 * 1 * <_f> }\lv1;
@@ -257,7 +255,6 @@ cherr:	diag(( ={<too many char classes>} ));
 zeron:	[n=0];
 testn:	[++n<200?];
 
-/* TODO */
 putcharcl: zeron [classes=0] 
 	parse(( = { * <classtab:> * } ))
 ptc1:	[w = *(wordsz*n+&classes)] parse((octal(w) = {1*}))
@@ -289,7 +286,7 @@ list:	params(1) $1
 list1:	bundle <,>/done $1 = { 2 * 1 }\list1;
 
 remote:	params(1) create parse(rem1,$1);
-rem1:	params(1) getcsym $1 = { 2 <=.> * 1 * };    /* TODO Local label */
+rem1:	params(1) getcsym $1 = { 2 <=.> * 1 * };
 
 number: smark ignore(none) any(digit) string(digit) scopy;
 

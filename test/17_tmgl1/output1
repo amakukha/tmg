@@ -4,13 +4,13 @@ __1:program:
 1 + parse
 hello
 _2=.
-<Hello, World!>,
+<Hello, World!>;
 _1=.
-_tx,_2
+_tx;_2
 1 + _tn
 hello:
 
-1 + trans,
+1 + trans;
 1 + _1
 
 classtab:
@@ -142,7 +142,7 @@ classtab:
 0
 0
 0
-_pn:1 + _pxs,
+_pn:1 + _pxs;
 '\n'
-_tn:1 + _txs,
+_tn:1 + _txs;
 '\n'

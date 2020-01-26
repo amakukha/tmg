@@ -34,13 +34,13 @@ line:   ignore(spaces)
     |   * = {} );
 
                                            /* Translation of local labels */
-loclbl: <_> number <=.> ( <,> | () ) decimal(cnt)
+loclbl: <_> number <=.> ( <;> | () ) decimal(cnt)
         = { <#undef  _> 2 *
             <#define _> 2 <	(tword)&start[> 1 <]> * };
 
                                         /* Translation of string literals */
 strlit: <<> ignore(none) ( litesc | null )
-        litb <>> ( <,> | () ) [cnt++]
+        litb <>> ( <;> | () ) [cnt++]
         = { <	(tword)"> 2 1 <",> * };
 litesc: <\> ( <>> = { <>> } | = { <\> } );
 litb:	smark string(litch) scopy stresc/done 
@@ -51,7 +51,7 @@ stresc: <"> = { <\"> };
 chrlit: <'> ( <'> = { <\'> }
             | <\> smark any(ascii) scopy = { <\> 1 }
             | smark any(ascii) scopy )
-        <'> ( <,> = {} | null ) [cnt++]
+        <'> ( <;> = {} | null ) [cnt++]
         = { <	(tword)'> 2 <',> * };
 
                                                  /* Translation of labels */
@@ -67,7 +67,7 @@ lblnam: ignore(none) smark
 
                                   /* Translation of statements and values */
 values: ignore(spaces)
-comvals:extval((<,>|<;>))/nlval comvals/done = { 2 1 };
+comvals:extval((<;>))/nlval comvals/done = { 2 1 };
 nlval:  extval((*)) done;
 extval: params(1) 
       ( extbit valsep($1) = { 1({2}) }
