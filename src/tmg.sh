@@ -1,8 +1,9 @@
 #!/bin/bash
 
-# TMGL compilation script. Corresponds to the original script `tmg`.
+# TMGL compilation script.
 # For a given TMGL program it produces an executable. 
-#
+# Corresponds to the original script `tmg`.
+# 
 # While the original script relies on the UNIX assembler to produce the
 # executable, this script calls the C compiler. It is a principal difference
 # between this project and the original.
