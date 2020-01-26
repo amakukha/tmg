@@ -13,5 +13,5 @@ tword start[] = {
 // Global label addresses inside the driving table
 
 const tword labels[] = {
-	(tword)&start[0],
+	(tword)&start[0],	// _tn
 };

@@ -15,6 +15,7 @@ extern void diag();
 extern void iget();
 extern void errcom(const char* msg);
 extern void fail();
+extern void flush();
 extern void generate();
 extern void obuild();
 extern void parse();
@@ -109,6 +110,8 @@ void enter();
 void find();
 void _find();
 void getcstr();
+void getnam();
+void _getnam();
 void gpar();
 void ignore();
 void jget();
@@ -567,6 +570,8 @@ void decimal() {
     return succ();  // Tail call
 }
 
+// Description:
+//      Part of decimal() used via putcall.
 void _decimal() {
     r0 = *i;
     putdec();
@@ -716,6 +721,50 @@ void getcstr() {
     getschar();             // Read character from the sblock
 }
 
+// Description:
+//      Builting getnam(t, i).
+//      deliver the string of entry i in table t
+void getnam() {
+    r0 = 1 + (tword)&_getnam;
+    putcall();
+    iget();             // Get first parameter `t` - table
+    r0 = *(tptr)r0;
+    kput();
+    iget();             // Get second parameter `i` - entry index
+    r0 = *(tptr)r0;
+    kput();
+    return succ();  // Tail call
+}
+
+// Description:
+//      Part of getnam() used via putcall.
+//      (This function is only called after successful descent.)
+void _getnam() {
+    if (cfile != lfile) {   // Flush if output destination changed
+        flush();
+        lfile = cfile;
+    }
+    r1 = *i++;          // Table "string"
+    PUSH(r1);
+    r0 = *i++ + 6;      // sptr == three words    TODO: change to actual word size
+    seekchar();         // Register r0 contains the character position (i + 6)
+    do {
+        r1 = stack[sp]; // Restore the table "string"
+        r2 = outw;
+        do {
+            getschar();
+            if (!r0)
+                goto done;
+            outb[r2] = (uint8_t)r0;
+        } while ((outw = ++r2) < OUTT);
+        flush();
+    } while(1);
+
+done:
+    POP();
+    return generate();  // Tail call
+}
+
 void gpar() {
     r0 = *i++;
     r1 = (tword)((translation_frame_t*)f)->ep;
@@ -790,6 +839,8 @@ void octal() {
     return succ();  // Tail call
 }
 
+// Description:
+//      Part of octal() used via putcall.
 void _octal() {
     r0 = *i;
     putoct();
@@ -838,6 +889,11 @@ void push() {
     return;
 }
 
+// Description:
+//      Puts function pointer r0 into table ktab.
+//      See also: kput()
+// Parameters:
+//      r0 - Function pointer to be put into ktable.
 void putcall() {
     DEBUG("    putcall: r0=%lx", r0);
     kput();

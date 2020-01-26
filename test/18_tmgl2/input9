@@ -1,0 +1,2568 @@
+1 + __1
+__1:begin:
+
+ignore
+blanks
+_l,
+wordsz
+_l,
+classes
+_lv
+_l,
+nclass
+_lv
+_s
+_st
+_p
+pr1:
+comment
+salt,
+pr1
+parse
+first
+salt,
+pr2
+diag
+error
+pr2:
+comment
+salt,
+pr2
+parse
+line
+salt,
+pr2
+diag
+error
+salt,
+pr2
+putcharcl
+1 + parse
+last
+_3=.
+<1 >,
+_2=.
+_tx,_3
+_tp,.byte 1,0;
+1 + _tn
+_1=.
+fref
+1 + trans,
+1 + _2
+_4=.
+_tp,.byte 2,0;
+_txs,
+':',
+1 + _tp,.byte 1,0;
+first:
+
+parse
+_1
+getfref
+line
+1 + trans,
+1 + _4
+_1=.
+1
+_2=.
+2
+_3=.
+1 + _txs,
+';',
+_5=.
+<??? >,
+_4=.
+_tn
+_tx,_5
+_tp,.byte 2,0;
+_tp,.byte 1,0;
+1 + _tn
+error:
+
+smark
+ignore
+none
+any
+_1
+string
+_2
+scopy
+_pxs,
+';',
+alt,
+__3
+trans,
+1 + _3
+goto,
+__2
+__3:null
+__2:
+1 + trans,
+1 + _4
+_1=.
+_tp,.byte 2,0;
+_tn
+_tp,.byte 1,0;
+1 + _tn
+line:
+
+labels
+charcl
+alt,
+__7
+_pxs,
+';',
+goto,
+__4
+__7:statement
+salt,
+__5
+numbers
+salt,
+__6
+trule
+_pxs,
+';',
+__6:
+__5:
+__4:
+1 + trans,
+1 + _1
+_1=.
+_tp,.byte 2,0;
+_tn
+1 + _tp,.byte 1,0;
+numbers:
+
+number
+_pxs,
+';',
+numbers
+alt,
+done
+1 + trans,
+1 + _1
+_1=.
+_tp,.byte 2,0;
+_tn
+1 + _tp,.byte 1,0;
+labels:
+
+label
+labels
+alt,
+done
+1 + trans,
+1 + _1
+_1=.
+_tp,.byte 1,0;
+1 + _txs,
+':',
+label:
+
+name
+_pxs,
+':',
+1 + trans,
+1 + _1
+_2=.
+<.pn:1 .pxs;12>,
+_3=.
+<.tn:1 .txs;12>,
+_1=.
+_tx,_2
+_tn
+_tx,_3
+1 + _tn
+last:
+
+1 + trans,
+1 + _1
+_1=.
+</*>,
+_2=.
+4
+comment:
+
+_px,_1
+co1:
+ignore
+_2
+_pxs,
+'*',
+ignore
+none
+_pxs,
+'/',
+1 + alt,
+co1
+_1=.
+0
+_2=.
+gpar,
+1
+_tp,.byte 2,0;
+1 + _tp,.byte 1,0;
+_3=.
+gpar,
+1
+1 + generate
+_4=.
+gpar,
+1
+_tp,.byte 2,0;nil
+_tn
+1 + _tp,.byte 1,0;q1
+_5=.
+1 + _tp,.byte 1,0;xbit
+_7=.
+<1 succ>,
+_6=.
+_tp,.byte 1,0;nil
+_tn
+1 + _tx,_7
+statement:
+
+_l,
+csym
+_l,
+_1
+_st
+_p
+oldtab
+dtt
+oldtab
+pat
+proc
+alt,
+__11
+plst
+tlst
+_pxs,
+')',
+trans,
+1 + _2
+goto,
+__10
+__11:trans,
+1 + _3
+noelem
+__10:
+stt1:
+bundle
+frag
+alt,
+__15
+trans,
+1 + _4
+salt,
+stt1
+goto,
+__12
+__15:_pxs,
+';',
+ifelem
+alt,
+__14
+trans,
+1 + _5
+goto,
+__13
+__14:trans,
+1 + _6
+__13:
+__12:
+1 + succ,
+_1=.
+<proc(>,
+proc:
+
+smark
+ignore
+none
+1 + _px,_1
+_1=.
+1 + octal
+npa
+_3=.
+<params;>,
+_2=.
+_tx,_3
+_tp,.byte 1,0;
+1 + _tn
+plst:
+
+list
+pident
+alt,
+null
+remote
+_1
+1 + trans,
+1 + _2
+pident:
+
+ident
+1 + newtab
+pat
+npa
+_1=.
+0
+_2=.
+name
+_l,
+i
+_ia
+1 + _p
+_3=.
+1 + octal
+i
+_5=.
+<push;>,
+_4=.
+_tx,_5
+_tp,.byte 1,0;
+_tn
+_tp,.byte 2,0;
+1 + _tn
+tlst:
+
+_pxs,
+';',
+alt,
+null
+_l,
+i
+_l,
+_1
+_st
+_p
+list
+_2
+remote
+_3
+1 + trans,
+1 + _4
+_1=.
+gpar,
+1
+1 + _tp,.byte 1,0;nil
+q1
+_2=.
+gpar,
+1
+1 + _tp,.byte 1,0;
+frag:
+
+prule
+alt,
+__17
+trans,
+1 + _1
+goto,
+__16
+__17:labels
+noelem
+trans,
+1 + _2
+__16:
+1 + succ,
+_2=.
+<salt;>,
+_1=.
+gpar,
+2
+_tp,.byte 3,0;nil
+nil
+_tn
+_tx,_2
+_tp,.byte 2,0;
+_tn
+_tp,.byte 1,0;q2
+q1
+_tn
+_tp,.byte 2,0;
+1 + _txs,
+':',
+_5=.
+<alt;>,
+_4=.
+_tn
+_tx,_5
+1 + _tp,.byte 1,0;
+_6=.
+<goto;>,
+_3=.
+gpar,
+2
+_tp,.byte 4,0;_4
+q1
+_tn
+_tx,_6
+_tp,.byte 3,0;
+_tn
+_tp,.byte 1,0;
+_txs,
+':',
+_tp,.byte 2,0;q2
+q1
+_tn
+_tp,.byte 3,0;
+1 + _txs,
+':',
+prule:
+
+_l,
+sndt
+_l,
+ndt
+_st
+_p
+disj
+_pxs,
+'|',
+alt,
+__23
+_l,
+ndt
+_l,
+sndt
+_st
+_p
+fref
+ifeasy
+alt,
+__21
+prule
+trans,
+1 + _1
+goto,
+__20
+__21:prule
+fref
+trans,
+1 + _3
+__20:
+noelem
+goto,
+__22
+__23:
+__22:
+1 + succ,
+_1=.
+gpar,
+2
+_tp,.byte 2,0;q2
+nil
+_tn
+1 + _tp,.byte 1,0;nil
+q1
+disj:
+
+pelem
+pdot
+disj
+alt,
+__25
+trans,
+1 + _1
+ifelem
+alt,
+done
+ishard
+goto,
+__24
+__25:
+__24:
+1 + succ,
+_1=.
+gpar,
+2
+_tp,.byte 1,0;q1
+1 + _tq,
+2
+_2=.
+1
+_3=.
+gpar,
+2
+1 + generate
+pelem:
+
+pprim
+alt,
+__31
+trans,
+1 + _1
+iseasy
+goto,
+__26
+__31:_pxs,
+'(',
+push
+_2
+sndt
+prule
+alt,
+__30
+_pxs,
+')',
+goto,
+__27
+__30:_pxs,
+')',
+trans,
+1 + _3
+noelem
+__27:
+__26:
+1 + succ,
+_1=.
+gpar,
+1
+_tq,
+1
+_tp,.byte 2,0;
+_tn
+1 + _tp,.byte 1,0;
+_2=.
+gpar,
+1
+_tq,
+1
+1 + _tp,.byte 1,0;
+_4=.
+<alt;>,
+_3=.
+1 + _tx,_4
+_5=.
+<\\>,
+_7=.
+<salt;>,
+_6=.
+1 + _tx,_7
+_10=.
+gpar,
+1
+_tp,.byte 3,0;nil
+_tn
+_tq,
+1
+_tp,.byte 2,0;
+1 + _tp,.byte 1,0;
+pprim:
+
+special
+salt,
+__32
+rname
+_pxs,
+':',
+alt,
+__37
+fail
+goto,
+__33
+__37:spdot
+salt,
+__34
+
+__34:
+ignore
+none
+_pxs,
+'(',
+alt,
+__36
+ignore
+blanks
+list
+parg
+_pxs,
+')',
+trans,
+1 + _1
+goto,
+__35
+__36:trans,
+1 + _2
+__35:
+__33:
+__32:
+_pxs,
+'/',
+alt,
+__41
+trans,
+1 + _3
+goto,
+__40
+__41:_px,_5
+alt,
+__43
+trans,
+1 + _6
+__40:
+rname
+trans,
+1 + _10
+goto,
+__42
+__43:
+__42:
+1 + succ,
+_2=.
+0
+pdot:
+
+_pxs,
+'.',
+alt,
+done
+ignore
+none
+ident
+salt,
+alias
+_l,
+dtt
+_t
+salt,
+__44
+table
+dtt
+_l,
+ndt
+_l,
+_2
+_st
+_p
+__44:
+_l,
+ndt
+_ia
+1 + _p
+_1=.
+1 + any
+letter
+spdot:
+
+_pxs,
+'.',
+ignore
+none
+not
+_1
+alias:
+1 + newtab
+dtt
+ndt
+parg:
+
+rname
+salt,
+__45
+remote
+specparg
+__45:
+1 + succ,
+_2=.
+<\\n\\0>,
+_1=.
+1 + _tx,_2
+_4=.
+<1 succ>,
+_3=.
+1 + _tx,_4
+_5=.
+3
+_6=.
+0
+_7=.
+1 + _tp,.byte 1,0;nil
+xbit
+_11=.
+<1 succ>,
+_10=.
+_tp,.byte 1,0;nil
+nil
+_tn
+1 + _tx,_11
+specparg:
+
+number
+salt,
+__46
+charcl
+salt,
+__47
+_pxs,
+'<',
+alt,
+__57
+longlit
+goto,
+__50
+__57:_pxs,
+'*',
+alt,
+__56
+trans,
+1 + _1
+goto,
+__51
+__56:_pxs,
+'(',
+_pxs,
+')',
+alt,
+__55
+trans,
+1 + _3
+goto,
+__52
+__55:push
+_5
+dtt
+ndt
+sndt
+_l,
+dtt
+_l,
+_6
+_st
+_p
+prule
+_pxs,
+')',
+oldtab
+dtt
+ifelem
+alt,
+__54
+trans,
+1 + _7
+goto,
+__53
+__54:trans,
+1 + _10
+__53:
+__52:
+__51:
+__50:
+__47:
+__46:
+1 + succ,
+_1=.
+1
+iseasy:
+
+_l,
+easy
+_l,
+_1
+_st
+1 + _p
+_1=.
+0
+ishard:
+
+_l,
+easy
+_l,
+_1
+_st
+1 + _p
+_1=.
+2
+noelem:
+
+_l,
+easy
+_l,
+_1
+_st
+1 + _p
+_1=.
+2
+ifelem:
+
+_l,
+easy
+_l,
+_1
+_ne
+1 + _t
+_2=.
+1
+ifeasy:
+
+_l,
+easy
+_l,
+_2
+_eq
+1 + _t
+_2=.
+<trans;1 >,
+_1=.
+gpar,
+1
+_tq,
+1
+_tx,_2
+1 + _tp,.byte 1,0;
+_4=.
+<.px>,
+_3=.
+gpar,
+1
+_tq,
+1
+_tx,_4
+1 + _tp,.byte 1,0;
+_6=.
+<.pn>,
+_5=.
+gpar,
+1
+_tq,
+1
+1 + _tx,_6
+_10=.
+<.t>,
+_7=.
+1 + _tx,_10
+_12=.
+<.p>,
+_11=.
+1 + _tx,_12
+_13=.
+gpar,
+1
+_tp,.byte 2,0;
+_tn
+_tq,
+1
+1 + _tp,.byte 1,0;
+special:
+
+_pxs,
+'=',
+alt,
+__70
+rname
+salt,
+__60
+remote
+trule
+__60:
+trans,
+1 + _1
+goto,
+__61
+__70:_pxs,
+'<',
+alt,
+__67
+literal
+trans,
+1 + _3
+goto,
+__62
+__67:_pxs,
+'*',
+alt,
+__66
+trans,
+1 + _5
+goto,
+__63
+__66:_pxs,
+'[',
+expr
+_pxs,
+'?',
+alt,
+__65
+trans,
+1 + _7
+goto,
+__64
+__65:trans,
+1 + _11
+__64:
+_pxs,
+']',
+trans,
+1 + _13
+__63:
+__62:
+__61:
+1 + succ,
+_2=.
+<[->,
+_3=.
+<\\<1]>,
+_1=.
+_tx,_2
+_tp,.byte 1,0;
+1 + _tx,_3
+rname:
+
+name
+alt,
+__72
+tabval
+pat
+npa
+alt,
+done
+goto,
+__71
+__72:_pxs,
+'$',
+number
+__71:
+1 + trans,
+1 + _1
+_2=.
+<gpar;>,
+_1=.
+_tx,_2
+_tp,.byte 2,0;
+_tn
+1 + _tp,.byte 1,0;
+trule:
+
+oldtab
+ptt
+tbody
+salt,
+__73
+_pxs,
+'(',
+number
+salt,
+__74
+tra
+__74:
+_pxs,
+')',
+tbody
+trans,
+1 + _1
+__73:
+1 + succ,
+tra:
+
+list
+tident
+1 + octal
+npt
+tident:
+
+ident
+1 + newtab
+ptt
+npt
+_2=.
+<1 generate>,
+_1=.
+1 + _tx,_2
+tbody:
+
+_pxs,
+'{',
+_pxs,
+'}',
+alt,
+__76
+trans,
+1 + _1
+goto,
+__75
+__76:trb
+__75:
+1 + succ,
+_1=.
+xbit
+1 + _tp,.byte 1,0;
+_2=.
+_tp,.byte 2,0;
+_tn
+1 + _tp,.byte 1,0;
+trb:
+
+telem
+_pxs,
+'}',
+alt,
+__100
+trans,
+1 + _1
+goto,
+__77
+__100:trb
+trans,
+1 + _2
+__77:
+1 + succ,
+_2=.
+<.tx>,
+_1=.
+_tx,_2
+1 + _tp,.byte 1,0;
+_4=.
+<.tn>,
+_3=.
+1 + _tx,_4
+_6=.
+<.tq;>,
+_5=.
+_tx,_6
+1 + _tp,.byte 1,0;
+telem:
+
+_pxs,
+'<',
+alt,
+__110
+literal
+trans,
+1 + _1
+goto,
+__101
+__110:_pxs,
+'*',
+alt,
+__107
+trans,
+1 + _3
+goto,
+__102
+__107:_pxs,
+'$',
+alt,
+__106
+number
+trans,
+1 + _5
+goto,
+__103
+__106:number
+alt,
+__105
+tdot
+trans,
+1 + tpt
+goto,
+__104
+__105:name
+te1
+salt,
+done
+te2
+salt,
+done
+__104:
+__103:
+__102:
+__101:
+1 + succ,
+te1:
+
+tabval
+dtt
+ndt
+tdot
+1 + trans,
+1 + tpt
+_2=.
+<.tq;>,
+_1=.
+_tx,_2
+1 + _tp,.byte 1,0;
+te2:
+
+tabval
+ptt
+npt
+1 + trans,
+1 + _1
+_1=.
+1 + _txs,
+'0',
+_2=.
+_tp,.byte 2,0;
+_txs,
+';',
+1 + _tp,.byte 1,0;
+tdot:
+
+_pxs,
+'.',
+alt,
+__112
+number
+goto,
+__111
+__112:trans,
+1 + _1
+__111:
+_pxs,
+'(',
+alt,
+__114
+list
+targ
+_pxs,
+')',
+goto,
+__113
+__114:null
+__113:
+1 + trans,
+1 + _2
+targ:
+
+name
+salt,
+__115
+remote
+tbody
+__115:
+1 + succ,
+_1=.
+<.tp;.byte >,
+tpt:
+_tx,_1
+_tp,.byte 2,0;
+_txs,
+',',
+1 + _tp,.byte 1,0;
+_1=.
+_txs,
+';',
+1 + _tp,.byte 1,0;
+literal:
+
+shortlit
+salt,
+__116
+remote
+longlit
+trans,
+1 + _1
+__116:
+1 + succ,
+_1=.
+<\>>,
+_3=.
+<s;'>,
+_2=.
+_tx,_3
+1 + _tp,.byte 1,0;
+shortlit:
+
+ignore
+none
+smark
+any
+litch
+_px,_1
+scopy
+1 + trans,
+1 + _2
+_1=.
+<\>>,
+_3=.
+<\\>,
+_4=.
+<\>>,
+_2=.
+_tx,_3
+1 + _tx,_4
+_5=.
+<\>>,
+_7=.
+<\\0>,
+_10=.
+<\>;.even>,
+_6=.
+_txs,
+'<',
+_tp,.byte 2,0;
+_tp,.byte 1,0;
+_tx,_7
+1 + _tx,_10
+longlit:
+
+ignore
+none
+_px,_1
+alt,
+__120
+trans,
+1 + _2
+goto,
+__117
+__120:null
+__117:
+litb
+_px,_5
+1 + trans,
+1 + _6
+_1=.
+<\\>,
+_3=.
+<\\\\>,
+_2=.
+_tp,.byte 2,0;
+_tx,_3
+1 + _tp,.byte 1,0;
+litb:
+
+smark
+string
+litch
+scopy
+_px,_1
+alt,
+done
+litb
+1 + trans,
+1 + _2
+expr:
+
+assignment
+salt,
+__121
+rv
+__121:
+1 + succ,
+_1=.
+_tp,.byte 3,0;
+_tn
+_tp,.byte 1,0;
+_tn
+1 + _tp,.byte 2,0;
+assignment:
+
+lv
+assign
+expr
+1 + trans,
+1 + _1
+_1=.
+_tp,.byte 3,0;
+_tn
+_tp,.byte 1,0;
+_tn
+1 + _tp,.byte 2,0;
+_2=.
+_tp,.byte 2,0;
+_tn
+1 + _tp,.byte 1,0;
+rv:
+
+prime
+rv1:
+bundle
+infix
+alt,
+__125
+prime
+trans,
+1 + _1
+salt,
+rv1
+goto,
+__122
+__125:rva
+alt,
+__124
+trans,
+1 + _2
+goto,
+__123
+__124:
+__123:
+__122:
+1 + succ,
+_2=.
+<.t;alt;>,
+_3=.
+<salt;>,
+_1=.
+_tx,_2
+_tp,.byte 2,0;
+_tn
+_tp,.byte 4,0;
+_tn
+_tx,_3
+_tp,.byte 1,0;
+_tn
+_tp,.byte 2,0;
+_txs,
+':',
+_tp,.byte 3,0;
+_tn
+_tp,.byte 1,0;
+1 + _txs,
+':',
+rva:
+
+_pxs,
+'?',
+rv
+_pxs,
+':',
+rv
+fref
+fref
+1 + trans,
+1 + _1
+_1=.
+_tp,.byte 2,0;
+_tn
+1 + _tp,.byte 1,0;
+_2=.
+_tp,.byte 1,0;
+_tn
+1 + _tp,.byte 2,0;
+_3=.
+_tp,.byte 1,0;
+_tn
+1 + _tp,.byte 2,0;
+_5=.
+<.l;>,
+_4=.
+_tx,_5
+1 + _tp,.byte 1,0;
+prime:
+
+lv
+alt,
+__135
+suffix
+alt,
+done
+trans,
+1 + _1
+goto,
+__126
+__135:prefix
+alt,
+__134
+lv
+trans,
+1 + _2
+goto,
+__127
+__134:_pxs,
+'(',
+alt,
+__133
+expr
+_pxs,
+')',
+goto,
+__130
+__133:unary
+alt,
+__132
+prime
+trans,
+1 + _3
+goto,
+__131
+__132:remote
+number
+trans,
+1 + _4
+__131:
+__130:
+__127:
+__126:
+1 + succ,
+_2=.
+<.l;>,
+_1=.
+_tx,_2
+1 + _tp,.byte 1,0;
+_4=.
+<.rv>,
+_3=.
+_tp,.byte 1,0;
+_tn
+1 + _tx,_4
+_6=.
+<.f>,
+_5=.
+_tp,.byte 2,0;
+_tn
+_tp,.byte 1,0;
+_tn
+1 + _tx,_6
+lv:
+
+rname
+alt,
+__141
+trans,
+1 + _1
+goto,
+__136
+__141:_pxs,
+'(',
+alt,
+__140
+lv
+_pxs,
+')',
+goto,
+__137
+__140:_pxs,
+'*',
+prime
+trans,
+1 + _3
+__137:
+__136:
+lv1:
+_pxs,
+'[',
+alt,
+done
+bundle
+expr
+_pxs,
+']',
+trans,
+1 + _5
+1 + salt,
+lv1
+_2=.
+<.u>,
+_1=.
+_tp,.byte 1,0;
+_tn
+1 + _tx,_2
+_4=.
+<.st>,
+_3=.
+1 + _tx,_4
+assign:
+
+_pxs,
+'=',
+ignore
+none
+infix
+alt,
+__143
+trans,
+1 + _1
+goto,
+__142
+__143:trans,
+1 + _3
+__142:
+1 + succ,
+_2=.
+1 + _pxs,
+'+',
+_1=.
+_pxs,
+'+',
+1 + not
+_2
+_4=.
+<.a>,
+_3=.
+1 + _tx,_4
+_6=.
+<.s>,
+_5=.
+1 + _tx,_6
+_10=.
+<.m>,
+_7=.
+1 + _tx,_10
+_12=.
+<.q>,
+_11=.
+1 + _tx,_12
+_14=.
+<.r>,
+_13=.
+1 + _tx,_14
+_16=.
+<.o>,
+_15=.
+1 + _tx,_16
+_20=.
+<.x>,
+_17=.
+1 + _tx,_20
+_22=.
+<.n>,
+_21=.
+1 + _tx,_22
+_23=.
+<==>,
+_25=.
+<.eq>,
+_24=.
+1 + _tx,_25
+_26=.
+<!=>,
+_30=.
+<.ne>,
+_27=.
+1 + _tx,_30
+_31=.
+<<=>,
+_33=.
+<.le>,
+_32=.
+1 + _tx,_33
+_34=.
+<\>=>,
+_36=.
+<.ge>,
+_35=.
+1 + _tx,_36
+_37=.
+<<<>,
+_41=.
+<.sl>,
+_40=.
+1 + _tx,_41
+_43=.
+<.lt>,
+_42=.
+1 + _tx,_43
+_44=.
+<\>>,
+_45=.
+<\>>,
+_47=.
+<.sr>,
+_46=.
+1 + _tx,_47
+_51=.
+<.gt>,
+_50=.
+1 + _tx,_51
+infix:
+
+smark
+ignore
+none
+_pxs,
+'+',
+alt,
+__201
+not
+_1
+trans,
+1 + _3
+goto,
+__144
+__201:_pxs,
+'-',
+alt,
+__200
+trans,
+1 + _5
+goto,
+__145
+__200:_pxs,
+'*',
+alt,
+__177
+trans,
+1 + _7
+goto,
+__146
+__177:_pxs,
+'/',
+alt,
+__176
+trans,
+1 + _11
+goto,
+__147
+__176:_pxs,
+'%',
+alt,
+__175
+trans,
+1 + _13
+goto,
+__150
+__175:_pxs,
+'|',
+alt,
+__174
+trans,
+1 + _15
+goto,
+__151
+__174:_pxs,
+'^',
+alt,
+__173
+trans,
+1 + _17
+goto,
+__152
+__173:_pxs,
+'&',
+alt,
+__172
+trans,
+1 + _21
+goto,
+__153
+__172:_px,_23
+alt,
+__171
+trans,
+1 + _24
+goto,
+__154
+__171:_px,_26
+alt,
+__170
+trans,
+1 + _27
+goto,
+__155
+__170:_px,_31
+alt,
+__167
+trans,
+1 + _32
+goto,
+__156
+__167:_px,_34
+alt,
+__166
+trans,
+1 + _35
+goto,
+__157
+__166:_px,_37
+alt,
+__165
+trans,
+1 + _40
+goto,
+__160
+__165:_pxs,
+'<',
+alt,
+__164
+trans,
+1 + _42
+goto,
+__161
+__164:_px,_44
+_px,_45
+alt,
+__163
+trans,
+1 + _46
+goto,
+__162
+__163:trans,
+1 + _50
+__162:
+__161:
+__160:
+__157:
+__156:
+__155:
+__154:
+__153:
+__152:
+__151:
+__150:
+__147:
+__146:
+__145:
+__144:
+1 + succ,
+_2=.
+<.lv>,
+_1=.
+1 + _tx,_2
+_3=.
+<++>,
+_5=.
+<.ib>,
+_4=.
+1 + _tx,_5
+_6=.
+<-->,
+_10=.
+<.db>,
+_7=.
+1 + _tx,_10
+prefix:
+
+smark
+ignore
+none
+_pxs,
+'&',
+alt,
+__205
+trans,
+1 + _1
+goto,
+__202
+__205:_px,_3
+alt,
+__204
+trans,
+1 + _4
+goto,
+__203
+__204:_px,_6
+trans,
+1 + _7
+__203:
+__202:
+1 + succ,
+_1=.
+<++>,
+_3=.
+<.ia>,
+_2=.
+1 + _tx,_3
+_4=.
+<-->,
+_6=.
+<.da>,
+_5=.
+1 + _tx,_6
+suffix:
+
+smark
+ignore
+none
+_px,_1
+alt,
+__207
+trans,
+1 + _2
+goto,
+__206
+__207:_px,_4
+trans,
+1 + _5
+__206:
+1 + succ,
+_2=.
+<.nt>,
+_1=.
+1 + _tx,_2
+_4=.
+<.ng>,
+_3=.
+1 + _tx,_4
+_6=.
+<.cm>,
+_5=.
+1 + _tx,_6
+unary:
+
+_pxs,
+'!',
+alt,
+__213
+trans,
+1 + _1
+goto,
+__210
+__213:_pxs,
+'-',
+alt,
+__212
+trans,
+1 + _3
+goto,
+__211
+__212:_pxs,
+'~',
+trans,
+1 + _5
+__211:
+__210:
+1 + succ,
+charcl:
+
+_pxs,
+'!',
+alt,
+__215
+ccla
+cclb
+goto,
+__214
+__215:ccla
+__214:
+1 + octal
+classmask
+_1=.
+<<<>,
+_2=.
+1
+_4=.
+<<<>,
+ccla:
+
+_px,_1
+_l,
+classmask
+_l,
+_2
+_l,
+nclass
+_ia
+_sl
+_st
+_p
+_l,
+classmask
+_t
+alt,
+cherr
+ccl1:
+cclc
+_px,_4
+1 + salt,
+ccl1
+_1=.
+<\>>,
+cclc:
+
+ignore
+none
+ccl3:
+_px,_1
+salt,
+ccl4
+ccle
+1 + salt,
+ccl3
+_1=.
+<\>>,
+_3=.
+<\>>,
+_2=.
+1 + _px,_3
+ccl4:
+
+_px,_1
+salt,
+__216
+cclx
+fail
+__216:
+not
+_2
+salt,
+__217
+ccle
+__217:
+1 + succ,
+ccle:
+
+char
+n
+_l,
+wordsz
+_l,
+n
+_m
+_l,
+classes
+_lv
+_a
+_rv
+_l,
+classmask
+_o
+_u
+1 + _p
+cclb:
+
+zeron
+ccl5:
+_l,
+wordsz
+_l,
+n
+_m
+_l,
+classes
+_lv
+_a
+_rv
+_l,
+classmask
+_x
+_u
+_p
+testn
+1 + salt,
+ccl5
+cclx:
+
+_l,
+nclass
+_da
+_p
+zeron
+ccl6:
+_l,
+wordsz
+_l,
+n
+_m
+_l,
+classes
+_lv
+_a
+_rv
+_l,
+classmask
+_cm
+_n
+_u
+_p
+testn
+1 + salt,
+ccl6
+_3=.
+<too many char classes>,
+_2=.
+1 + _tx,_3
+_1=.
+1 + trans,
+1 + _2
+cherr:
+
+1 + diag
+_1
+_1=.
+0
+zeron:
+
+_l,
+n
+_l,
+_1
+_st
+1 + _p
+_1=.
+200
+testn:
+
+_l,
+n
+_ib
+_l,
+_1
+_lt
+1 + _t
+_1=.
+0
+_4=.
+<.globl classtab>,
+_5=.
+<classtab:>,
+_3=.
+_tn
+_tx,_4
+_tn
+_tx,_5
+1 + _tn
+_2=.
+1 + trans,
+1 + _3
+_7=.
+_tp,.byte 1,0;
+1 + _tn
+_6=.
+octal
+w
+1 + trans,
+1 + _7
+putcharcl:
+
+zeron
+_l,
+classes
+_l,
+_1
+_st
+_p
+parse
+_2
+ptc1:
+_l,
+w
+_l,
+wordsz
+_l,
+n
+_m
+_l,
+classes
+_lv
+_a
+_rv
+_st
+_p
+parse
+_6
+bundle
+testn
+1 + salt,
+ptc1
+classmask:
+0
+nclass:
+0
+classes:
+cl1:
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+cl2:
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+cl3:
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+cl4:
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+cl5:
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+cl6:
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+cl7:
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+cl8:
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+done:
+
+1 + succ,
+_1=.
+_txs,
+'.',
+1 + _tp,.byte 1,0;
+create:
+
+_l,
+csym
+_ia
+_p
+getcsym:
+octal
+csym
+1 + trans,
+1 + _1
+_2=.
+<..>,
+_1=.
+_tx,_2
+1 + _tp,.byte 1,0;
+fref:
+
+_l,
+fsym
+_ia
+_p
+getfref:
+octal
+fsym
+1 + trans,
+1 + _1
+_1=.
+1
+not:
+
+params
+_1
+[-1\<1]
+alt,
+done
+1 + fail
+_1=.
+1
+_2=.
+_tp,.byte 2,0;
+_tn
+1 + _tp,.byte 1,0;
+list:
+
+params
+_1
+[-1\<1]
+list1:
+bundle
+_pxs,
+',',
+alt,
+done
+[-1\<1]
+trans,
+1 + _2
+1 + salt,
+list1
+_1=.
+1
+remote:
+
+params
+_1
+create
+1 + parse
+rem1
+[-1\<1]
+_1=.
+1
+_3=.
+<=.>,
+_2=.
+_tp,.byte 2,0;
+_tx,_3
+_tn
+_tp,.byte 1,0;
+1 + _tn
+rem1:
+
+params
+_1
+getcsym
+[-1\<1]
+1 + trans,
+1 + _2
+number:
+
+smark
+ignore
+none
+any
+digit
+string
+digit
+1 + scopy
+name:
+
+ident
+1 + scopy
+ident:
+
+smark
+ignore
+none
+any
+letter
+1 + string
+alpha
+_1=.
+1
+_3=.
+0
+oldtab:
+
+params
+_1
+_l,
+[-1\<1]
+_t
+alt,
+done
+discard
+[-1\<1]
+_l,
+[-1\<1]
+_l,
+_3
+_st
+1 + _p
+_1=.
+2
+_3=.
+0
+newtab:
+
+params
+_1
+_l,
+[-2\<1]
+_t
+salt,
+__220
+table
+[-2\<1]
+_l,
+[-1\<1]
+_l,
+_3
+_st
+_p
+__220:
+enter
+[-2\<1]
+i
+_l,
+[-2\<1]
+_l,
+i
+_f
+_l,
+[-1\<1]
+_ia
+_st
+1 + _p
+_1=.
+2
+tabval:
+
+params
+_1
+_l,
+[-2\<1]
+_t
+find
+[-2\<1]
+i
+_l,
+i
+_l,
+[-1\<1]
+_l,
+[-2\<1]
+_l,
+i
+_f
+_s
+_st
+_p
+1 + octal
+i
+null:
+
+1 + trans,
+1 + nil
+_1=.
+<1 >,
+xbit:
+1 + _tx,_1
+q1:
+1 + _tq,
+1
+q2:
+1 + _tq,
+2
+nil:
+1 + generate
+blanks:
+10
+digit:
+20
+letter:
+40
+alpha:
+100
+litch:
+200
+none:
+400
+csym:
+0
+fsym:
+0
+easy:
+0
+w:
+0
+n:
+0
+dtt:
+0
+ndt:
+0
+sndt:
+0
+pat:
+0
+npa:
+0
+ptt:
+0
+npt:
+0
+i:
+0
+wordsz:
+0
+
+classtab:
+0
+207
+207
+207
+207
+207
+207
+207
+207
+217
+217
+207
+207
+207
+207
+207
+207
+207
+207
+207
+207
+207
+207
+207
+207
+207
+207
+207
+207
+207
+207
+207
+217
+207
+207
+207
+207
+207
+207
+207
+207
+207
+203
+207
+207
+207
+207
+207
+327
+327
+327
+327
+327
+327
+327
+327
+327
+327
+207
+205
+207
+207
+7
+207
+207
+347
+347
+347
+347
+347
+347
+347
+347
+347
+347
+347
+347
+347
+347
+347
+347
+347
+347
+347
+347
+347
+347
+347
+347
+347
+347
+207
+7
+207
+207
+207
+207
+347
+347
+347
+347
+347
+347
+347
+347
+347
+347
+347
+347
+347
+347
+347
+347
+347
+347
+347
+347
+347
+347
+347
+347
+347
+347
+207
+207
+207
+207
+207
+_pn:1 + _pxs,
+'\n'
+_tn:1 + _txs,
+'\n'

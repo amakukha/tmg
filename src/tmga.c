@@ -482,14 +482,15 @@ void obuild() {
             return;
         }
         outb[r1++] = *(char*)r0;
-        r0++;           // TODO: use outw directly
+        r0++;           // TODO: use outw directly?
         outw = r1;
     } while (r1 <= OUTT);
     flush();
     return obuild();    // Tail call
 }
 
-// copy output buffer onto last output file and clear buffer
+// Description:
+//      copy output buffer onto last output file and clear buffer
 void flush() {
     fwrite(outb, 1, outw, lfile);
     outw = 0;
@@ -593,7 +594,7 @@ int main(int argc, char* argv[]) {
     r0 = (tword)start;
     adv();
     flush();
-    //unlink("alloc.d");    // TODO
+    unlink("alloc.d");
 
     return 0;
 }

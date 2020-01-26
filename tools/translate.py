@@ -64,7 +64,8 @@ class Translator:
         'alt', 'salt', 'generate', 'succ', 'fail',
         'smark', 'any', 'string', 'scopy',
         'bundle', 'reduce', 'params', 'push',
-        'find', 'enter', 'table', 'discard', '.f',
+        'table', 'discard',
+        'find', 'enter', '.f', 'getnam',
         'gpar', '.tq',
     ]
 

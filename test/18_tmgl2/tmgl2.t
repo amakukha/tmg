@@ -149,7 +149,9 @@ labelarray: [lcnt > 0?]/null
             [k = 0]
 loop:       [i = *(wsz*k + &lindex)]
             [t = ltab[i]]
-            decimal(t) = { <	(tword)&start[> 1 <],> * }
+            decimal(t)
+            getnam(ltab, i)
+            = { <	(tword)&start[> 2 <],	// > 1 * }
             [++k < lcnt?]/done
             loop
             = { 2 1 };
