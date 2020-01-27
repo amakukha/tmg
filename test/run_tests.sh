@@ -60,7 +60,7 @@ for dir in $mask*; do
     # Build executable
     if [[ -f $BUILD_DIR/tmgl.h ]]; then
         cd "$BUILD_DIR"
-        cc -std=c99 tmga.c -o tmga
+        cc -std=c99 -O1 tmga.c -o tmga
         cd ..
     fi
 
