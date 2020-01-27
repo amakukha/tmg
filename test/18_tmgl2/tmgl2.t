@@ -48,11 +48,12 @@ litb:	smark string(litch) scopy stresc/done
 stresc: <"> = { <\"> };
 
                                      /* Translation of character literals */
-chrlit: <'> ( <'> = { <\'> }
-            | <\> smark any(ascii) scopy = { <\> 1 }
-            | smark any(ascii) scopy )
-        <'> ( <;> = {} | null ) [cnt++]
-        = { <	(tword)'> 2 <',> * };
+chrlit: <'> ignore(none)
+        ( <'> = { <\'> }
+        | <\> smark any(ascii) scopy = { <\> 1 }
+        | smark any(ascii) scopy )
+        <'> ( <;> | () ) [cnt++]
+        = { <	(tword)'> 1 <',> * };
 
                                                  /* Translation of labels */
 labels: label labels/done = { 2 1 };
@@ -165,7 +166,7 @@ number: smark num scopy;
 num:    ignore(none) any(digit) string(digit);
 
 wrd:    smark ignore(none) any(lowup) string(lowup) scopy;
-usrdef: smark ignore(none) any(nbrk)  string(nbrk) scopy;
+usrdef: smark ignore(none) any(alpha) string(alpha) scopy;
 
                                                              /* Variables */
 i:      0;
@@ -198,8 +199,6 @@ spaces:	<< 	>>;
 blanks:	<< 	
 	>>;
 nonl:   !<<
->>;
-nbrk:   !<<,;
 >>;
 tpcls:  <<tp>>; /* Used to recognize _tn and _pn as labels (special case) */
 ncls:   <<n>>;
