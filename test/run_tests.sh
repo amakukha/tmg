@@ -43,12 +43,15 @@ for dir in $mask*; do
             break
         done
         if [[ -f $tmg ]]; then
-            #cd ../src/
-            #./tmg "../test/$tmg" "../test/$dir/tmgl.h"
-            #cd ../test
-            # TODO this needs to change later to drop dependency on Python
-            ../src/tmga "$tmg" > "$dir/tmgl.s"
-            ../tools/translate.py "$dir/tmgl.s" > "$BUILD_DIR/tmgl.h"
+            # Generating the driving table in C
+
+            # - Variant 1: by means of TMG
+            ../src/tmgl1 "$tmg" > "$TMP"
+            ../src/tmgl2 "$TMP" "$BUILD_DIR/tmgl.h"
+
+            # - Variant 2: generate driving table for PDP-11 and then translate with a script
+            #../src/tmga "$tmg" > "$dir/tmgl.s"
+            #../tools/translate.py "$dir/tmgl.s" > "$BUILD_DIR/tmgl.h"
         else
             echo "not found: neither tmgl.h nor TMG file"
         fi
@@ -99,6 +102,6 @@ done
 
 # Clean up
 if [[ $# == 0 ]]; then
-    rm "$TMP" "alloc.d"
+    rm "$TMP"
     rm -r "$BUILD_DIR"
 fi

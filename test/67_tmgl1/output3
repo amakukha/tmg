@@ -1,0 +1,257 @@
+1 + __1
+_1=.
+1
+__1:loop:
+
+parse
+line1
+_l;
+n
+_db
+_p
+parse
+line2
+_l;
+n
+_l;
+_1
+_ge
+_t
+alt;
+done
+1 + loop
+_2=.
+< on the wall, >;
+_1=.
+_tp;.byte 1,0;
+_tx;_2
+_tp;.byte 1,0;
+_txs;
+'.';
+1 + _tn
+line1:
+
+beer
+1 + trans;
+1 + _1
+_2=.
+<If one of those bottles should happen to fall, >;
+_3=.
+< on the wall.>;
+_1=.
+_tx;_2
+_tp;.byte 1,0;
+_tx;_3
+1 + _tn
+line2:
+
+beer
+1 + trans;
+1 + _1
+_2=.
+< bottle>;
+_3=.
+< of beer>;
+_1=.
+_tp;.byte 2,0;
+_tx;_2
+_tp;.byte 1,0;
+1 + _tx;_3
+beer:
+
+left
+plural
+1 + trans;
+1 + _1
+_1=.
+1
+_3=.
+1 + _tp;.byte 1,0;
+_5=.
+<no more>;
+_4=.
+1 + _tx;_5
+left:
+
+_l;
+n
+_l;
+_1
+_ge
+_t
+alt;
+__3
+decimal
+n
+trans;
+1 + _3
+goto;
+__2
+__3:trans;
+1 + _4
+__2:
+1 + succ;
+_1=.
+1
+_3=.
+1 + _txs;
+'s';
+_4=.
+1 + generate
+plural:
+
+_l;
+n
+_l;
+_1
+_ne
+_t
+alt;
+__5
+trans;
+1 + _3
+goto;
+__4
+__5:trans;
+1 + _4
+__4:
+1 + succ;
+done:
+
+1 + succ;
+n:
+143
+
+classtab:
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+_pn:1 + _pxs;
+'\n'
+_tn:1 + _txs;
+'\n'

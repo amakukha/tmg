@@ -1,0 +1,799 @@
+1 + __1
+__1:program:
+
+readint
+n
+output:
+1 + parse
+ops
+_1=.
+_tp;.byte 4,0;
+_tp;.byte 3,0;
+_tp;.byte 2,0;
+1 + _tp;.byte 1,0;
+_2=.
+0
+ops:
+
+basic
+more
+bitw
+logic
+trans;
+1 + _1
+_l;
+n
+_l;
+_2
+_gt
+_t
+alt;
+done
+_l;
+n
+_l;
+n
+_ng
+_st
+_p
+1 + output
+done:
+
+1 + succ;
+_1=.
+_tp;.byte 6,0;
+_tp;.byte 5,0;
+_tp;.byte 4,0;
+_tp;.byte 3,0;
+_tp;.byte 2,0;
+1 + _tp;.byte 1,0;
+basic:
+
+print
+addop
+subop
+mulop
+dvrop
+dvqop
+1 + trans;
+1 + _1
+_2=.
+<n=>;
+_1=.
+_tx;_2
+_tp;.byte 1,0;
+1 + _tn
+print:
+
+_l;
+i
+_l;
+n
+_st
+_p
+decimal
+i
+1 + trans;
+1 + _1
+_1=.
+17115
+_3=.
+<n+7757 >;
+_2=.
+_tx;_3
+_tp;.byte 1,0;
+1 + _tn
+addop:
+
+_l;
+i
+_l;
+n
+_l;
+_1
+_a
+_st
+_p
+decimal
+i
+1 + trans;
+1 + _2
+_1=.
+13117
+_3=.
+<n-5711 >;
+_2=.
+_tx;_3
+_tp;.byte 1,0;
+1 + _tn
+subop:
+
+_l;
+i
+_l;
+n
+_l;
+_1
+_s
+_st
+_p
+decimal
+i
+1 + trans;
+1 + _2
+_1=.
+15
+_3=.
+<n*13 >;
+_2=.
+_tx;_3
+_tp;.byte 1,0;
+1 + _tn
+mulop:
+
+_l;
+i
+_l;
+n
+_l;
+_1
+_m
+_st
+_p
+decimal
+i
+1 + trans;
+1 + _2
+_1=.
+11
+_3=.
+<n/9 >;
+_2=.
+_tx;_3
+_tp;.byte 1,0;
+1 + _tn
+dvrop:
+
+_l;
+i
+_l;
+n
+_l;
+_1
+_q
+_st
+_p
+decimal
+i
+1 + trans;
+1 + _2
+_1=.
+75
+_3=.
+<n%61 >;
+_2=.
+_tx;_3
+_tp;.byte 1,0;
+1 + _tn
+dvqop:
+
+_l;
+i
+_l;
+n
+_l;
+_1
+_r
+_st
+_p
+decimal
+i
+1 + trans;
+1 + _2
+_1=.
+_tp;.byte 5,0;
+_tp;.byte 4,0;
+_tp;.byte 3,0;
+_tp;.byte 2,0;
+1 + _tp;.byte 1,0;
+more:
+
+shrop
+shlop
+comop
+notop
+negop
+1 + trans;
+1 + _1
+_1=.
+4
+_3=.
+<n<<4 >;
+_2=.
+_tx;_3
+_tp;.byte 1,0;
+1 + _tn
+shrop:
+
+_l;
+i
+_l;
+n
+_l;
+_1
+_sl
+_st
+_p
+decimal
+i
+1 + trans;
+1 + _2
+_1=.
+4
+_3=.
+<\>>;
+_4=.
+<\>4 >;
+_2=.
+_txs;
+'n';
+_tx;_3
+_tx;_4
+_tp;.byte 1,0;
+1 + _tn
+shlop:
+
+_l;
+i
+_l;
+n
+_l;
+_1
+_sr
+_st
+_p
+decimal
+i
+1 + trans;
+1 + _2
+_2=.
+<~n >;
+_1=.
+_tx;_2
+_tp;.byte 1,0;
+1 + _tn
+comop:
+
+_l;
+i
+_l;
+n
+_cm
+_st
+_p
+decimal
+i
+1 + trans;
+1 + _1
+_2=.
+<!n >;
+_1=.
+_tx;_2
+_tp;.byte 1,0;
+1 + _tn
+notop:
+
+_l;
+i
+_l;
+n
+_nt
+_st
+_p
+decimal
+i
+1 + trans;
+1 + _1
+_2=.
+<-n >;
+_1=.
+_tx;_2
+_tp;.byte 1,0;
+1 + _tn
+negop:
+
+_l;
+i
+_l;
+n
+_ng
+_st
+_p
+decimal
+i
+1 + trans;
+1 + _1
+_1=.
+_tp;.byte 3,0;
+_tp;.byte 2,0;
+1 + _tp;.byte 1,0;
+bitw:
+
+andop
+orop
+xorop
+1 + trans;
+1 + _1
+_1=.
+2525
+_3=.
+<n&0x555 >;
+_2=.
+_tx;_3
+_tp;.byte 1,0;
+1 + _tn
+andop:
+
+_l;
+i
+_l;
+n
+_l;
+_1
+_n
+_st
+_p
+decimal
+i
+1 + trans;
+1 + _2
+_1=.
+2525
+_3=.
+<n|0x555 >;
+_2=.
+_tx;_3
+_tp;.byte 1,0;
+1 + _tn
+orop:
+
+_l;
+i
+_l;
+n
+_l;
+_1
+_o
+_st
+_p
+decimal
+i
+1 + trans;
+1 + _2
+_1=.
+2525
+_3=.
+<n^0x555 >;
+_2=.
+_tx;_3
+_tp;.byte 1,0;
+1 + _tn
+xorop:
+
+_l;
+i
+_l;
+n
+_l;
+_1
+_x
+_st
+_p
+decimal
+i
+1 + trans;
+1 + _2
+_1=.
+_tp;.byte 7,0;
+_tp;.byte 6,0;
+_tp;.byte 5,0;
+_tp;.byte 4,0;
+_tp;.byte 3,0;
+_tp;.byte 2,0;
+1 + _tp;.byte 1,0;
+logic:
+
+ltop
+gtop
+leop
+geop
+eqop
+neop
+condop
+1 + trans;
+1 + _1
+_1=.
+400
+_3=.
+<n<256 >;
+_2=.
+_tx;_3
+_tp;.byte 1,0;
+1 + _tn
+ltop:
+
+_l;
+i
+_l;
+n
+_l;
+_1
+_lt
+_st
+_p
+decimal
+i
+1 + trans;
+1 + _2
+_1=.
+400
+_3=.
+<\>256 >;
+_2=.
+_txs;
+'n';
+_tx;_3
+_tp;.byte 1,0;
+1 + _tn
+gtop:
+
+_l;
+i
+_l;
+n
+_l;
+_1
+_gt
+_st
+_p
+decimal
+i
+1 + trans;
+1 + _2
+_1=.
+400
+_3=.
+<n<=256 >;
+_2=.
+_tx;_3
+_tp;.byte 1,0;
+1 + _tn
+leop:
+
+_l;
+i
+_l;
+n
+_l;
+_1
+_le
+_st
+_p
+decimal
+i
+1 + trans;
+1 + _2
+_1=.
+400
+_3=.
+<\>=256 >;
+_2=.
+_txs;
+'n';
+_tx;_3
+_tp;.byte 1,0;
+1 + _tn
+geop:
+
+_l;
+i
+_l;
+n
+_l;
+_1
+_ge
+_st
+_p
+decimal
+i
+1 + trans;
+1 + _2
+_2=.
+1
+_4=.
+<n==1 >;
+_3=.
+_tx;_4
+_tp;.byte 1,0;
+1 + _tn
+eqop:
+
+_l;
+i
+_l;
+n
+_l;
+_2
+_eq
+_st
+_p
+decimal
+i
+1 + trans;
+1 + _3
+_1=.
+1
+_3=.
+<n!=1 >;
+_2=.
+_tx;_3
+_tp;.byte 1,0;
+1 + _tn
+neop:
+
+_l;
+i
+_l;
+n
+_l;
+_1
+_ne
+_st
+_p
+decimal
+i
+1 + trans;
+1 + _2
+_1=.
+3
+_2=.
+0
+_3=.
+1
+_5=.
+<n&3?0:1 >;
+_4=.
+_tx;_5
+_tp;.byte 1,0;
+1 + _tn
+condop:
+
+_l;
+i
+_l;
+n
+_l;
+_1
+_n
+_t;
+alt;
+__2
+_l;
+_2
+salt;
+__3
+__2:_l;
+_3
+__3:
+_st
+_p
+decimal
+i
+1 + trans;
+1 + _4
+_1=.
+1
+_2=.
+1
+_3=.
+0
+_4=.
+12
+readint:
+params;
+_1
+push;
+_2
+i
+
+string
+space
+_l;
+[-1\<1]
+_l;
+_3
+_st
+_p
+inta
+int1:
+_l;
+[-1\<1]
+_l;
+[-1\<1]
+_l;
+_4
+_m
+_l;
+i
+_a
+_st
+_p
+inta
+1 + salt;
+int1
+_1=.
+72
+_3=.
+60
+_4=.
+0
+inta:
+
+char
+i
+_l;
+i
+_l;
+_1
+_lt
+_t
+_l;
+i
+_l;
+_3
+_s
+_u
+_l;
+_4
+_ge
+1 + _t
+i:
+0
+n:
+0
+space:
+1
+
+classtab:
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+1
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+_pn:1 + _pxs;
+'\n'
+_tn:1 + _txs;
+'\n'

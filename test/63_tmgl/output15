@@ -1,0 +1,686 @@
+1 ..1
+..1:program:
+
+readint
+n
+output:
+1 parse
+ops
+.1=.
+.tp;.byte 4,0;
+.tp;.byte 3,0;
+.tp;.byte 2,0;
+1 .tp;.byte 1,0;
+.2=.
+0
+ops:
+
+basic
+more
+bitw
+logic
+trans;1 .1
+.l;n
+.l;.2
+.gt
+.t
+alt;done
+.l;n
+.l;n
+.ng
+.st
+.p
+1 output
+done:
+
+1 succ
+.1=.
+.tp;.byte 6,0;
+.tp;.byte 5,0;
+.tp;.byte 4,0;
+.tp;.byte 3,0;
+.tp;.byte 2,0;
+1 .tp;.byte 1,0;
+basic:
+
+print
+addop
+subop
+mulop
+dvrop
+dvqop
+1 trans;1 .1
+.2=.
+<n=\0>;.even
+.1=.
+.tx;.2
+.tp;.byte 1,0;
+1 .tn
+print:
+
+.l;i
+.l;n
+.st
+.p
+decimal
+i
+1 trans;1 .1
+.1=.
+17115
+.3=.
+<n+7757 \0>;.even
+.2=.
+.tx;.3
+.tp;.byte 1,0;
+1 .tn
+addop:
+
+.l;i
+.l;n
+.l;.1
+.a
+.st
+.p
+decimal
+i
+1 trans;1 .2
+.1=.
+13117
+.3=.
+<n-5711 \0>;.even
+.2=.
+.tx;.3
+.tp;.byte 1,0;
+1 .tn
+subop:
+
+.l;i
+.l;n
+.l;.1
+.s
+.st
+.p
+decimal
+i
+1 trans;1 .2
+.1=.
+15
+.3=.
+<n*13 \0>;.even
+.2=.
+.tx;.3
+.tp;.byte 1,0;
+1 .tn
+mulop:
+
+.l;i
+.l;n
+.l;.1
+.m
+.st
+.p
+decimal
+i
+1 trans;1 .2
+.1=.
+11
+.3=.
+<n/9 \0>;.even
+.2=.
+.tx;.3
+.tp;.byte 1,0;
+1 .tn
+dvrop:
+
+.l;i
+.l;n
+.l;.1
+.q
+.st
+.p
+decimal
+i
+1 trans;1 .2
+.1=.
+75
+.3=.
+<n%61 \0>;.even
+.2=.
+.tx;.3
+.tp;.byte 1,0;
+1 .tn
+dvqop:
+
+.l;i
+.l;n
+.l;.1
+.r
+.st
+.p
+decimal
+i
+1 trans;1 .2
+.1=.
+.tp;.byte 5,0;
+.tp;.byte 4,0;
+.tp;.byte 3,0;
+.tp;.byte 2,0;
+1 .tp;.byte 1,0;
+more:
+
+shrop
+shlop
+comop
+notop
+negop
+1 trans;1 .1
+.1=.
+4
+.3=.
+<n<<4 \0>;.even
+.2=.
+.tx;.3
+.tp;.byte 1,0;
+1 .tn
+shrop:
+
+.l;i
+.l;n
+.l;.1
+.sl
+.st
+.p
+decimal
+i
+1 trans;1 .2
+.1=.
+4
+.3=.
+<\>\0>;.even
+.4=.
+<\>4 \0>;.even
+.2=.
+.txs;'n
+.tx;.3
+.tx;.4
+.tp;.byte 1,0;
+1 .tn
+shlop:
+
+.l;i
+.l;n
+.l;.1
+.sr
+.st
+.p
+decimal
+i
+1 trans;1 .2
+.2=.
+<~n \0>;.even
+.1=.
+.tx;.2
+.tp;.byte 1,0;
+1 .tn
+comop:
+
+.l;i
+.l;n
+.cm
+.st
+.p
+decimal
+i
+1 trans;1 .1
+.2=.
+<!n \0>;.even
+.1=.
+.tx;.2
+.tp;.byte 1,0;
+1 .tn
+notop:
+
+.l;i
+.l;n
+.nt
+.st
+.p
+decimal
+i
+1 trans;1 .1
+.2=.
+<-n \0>;.even
+.1=.
+.tx;.2
+.tp;.byte 1,0;
+1 .tn
+negop:
+
+.l;i
+.l;n
+.ng
+.st
+.p
+decimal
+i
+1 trans;1 .1
+.1=.
+.tp;.byte 3,0;
+.tp;.byte 2,0;
+1 .tp;.byte 1,0;
+bitw:
+
+andop
+orop
+xorop
+1 trans;1 .1
+.1=.
+2525
+.3=.
+<n&0x555 \0>;.even
+.2=.
+.tx;.3
+.tp;.byte 1,0;
+1 .tn
+andop:
+
+.l;i
+.l;n
+.l;.1
+.n
+.st
+.p
+decimal
+i
+1 trans;1 .2
+.1=.
+2525
+.3=.
+<n|0x555 \0>;.even
+.2=.
+.tx;.3
+.tp;.byte 1,0;
+1 .tn
+orop:
+
+.l;i
+.l;n
+.l;.1
+.o
+.st
+.p
+decimal
+i
+1 trans;1 .2
+.1=.
+2525
+.3=.
+<n^0x555 \0>;.even
+.2=.
+.tx;.3
+.tp;.byte 1,0;
+1 .tn
+xorop:
+
+.l;i
+.l;n
+.l;.1
+.x
+.st
+.p
+decimal
+i
+1 trans;1 .2
+.1=.
+.tp;.byte 7,0;
+.tp;.byte 6,0;
+.tp;.byte 5,0;
+.tp;.byte 4,0;
+.tp;.byte 3,0;
+.tp;.byte 2,0;
+1 .tp;.byte 1,0;
+logic:
+
+ltop
+gtop
+leop
+geop
+eqop
+neop
+condop
+1 trans;1 .1
+.1=.
+400
+.3=.
+<n<256 \0>;.even
+.2=.
+.tx;.3
+.tp;.byte 1,0;
+1 .tn
+ltop:
+
+.l;i
+.l;n
+.l;.1
+.lt
+.st
+.p
+decimal
+i
+1 trans;1 .2
+.1=.
+400
+.3=.
+<\>256 \0>;.even
+.2=.
+.txs;'n
+.tx;.3
+.tp;.byte 1,0;
+1 .tn
+gtop:
+
+.l;i
+.l;n
+.l;.1
+.gt
+.st
+.p
+decimal
+i
+1 trans;1 .2
+.1=.
+400
+.3=.
+<n<=256 \0>;.even
+.2=.
+.tx;.3
+.tp;.byte 1,0;
+1 .tn
+leop:
+
+.l;i
+.l;n
+.l;.1
+.le
+.st
+.p
+decimal
+i
+1 trans;1 .2
+.1=.
+400
+.3=.
+<\>=256 \0>;.even
+.2=.
+.txs;'n
+.tx;.3
+.tp;.byte 1,0;
+1 .tn
+geop:
+
+.l;i
+.l;n
+.l;.1
+.ge
+.st
+.p
+decimal
+i
+1 trans;1 .2
+.2=.
+1
+.4=.
+<n==1 \0>;.even
+.3=.
+.tx;.4
+.tp;.byte 1,0;
+1 .tn
+eqop:
+
+.l;i
+.l;n
+.l;.2
+.eq
+.st
+.p
+decimal
+i
+1 trans;1 .3
+.1=.
+1
+.3=.
+<n!=1 \0>;.even
+.2=.
+.tx;.3
+.tp;.byte 1,0;
+1 .tn
+neop:
+
+.l;i
+.l;n
+.l;.1
+.ne
+.st
+.p
+decimal
+i
+1 trans;1 .2
+.1=.
+3
+.2=.
+0
+.3=.
+1
+.5=.
+<n&3?0:1 \0>;.even
+.4=.
+.tx;.5
+.tp;.byte 1,0;
+1 .tn
+condop:
+
+.l;i
+.l;n
+.l;.1
+.n
+.t;alt;..2
+.l;.2
+salt;..3
+..2:.l;.3
+..3:
+.st
+.p
+decimal
+i
+1 trans;1 .4
+.1=.
+1
+.2=.
+1
+.3=.
+0
+.4=.
+12
+readint:
+params;.1
+push;.2
+i
+
+string
+space
+.l;[-1\<1]
+.l;.3
+.st
+.p
+inta
+int1:
+.l;[-1\<1]
+.l;[-1\<1]
+.l;.4
+.m
+.l;i
+.a
+.st
+.p
+inta
+1 salt;int1
+.1=.
+72
+.3=.
+60
+.4=.
+0
+inta:
+
+char
+i
+.l;i
+.l;.1
+.lt
+.t
+.l;i
+.l;.3
+.s
+.u
+.l;.4
+.ge
+1 .t
+i:
+0
+n:
+0
+space:
+1
+
+.globl classtab
+classtab:
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+1
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+.pn:1 .pxs;12
+.tn:1 .txs;12

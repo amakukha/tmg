@@ -12,13 +12,14 @@
 # translations by TMG (from TMGL to C arrays), while the original required only
 # one phase (from TMGL to an assembly table).
 
-echo "TMGL file: $1"
+inp="$1"
+echo "TMGL file: $inp"
 out="a.out"
 if [ $# -gt 1 ]; then
     out="$2"
 fi
 echo "Dest file: $out"
-./tmgl1  "$1" > table.1.tmp
+./tmgl1  "$inp" > table.1.tmp
 if [ $? -eq 0 ]; then
     ./tmgl2 table.1.tmp > table.tmp
     if [ $? -eq 0 ]; then

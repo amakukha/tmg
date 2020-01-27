@@ -1,0 +1,314 @@
+1 + __1
+__1:program:
+
+ignore
+space
+_l;
+alpha
+_l;
+letter
+_l;
+digit
+_o
+_st
+_p
+1 + parse
+expr
+_1=.
+_tp;.byte 3,0;
+_tp;.byte 1,0;
+1 + _tp;.byte 2,0;
+expr:
+
+term
+expr1:
+addop
+alt;
+done
+term
+trans;
+1 + _1
+bundle
+1 + salt;
+expr1
+_1=.
+_tp;.byte 3,0;
+_tp;.byte 1,0;
+1 + _tp;.byte 2,0;
+term:
+
+factor
+term1:
+mulop
+alt;
+done
+factor
+trans;
+1 + _1
+bundle
+1 + salt;
+term1
+_2=.
+<EXP >;
+_1=.
+_tp;.byte 2,0;
+_tp;.byte 1,0;
+1 + _tx;_2
+factor:
+
+primary
+_pxs;
+'^';
+alt;
+done
+factor
+1 + trans;
+1 + _1
+_2=.
+<LOAD >;
+_1=.
+_tx;_2
+_tp;.byte 1,0;
+1 + _txs;
+' ';
+primary:
+
+value
+alt;
+__3
+trans;
+1 + _1
+goto;
+__2
+__3:_pxs;
+'(';
+expr
+_pxs;
+')';
+__2:
+1 + succ;
+value:
+
+ident
+salt;
+__4
+number
+__4:
+1 + succ;
+done:
+
+1 + succ;
+_2=.
+<ADD >;
+_1=.
+1 + _tx;_2
+_4=.
+<SUB >;
+_3=.
+1 + _tx;_4
+addop:
+
+_pxs;
+'+';
+alt;
+__6
+trans;
+1 + _1
+goto;
+__5
+__6:_pxs;
+'-';
+trans;
+1 + _3
+__5:
+1 + succ;
+_2=.
+<MUL >;
+_1=.
+1 + _tx;_2
+_4=.
+<DIV >;
+_3=.
+1 + _tx;_4
+mulop:
+
+_pxs;
+'*';
+alt;
+__10
+trans;
+1 + _1
+goto;
+__7
+__10:_pxs;
+'/';
+trans;
+1 + _3
+__7:
+1 + succ;
+_1=.
+1 + _tp;.byte 1,0;
+ident:
+
+smark
+any
+letter
+string
+alpha
+scopy
+1 + trans;
+1 + _1
+_1=.
+1 + _tp;.byte 1,0;
+number:
+
+smark
+any
+digit
+string
+digit
+scopy
+1 + trans;
+1 + _1
+space:
+1
+letter:
+2
+digit:
+4
+alpha:
+0
+
+classtab:
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+1
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+4
+4
+4
+4
+4
+4
+4
+4
+4
+4
+0
+0
+0
+0
+0
+0
+0
+2
+2
+2
+2
+2
+2
+2
+2
+2
+2
+2
+2
+2
+2
+2
+2
+2
+2
+2
+2
+2
+2
+2
+2
+2
+2
+0
+0
+0
+0
+0
+0
+2
+2
+2
+2
+2
+2
+2
+2
+2
+2
+2
+2
+2
+2
+2
+2
+2
+2
+2
+2
+2
+2
+2
+2
+2
+2
+0
+0
+0
+0
+0
+_pn:1 + _pxs;
+'\n'
+_tn:1 + _txs;
+'\n'

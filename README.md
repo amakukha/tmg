@@ -1,4 +1,4 @@
-Port of Unix TMG to C99. Work in progress.
+Port of Unix TMG to C99.
 
 About TMG
 --
@@ -15,9 +15,9 @@ unique and powerful dialect of McClure's TMG. This version of TMG was
 included into Unix from Version 2 to Version 6, after which it was phased
 out in favor of Stephen Johnson's YACC.
 
-To the best of our knowledge, unlike other Unix tools, it was never implemented
-in a high-level language. This is an attempt to translate TMG from PDP-11
-assembly to portable C.
+To the best of our knowledge, unlike other Unix tools, it was never before
+implemented in a high-level language. This is a translation of TMG from PDP-11
+assembly to portable C, done half a century after it first appeared.
 
 Quotes about TMG
 --
@@ -27,7 +27,7 @@ TMG was an early inspiration for Donald Knuth and his TAOCP. According to him:
 > Chapter 12 of The Art of Computer Programming, which included an example system of a similar kind,
 > called TROL ("Translation-Oriented Language").
 
-Stephen C. Johnson, creator of YACC, about his experience of working with TMG:
+Stephen C. Johnson, creator of YACC, about his experience of working with Unix TMG:
 > There was a compiler/compiler in use at the Labs, imported I think by Doug
 > McIlroy, called TMG.  It was a backtracking recursive descent compiler
 > that could compile almost anything but was unbearably slow and, if it
