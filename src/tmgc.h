@@ -10,12 +10,12 @@
 #include <stdbool.h>
 
 // This implementation provides a verbose mode for the compiler (-v option).
-// Additionally, when compiled with the DEBUG_MODE macro set, verbose mode
-// will print detailed debugging information.
+// When compiled with the DEBUG_MODE macro set, the verbose mode will print
+// detailed run-time debugging information.
 #define DEBUG_MODE 1
 
 // Original tracing capability; must be set together with trswitch in tmgb.h
-#define TRACING 1
+#define TRACING 0
 
 // Compile this with more memory than the original code?
 #define MORE_MEMORY
@@ -68,8 +68,8 @@ tword sp = sizeof(stack)/sizeof(*stack);
 
 #ifdef MORE_MEMORY
 #define OUTT (1<<12)                    // output buffer top
-#define STKT (1<<19)                    // stack top for (f), not for (sp)
-#define KTAT ((1<<17)*sizeof(tword))    // k table top
+#define STKT (1<<23)                    // stack top for (f), not for (sp)
+#define KTAT ((1<<20)*sizeof(tword))    // k table top
 #else
 #define OUTT 64                         // output buffer top
 #define STKT (1<<16)                    // stack top for (f), not for (sp)
