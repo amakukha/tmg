@@ -49,6 +49,9 @@ syn match tmgOctNumber '-\=[01234567]\+' display
 " Hidden reserved words (see ``UNIX Programmer's Manual. Sixth Edition'')
 syn keyword tmgReserved gpar classtab trans goto alt salt
 
+" Hidden keywords due to shortcommings of translation
+syn keyword tmgReserved generate
+
 "----------------------------------------------------------------------------/
 " Setup syntax highlighting
 "----------------------------------------------------------------------------/
