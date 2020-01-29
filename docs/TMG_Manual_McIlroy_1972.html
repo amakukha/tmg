@@ -53,7 +53,7 @@ and provides some integer arithmetic.
 The experience of many years has been distilled into a new version running
 on the PDP-11 under the UNIX operating system.
 </blockquote>
-<h2>1. Introduction</h2>
+<h2 id="s1">1. Introduction</h2>
 <h3 id="s1-1">1.1 Parsing rules and functions</h3>
 <p>
 At the heart of the language are parsing rules (<a href="#s3-1">3.1</a>).
@@ -142,7 +142,7 @@ This rule continues at "<span class="tt">lms1</span>" after a second comma has b
 Because a test has been made, execution of "<span class="tt">limits</span>" continues
 right on when a second comma is not found, to terminate (successfully)
 at the semicolon.
-<h3>1.3 The input cursor</h3>
+<h3 id="s1-3">1.3 The input cursor</h3>
 <p>
 A successful action may move a <i>cursor</i> along the input &mdash;
 "<span class="tt">any(letter)</span>" succeeds and moves the cursor to the next character
@@ -272,7 +272,7 @@ and assigns the index of the entry to variable <span class="tt">i</span>.
 of table <span class="tt">t</span>.
 The "<span class="tt">= { 1 }</span>" in each rule arranges to deliver to its invoker
 the one translation that was delivered to it.
-<h3>1.7 Character classes</h3>
+<h3 id="s1-7">1.7 Character classes</h3>
 <p>
 A <i>character class</i> is defined by enclosing a set of characters in
 double angle brackets.
@@ -318,7 +318,7 @@ contained rule as if the contained label were not there.
 Instructions for compiling and executing a program on the PDP-11 are reproduced
 from the UNIX manual [8] as Section 10 of this manual.<!-- this looks like a
 mistake in the original -->
-<h2>3. Parsing rules</h2>
+<h2 id="s3">3. Parsing rules</h2>
 <h3 id="s3-1">3.1 General form</h3>
 <p>
 A <i>parsing rule</i> is a possibly empty sequence of <i>disjuncts</i>
@@ -389,7 +389,7 @@ An output element is an <span class="tt">=</span> sign followed by a translation
 or by the name of a labeled translation rule.
 In the latter case the element acts as if the designated rule were copied
 verbatim into the place of the name.
-<h3>3.4 Disjunctions</h3>
+<h3 id="s3-4">3.4 Disjunctions</h3>
 <p>
 An infix <span class="tt">|</span> sign separates two or more <i>disjuncts</i>, each of
 which is a nonempty sequence of elements.
@@ -745,7 +745,7 @@ pasted together by "<span class="tt">double</span>".
 The notation "<span class="tt">dbla.0</span>" means just the same as "<span class="tt">dbla</span>";
 it has been used to emphasize the fact that it is expected to evoke only part
 of the designated bundle.
-<h2>5. Arithmetic</h2>
+<h2 id="s5">5. Arithmetic</h2>
 <h3 id="s5-1">5.1 Variables and arithmetic statements</h3>
 <p>
 All arithmetic is performed on 16-bit two's complement integer data.
@@ -770,7 +770,7 @@ octal constants, parentheses and, in decreasing order of precedence
 </ul>
 All operators except unary <span class="tt">*</span> return an rvalue.
 Their meanings (but not their precedences) are taken from B.
-<h3>5.2 Unary operators</h3>
+<h3 id="s5-2">5.2 Unary operators</h3>
 <p>
 Unary operators in a primary expression are evaluated right to left.
 The unaries are
@@ -812,7 +812,7 @@ The unaries are
   <td>2's complement
  </table>
 </ul>
-<h3>5.3 Infix operators</h3>
+<h3 id="s5-3">5.3 Infix operators</h3>
 <p>
 Infix operators associate left-to-right
 <table>
@@ -866,7 +866,7 @@ Infix operators associate left-to-right
   <td>left shift (logical)
 </table>
 The comparison operators return <span class="tt">1</span> or <span class="tt">0</span> for true or false.
-<h3>5.4 Conditional operators</h3>
+<h3 id="s5-4">5.4 Conditional operators</h3>
 <p>
 If <span class="tt">e1</span>, <span class="tt">e2</span> and <span class="tt">e3</span> are three rvalues,
 then the conditional expression
@@ -881,7 +881,7 @@ Only one of <span class="tt">e2</span> and <span class="tt">e3</span> is evaluat
 <p>
 The operator <span class="tt">:</span> (regarded as an infix operator between <span class="tt">e1?e2</span>
 and <span class="tt">e3</span>) associates from the right.
-<h3>5.5 Assignment operators</h3>
+<h3 id="s5-5">5.5 Assignment operators</h3>
 <p>
 The operator <span class="tt">=</span> assigns the rvalue on its right to the lvalue on its
 left.
@@ -890,7 +890,7 @@ code" assignment operator; <span class="tt">x=O y</span> means the same as <span
 provided the evaluation of <span class="tt">x</span> has no side effects.
 <p>
 Assignment operators associate right-to-left.
-<h3>5.6 Success and failure</h3>
+<h3 id="s5-6">5.6 Success and failure</h3>
 <p>
 If the expression in an arithmetic element is followed by a <span class="tt">?</span>
 mark, then its rvalue is tested for nonzero (success) or zero (failure),
@@ -972,7 +972,7 @@ between the argument passed by name and the temporary.
     done:    ;
 
 </pre>
-<h3>5.9 Character class operations</h3>
+<h3 id="s5-9">5.9 Character class operations</h3>
 <p>
 Each character class is represented by a one-word mask.
 The mask for each class declared in angle brackets <span class="tt">&lt;&lt;&gt;&gt;</span>
@@ -1099,7 +1099,7 @@ rule with "<span class="tt">stack</span>", "<span class="tt">unstack</span>" and
 The use of these actions  in real translators will be described by
 Johnson and Aho.
 <h2 id="s8">8. Builtin functions</h2>
-<h3>8.1 General catalog</h3>
+<h3 id="s8-1">8.1 General catalog</h3>
 <p>
 This catalog tells for each builtin what kind of arguments it requires,
 if any, and whether it may:
@@ -1333,8 +1333,8 @@ Conventional meanings
    remove last <span class="tt">n</span> labels stacked during this rule and bundle all
    translations delivered since the label so uncovered was stacked (<a href="#s7">7</a>)
 </table>
-<h2>9. Syntax</h2>
-<h3>9.1 Conventions</h3>
+<h2 id="s9">9. Syntax</h2>
+<h3 id="s9-1">9.1 Conventions</h3>
 <p>
 In the following syntactic specification terminal symbols are
 underlined;
@@ -1366,7 +1366,7 @@ These primitive nonterminal symbols are used
 In general one or more blanks (ascii SP, HT or NL) must appear between
 successive constituents of a production; however they may be dropped when
 no ambiguities are so introduced.
-<h3>9.2 The grammar</h3>
+<h3 id="s9-2">9.2 The grammar</h3>
 <table>
  <tr>
   <td>program
@@ -1516,7 +1516,7 @@ no ambiguities are so introduced.
 <li>no char before last may be <u>&gt;</u>, blanks count as chars
 <li>[ char ]<sub>0</sub> must not contain <u>*/</u>
 </ol>
-<h2>10. Sources</h2>
+<h2 id="s10">10. Sources</h2>
 <p>
 Tmg has a long history stemming from McClure's work on the CDC 1604, and
 subsequent development on the IBM 7090, GE 635-645, and DEC PDP-7 by the

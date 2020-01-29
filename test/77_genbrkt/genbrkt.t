@@ -1,5 +1,7 @@
 /* Reads two integers: N and seed */
 /* Generates N pseudorandom strings consisting of square brackets */
+/* RosettaCode: http://rosettacode.org/wiki/Balanced_brackets */
+/* Author: Andrii Makukha */
 
 program:  readint(n) [n>0] readint(seed)
 loop:     parse(render) [--n>0?]/done loop;
