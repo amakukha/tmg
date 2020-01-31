@@ -1,6 +1,6 @@
 // Port of the Unix compiler-compiler TMG to C99.
 // Based on the original PDP-11 assembly code by M. D. McIlroy.
-// (c) 2019, Andriy Makukha, 2-clause BSD License.
+// (c) 2020, Andriy Makukha, 2-clause BSD License.
 
 #include <limits.h>
 #include <stdint.h>
@@ -98,20 +98,24 @@ void _txs();
 void _u();
 void _x();
 
+void accept();
+void _accept();
 void any();
+void append();          // TODO: tmgb/append.s, hidden builtin, appears to be unused
 void bundle();
 void _bundle();
-void tchar();       // Original name char, collision with C type
 void ctest();
 void decimal();
 void _decimal();
 void discard();
+void emit();            // TODO: tmgb/emit.s, hidden builtin, appears to be unused
 void enter();
 void find();
 void _find();
 void getcstr();
 void getnam();
 void _getnam();
+void gotab();
 void gpar();
 void ignore();
 void jget();
@@ -134,8 +138,11 @@ void smark();
 void sprv();
 void string();
 void table();
-void trans();
+void tchar();       // Original name char, collision with C type
 void trace();
+void trans();
+void tstack();      // Original name stack, collision with stack array
+void unstack();
 void update();
 
 // Function definitions
@@ -493,6 +500,42 @@ void _x() {
     return _p();    // Tail call
 }
 
+// Description:
+//      builtin for shift-reduce parsing.
+//      clean out all states from stack
+// Tmg Manual:
+//      "unstack remaining labels stacked during this rule and bundle"
+//      delivers a translation
+void accept() {
+    DEBUG("    accept()");
+    r1 = (tword)f + sizeof(parse_frame_t);
+    return _accept();   // Tail call
+}
+
+// Description:
+//      Part of accept. Called from unstack()
+void _accept() {
+    DEBUG("    _accept()");
+    r0 = r1;
+    PUSH(r1);
+    do {
+        if (r1 >= (tword)g)
+            break; 
+        bool r = (*(tptr)r1) & (HIGHEST_BIT | 1);       // Statefull
+        r1 = (tword)((tptr)r1 + 1);     // (r1)+
+        if (!r)
+            continue;
+        *(tptr)r0 = *((tptr)r1 - 1);    // mov -2(r1),(r0)
+        r0 = (tword)((tptr)r0 + 1);     // (r0)+
+    } while (1);
+    g = (tptr)r0;
+    r0 = POP();
+    pbundle();
+    if (!r0)
+        *g++ = r0;
+    return succ();  // Tail call
+}
+
 void any() {
     DEBUG("    any()");
     PUSH(((parse_frame_t*)f)->j);
@@ -765,6 +808,31 @@ done:
     return generate();  // Tail call
 }
 
+// Description:
+//      builtin for shift-reduce parsing.
+//      gotab(s1,t1,s2,t2,...sn,tn,0,t)
+//      checks top of stack for states s1,s2,... and goes to t1, t2 accordingly
+//      if top of stack is not in table, goes to t
+// Tmg Manual:
+//      "list has form s1,l1,s2,l2,...,0,ln; if top stacked label is s1 go to
+//      l1, if s2 go to l2, ... else go to ln"
+void gotab() {
+    DEBUG("    gotab()");
+    r0 = (tword)g;
+    // find top state
+    do {
+        r0 = (tword)((tptr)r0 - 1);     // -(r0)
+    } while((*(tptr)r0) & (HIGHEST_BIT | 1));
+    PUSH(*(tptr)r0);
+    do {
+        iget();     // Get next parameter
+        if (!*(tptr)r0 || r0==stack[sp]) break;
+        iget();
+    } while (1);
+    POP();
+    return tgoto(); // Tail call 
+}
+
 void gpar() {
     r0 = *i++;
     r1 = (tword)((translation_frame_t*)f)->ep;
@@ -936,8 +1004,10 @@ void putdec() {
     return obuild();    // Tail call
 }
 
+// Description:
+//      Derived from putoct (hex is much more convenient for modern machines)
+//      (Not part of the original code.)
 void puthex() {
-    // Derived from putoct (hex is much more convenient for modern machines)
     PUSH(r0);
     r0 = (tword)BIT_CLEAR(15, r0);
     stack[sp] = (tword)BIT_CLEAR(r0, stack[sp]);
@@ -1079,6 +1149,43 @@ void trace() {
     puthex();
     r0 = '\n';
     putch();
+}
+
+// Description:
+//      builtin for shift-reduce parsing.
+//      stack label of present rule (state)
+//      should come first in a rule
+// Tmg Manual:
+//      "place label of this element on stack"
+void tstack() {
+    DEBUG("    tstack()");
+    // mov     i,(g)
+    // sub     $2,(g)+      // Word size
+    *(tptr)g++ = (tword)i - sizeof(tword);
+    return succ();  // Tail call
+}
+
+// Description:
+//      builtin for shift-reduce parsing.
+//      unstack(n) deletes last n stacked states
+//      states are distinguishable from translations in not having
+//      an exit bit ($1) nor being bundles ($100000 = 0x8000)
+// Tmg Manual:
+//      "remove last n labels stacked during this rule and bundle all
+//      translations delivered since the label so uncovered was stacked"
+//      delivers a translation
+void unstack() {
+    DEBUG("    unstack()");
+    iget();             // Get parameter
+    r0 = *(tptr)r0;     // n
+    r1 = (tword)g;
+    do {
+        r0 = (tword)((tptr)r0 - 1);     // -(r0)
+        if ((*(tptr)r1) & (HIGHEST_BIT | 1))        // TODO: do bundles have highest bit set???
+            continue;
+    } while (--r0>=0);  // TODO: why >= ?
+    r1 = (tword)((tptr)r1 + 1);     // tst (r1)+
+    return _accept();   // Tail call
 }
 
 // From: arith.s

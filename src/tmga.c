@@ -128,13 +128,18 @@ void contin() {
     }
 }
 
+// Description:
+//      Skip alternate address.
 void alt() {
     DEBUG("%salt", DEPTH);
     i++;
-    DEBUG("%salt() -> succ", DEPTH);
     return succ();      // Tail call
 }
 
+// Description:
+//      Goto alternate address.
+//      Get next interpreted instuction or a parameter and make it the new
+//      interpreted instruction counter (jump).
 void salt() {
     DEBUG("%ssalt", DEPTH);
     iget();
@@ -142,16 +147,20 @@ void salt() {
     return contin();    // Tail call
 }
 
+// Description:
+//      Builtin goto(name).
+//      same as succ\name, but saves space and time
 void tgoto() {
     DEBUG("%stgoto", DEPTH);
     return salt();      // Tail call
 }
 
-// all functions and rules that fail come here
-// if exit bit is on do a fail return
-// if following instruction is an alternate (recognized literally)
-// do a goto, if a success alternate, do a nop
-// otherwise do a fail return
+// Description:
+//      all functions and rules that fail come here
+//      if exit bit is on do a fail return
+//      if following instruction is an alternate (recognized literally)
+//      do a goto, if a success alternate, do a nop
+//      otherwise do a fail return
 void fail() {
     DEBUG("%sfail(): f=%ld, g=%ld", DEPTH, (tword)(f-(tptr)stkb), (tword)(g-(tptr)stkb));
     failc++;
@@ -160,10 +169,10 @@ void fail() {
         iget();
         ((parse_frame_t*)f)->x = r0;        // checked both
         DEBUG("%s        x==0x%lx", DEPTH, ((parse_frame_t*)f)->x);
-        r0 &= ~(tword)1;
-        if (r0 == (tword)&alt)      // TODO: why does it go to salt if equal to alt and v.v.?
+        r0 = BIT0_CLEAR(r0);
+        if (r0 == (tword)&alt)      // Failure alternate (/) -> goto alternative rule
             return salt();  // Tail call
-        if (r0 == (tword)&salt)
+        if (r0 == (tword)&salt)     // Success alternate (\) -> skip ("nop"), call succ()
             return alt();   // Tail call
     }
 
@@ -179,8 +188,9 @@ void fail() {
     failure = true;
 }
 
-// all functions that succeed come here
-// test the exit indicator, and leave the rule if on
+// Description:
+//      all functions that succeed come here
+//      test the exit indicator, and leave the rule if on
 void succ() {
     ++succc;
     DEBUG("%ssucc() f=%ld, g=%ld, c=%lu", DEPTH, (tword)(f-(tptr)stkb), (tword)(g-(tptr)stkb), succc);
@@ -556,21 +566,38 @@ int main(int argc, char* argv[]) {
     }
 
     // Compute function address range
+    // TODO: is there an elegant way to do this?
     tptr funcs[] = {
-        (tptr)&adv,
-        (tptr)&alt,     (tptr)&salt,    (tptr)&succ,    (tptr)&fail,
-        (tptr)&parse,
-        (tptr)&contin,
+        // tmga functions
+	(tptr)&_tp,	(tptr)&adv,	(tptr)&alt,	(tptr)&contin,	
+	(tptr)&diag,	(tptr)&fail,	(tptr)&flush,	(tptr)&gcontin,	
+	(tptr)&generate,	(tptr)&obuild,	(tptr)&parse,	(tptr)&pbundle,	
+	(tptr)&putch,	(tptr)&salt,	(tptr)&succ,	(tptr)&parse,	
+	(tptr)&tgoto,
+
         // tmgb functions
-        (tptr)&trans,   (tptr)&_tp,
-        (tptr)&_l,      (tptr)&_p,      (tptr)&_t,      (tptr)&_u,      (tptr)&_st,
-        (tptr)&_da,     (tptr)&_ia,     (tptr)&_db,     (tptr)&_ib,
-        (tptr)&_px,     (tptr)&_pxs,    (tptr)&_tx,     (tptr)&_txs,
-        (tptr)&_ge,     (tptr)&_ne,     (tptr)&_eq,
-        (tptr)&_a,      (tptr)&_s,      (tptr)&_n,      (tptr)&_o,      (tptr)&_x,
-        (tptr)&decimal, (tptr)&octal,
-        (tptr)&smark,   (tptr)&any,     (tptr)&string,
-        (tptr)&scopy,   (tptr)&_scopy,
+	(tptr)&_a,	(tptr)&_cm,	(tptr)&_da,	(tptr)&_db,	
+	(tptr)&_eq,	(tptr)&_f,	(tptr)&_false,	(tptr)&_ge,	
+	(tptr)&_gt,	(tptr)&_ia,	(tptr)&_ib,	(tptr)&_l,	
+	(tptr)&_le,	(tptr)&_lt,	(tptr)&_lv,	(tptr)&_m,	
+	(tptr)&_n,	(tptr)&_ne,	(tptr)&_ng,	(tptr)&_nt,	
+	(tptr)&_o,	(tptr)&_p,	(tptr)&_px,	(tptr)&_pxs,	
+	(tptr)&_q,	(tptr)&_r,	(tptr)&_rv,	(tptr)&_s,	
+	(tptr)&_sl,	(tptr)&_sr,	(tptr)&_st,	(tptr)&_t,	
+	(tptr)&_true,	(tptr)&_tq,	(tptr)&_tx,	(tptr)&_txs,	
+	(tptr)&_u,	(tptr)&_x,
+
+	(tptr)&accept,	(tptr)&_accept,	(tptr)&any,	(tptr)&bundle,
+	(tptr)&ctest,	(tptr)&decimal,	(tptr)&_decimal,	(tptr)&discard,
+	(tptr)&enter,	(tptr)&find,	(tptr)&getcstr,	(tptr)&getnam,
+	(tptr)&_getnam,	(tptr)&gotab,	(tptr)&gpar,	(tptr)&ignore,
+	(tptr)&jget,	(tptr)&kput,	(tptr)&octal,	(tptr)&_octal,
+	(tptr)&params,	(tptr)&push,	(tptr)&putcall,	(tptr)&putcstr,
+	(tptr)&putdec,	(tptr)&puthex,	(tptr)&putoct,	(tptr)&reduce,
+	(tptr)&rewcstr,	(tptr)&scopy,	(tptr)&_scopy,	(tptr)&size,
+	(tptr)&smark,	(tptr)&sprv,	(tptr)&string,	(tptr)&table,
+	(tptr)&tchar,	(tptr)&trace,	(tptr)&trans,	(tptr)&tstack,
+	(tptr)&unstack,	(tptr)&update,  //(tptr)&append,    (tptr)&emit,
     };
     func_max = 0;
     func_min = (tptr)SIZE_MAX;
@@ -579,7 +606,9 @@ int main(int argc, char* argv[]) {
         if (funcs[j] < func_min)  func_min = funcs[j];
     }
     if (verbose)
-        fprintf(dfile, "Functions range: 0x%08lX..0x%08lX\n", (tuword)func_min, (tuword)func_max);
+        fprintf(dfile, "Functions range (%lu): 0x%08lX..0x%08lX\n", 
+                        sizeof(funcs)/sizeof(funcs[0]),
+                        (tuword)func_min, (tuword)func_max);
 
     // set up tables
     // initialize stack

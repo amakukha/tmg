@@ -1,6 +1,6 @@
 // Port of the Unix compiler-compiler TMG to C99.
 // Based on the original PDP-11 assembly code by M. D. McIlroy.
-// (c) 2019, Andriy Makukha, 2-clause BSD License.
+// (c) 2020, Andriy Makukha, 2-clause BSD License.
 //
 // Structure of this implementation closely follows the structure of the
 // original code. Comments starting with a lowercase letter were either
@@ -136,6 +136,7 @@ typedef struct translation_frame {
 #define POP()               (stack[sp++])
 #define POP_PREV()          do { stack[sp+1]=stack[sp]; sp++; } while(0)        // mov (sp)+,(sp)
 #define SWAP_BYTES(x)       (((x & 0xFF)<<8) | ((x & 0xFF00)>>8))               // swab r0
+#define HIGHEST_BIT         ((tuword)1<<(8*sizeof(tword)-1))
 
 // Debugging output enabled?
 #if DEBUG_MODE
