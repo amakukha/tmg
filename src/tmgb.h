@@ -101,14 +101,14 @@ void _x();
 void accept();
 void _accept();
 void any();
-void append();          // TODO: tmgb/append.s, hidden builtin, appears to be unused
+void append();
 void bundle();
 void _bundle();
 void ctest();
 void decimal();
 void _decimal();
 void discard();
-void emit();            // TODO: tmgb/emit.s, hidden builtin, appears to be unused
+void emit();
 void enter();
 void find();
 void _find();
@@ -550,6 +550,25 @@ void any() {
     }
 }
 
+// Description:
+//      Builtin append(l).
+//      Append string literal to the current string. 
+void append() {
+    iget();
+    // Unlike in the original, r0 contains address of address of C-string
+    // (rather than address of the string directly)
+    r0 = *(tptr)r0;     // Pointer to C-string address -> C-string address
+    PUSH(r0);
+    do {
+        r0 = *(uint8_t*)stack[sp];
+        if (!r0) break;
+        putcstr();
+        stack[sp]++;
+    } while(1);
+    POP();
+    return succ();  // Tail call
+}
+
 void bundle() {
     r0 = (tword)f + sizeof(parse_frame_t);
     return _bundle();   // Tail call
@@ -629,6 +648,13 @@ void discard() {
     r1 = *(tptr)r0;
     release();
     succ();
+}
+
+// Description:
+//      "execute and forget last translation delivered to this rule"
+void emit() {
+    DEBUG("    emit(): NOT IMPLEMENTED");
+    // TODO: emit routin refers to an unknown routine `dogen`
 }
 
 // Description:

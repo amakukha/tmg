@@ -597,7 +597,7 @@ int main(int argc, char* argv[]) {
 	(tptr)&rewcstr,	(tptr)&scopy,	(tptr)&_scopy,	(tptr)&size,
 	(tptr)&smark,	(tptr)&sprv,	(tptr)&string,	(tptr)&table,
 	(tptr)&tchar,	(tptr)&trace,	(tptr)&trans,	(tptr)&tstack,
-	(tptr)&unstack,	(tptr)&update,  //(tptr)&append,    (tptr)&emit,
+	(tptr)&unstack,	(tptr)&update,	(tptr)&append,	//(tptr)&emit,
     };
     func_max = 0;
     func_min = (tptr)SIZE_MAX;

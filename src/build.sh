@@ -6,6 +6,7 @@
 
 OPT=-O1
 
+echo "Building TMGL translators..."
 mkdir -p build/
 if [ -e build/tmga.c ]; then rm build/*; fi
 cp *.h *.c build/
@@ -15,7 +16,8 @@ cc -std=c99 $OPT tmga.c -o "../tmgl1"
 mv tmgl2.h tmgl.h
 cc -std=c99 $OPT tmga.c -o "../tmgl2"
 cd ..
-echo "Build done" 
+echo " - DONE"
+echo "Now you can run ./tmg.sh to compile TMGL programs."
 
 # NOTES ON OPTIMIZATION:
 #
