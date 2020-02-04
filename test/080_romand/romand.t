@@ -29,10 +29,10 @@ comb:   proc(c1,c2,c3)
         | () );
 error:  smark ignore(<<>>) string(notnewline) scopy *
         = { <error: > 1 * };
-
+ 
 notnewline: !<<
 >>;
-
+ 
 n:   0;
 a:   0; 0; 1750; 764; 144; 62; 12; 5; 1;
 off: 0;

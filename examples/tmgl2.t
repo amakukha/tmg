@@ -23,7 +23,7 @@ outro:  labelarray = {
             <const tword labels[] = {> * 1 <};> * };
 
 error:	smark ignore(none) any(ascii) string(nonl) scopy ( * | () )
-	= { * <??? err: > 1 * };
+	= { * <??? err2: > 1 * };
 
 line:   ignore(spaces)
     (   strlit *
@@ -85,10 +85,12 @@ nuvlbl: decimal(lcnt) lblput [cnt++] = (1){
             <	> $1 2 <,> *
         };
 vallit: params(1)
-      ( <.byte> octnum((<,>)) <0> $1
+      ( <.byte> byte($1)
       | <[-> number <\<1]> $1 = { <(tword)((tuword)-> 1 <<<1)> }
       | <_> number $1 = { <_> 1 }
       | octnum($1));
+byte:   params(1) octnum((<,>)) ( <0> $1 
+                                | octnum($1) = { <(> 2 < + (> 1 < << 8))> } ); 
 octnum: params(1) smark any(digit)
         ( $1 scopy = { 1 }
         | ignore(none) any(digit) string(digit) $1 scopy = { <0> 1 } );
