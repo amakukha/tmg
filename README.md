@@ -43,6 +43,32 @@ Tom Duff, Bell Labs employee:
 > It made syntax-directed translation really easy, but with an abstruse
 > syntax and semantics that any esoteric language enthusiast could appreciate.
 
+Wishlist
+--
+This is a working implementation of TMG in C. Self-compilation achieved (albeit
+in two phases). 
+
+However, there is still room for improvement:
+
+ - make the `makefile`
+ - ensure it compiles on Linux
+ - make necessary adjustments for Windows (and/or make a Windows release)
+ - table data word `t[i]` is still 16 bits long; needs to be adjusted to hold a
+   machine-dependent word
+ - `libs.h` library needs to be removed or adjusted to performs all operations
+   in RAM by default
+ - figure out how to use LR-parsing builtins, contributed by Johnson and Aho,
+   but not documented in the Manual
+ - detect undefined identifiers (this was done by assembler in the original
+   implementation)
+ - achieve self-compilation in a single phase (very hard).
+
+The language itself is extremely spartan and could be improved by addition of
+more builtins (like reverse operation for `char`) and more language features
+(like better arrays, more flexible tables and strings). However, this might go
+against McIlroy's own liking, who is a well-known proponent of mathematical
+elegance and conciseness in programming, as well as smaller-sized systems.
+
 References
 --
 

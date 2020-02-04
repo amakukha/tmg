@@ -3,3 +3,5 @@
 examples/* linguist-detectable=false
 src/tmgl.h linguist-generated=true
 test/*/tmgl.h linguist-generated=true
+test/*/input* linguist-detectable=false
+test/*/output* linguist-detectable=false
