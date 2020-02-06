@@ -51,7 +51,6 @@ in two phases).
 However, there is still room for improvement:
 
  - make the `makefile`
- - ensure it compiles on Linux
  - make necessary adjustments for Windows (and/or make a Windows release)
  - table data word `t[i]` is still 16 bits long; needs to be adjusted to hold a
    machine-dependent word
