@@ -5,6 +5,16 @@
 # Corresponds to the original script `run`.
 
 OPT=-O1
+ALIGNED=1
+
+compile () {
+    cc -std=c99 -falign-functions=16 $OPT tmga.c -o $1
+    if [ $? -ne 0 ]
+    then
+        cc -std=c99 $OPT tmga.c -o $1;
+        ALIGNED=0
+    fi
+}
 
 echo "Building TMGL translators..."
 mkdir -p build/
@@ -12,10 +22,13 @@ if [ -e build/tmga.c ]; then rm build/*; fi
 cp *.h *.c build/
 cd build/
 mv tmgl1.h tmgl.h
-cc -std=c99 $OPT tmga.c -o "../tmgl1"
+compile "../tmgl1"
 mv tmgl2.h tmgl.h
-cc -std=c99 $OPT tmga.c -o "../tmgl2"
+compile "../tmgl2"
 cd ..
+if [ $ALIGNED -ne 1 ]; then
+    echo "WARNING: could not align the functions"
+fi
 echo " - DONE"
 echo "Now you can run ./tmg.sh to compile TMGL programs."
 

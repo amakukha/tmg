@@ -12,6 +12,15 @@
 BUILD_DIR="build"
 TMP="out.tmp"
 
+compile () {
+    cc -std=c99 -falign-functions=16 $OPT tmga.c -o $1
+    if [ $? -ne 0 ]
+    then
+        cc -std=c99 $OPT tmga.c -o $1;
+        echo "WARNING: functions could not be aligned"
+    fi
+}
+
 mkdir -p "$BUILD_DIR"
 if [[ -f "$BUILD_DIR/tmga" ]]; then rm "$BUILD_DIR/tmga"; fi 
 cp ../src/*.h ../src/*.c ../src/build.sh "$BUILD_DIR/"
@@ -60,7 +69,7 @@ for dir in $mask*; do
     # Build executable
     if [[ -f $BUILD_DIR/tmgl.h ]]; then
         cd "$BUILD_DIR"
-        cc -std=c99 -O1 tmga.c -o tmga
+        compile tmga
         cd ..
     fi
 
