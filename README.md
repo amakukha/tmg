@@ -17,7 +17,7 @@ out in favor of Stephen Johnson's YACC.
 
 To the best of our knowledge, unlike other Unix tools, it was never before
 implemented in a high-level language. This is a translation of TMG from PDP-11
-assembly to portable C, done half a century after it first appeared.
+assembly to portable C.
 
 Quotes about TMG
 --
@@ -68,6 +68,11 @@ more builtins (like reverse operation for `char`) and more language features
 (like better arrays, more flexible tables and strings). However, this might go
 against McIlroy's own liking, who is a well-known proponent of mathematical
 elegance and conciseness in programming, as well as smaller-sized systems.
+
+License
+--
+All code except the original TMG implementation is published under the BSD
+2-Clause License.
 
 References
 --
