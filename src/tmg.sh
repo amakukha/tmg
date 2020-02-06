@@ -18,6 +18,16 @@ out="a.out"
 if [ $# -gt 1 ]; then
     out="$2"
 fi
+
+compile () {
+    cc -std=c99 -falign-functions=16 $OPT tmga.c -o $1
+    if [ $? -ne 0 ]
+    then
+        cc -std=c99 $OPT tmga.c -o $1;
+        echo "WARNING: functions could not be aligned"
+    fi
+}
+
 echo "Dest file: $out"
 ./tmgl1  "$inp" > table.1.tmp
 if [ $? -eq 0 ]; then
@@ -29,7 +39,7 @@ if [ $? -eq 0 ]; then
         cp *.h *.c build/
         mv table.tmp build/tmgl.h               # overwrite
         cd build/
-        cc -std=c99 -O1 tmga.c -o "../$out"
+        compile "../$out"
         cd ..
         echo "Compiling done" 
     else 
