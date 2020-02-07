@@ -8,6 +8,7 @@ Files
  - `tmgc.h` – definitions, corresponds to `tmgc.s`
  - `libs.h` – library that allows to swap blocks of memory onto a disk (it was important in PDP-7 days)
  - `tmgl.h` – table which defines how translation is done. This is the only part that gets swapped when a new compiler is being built.
+ - `tmgl1.t` & `tmgl2.t` - TMG implementation in TMGL (2-phase translation).
 
 Debugging
 --
