@@ -15,3 +15,5 @@ tword start[] = {
 const tword labels[] = {
 	(tword)&start[0],	// _tn
 };
+
+// ERROR: undefined "_tn"

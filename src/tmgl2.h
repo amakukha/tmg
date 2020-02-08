@@ -1,7 +1,7 @@
 /* Port of the Unix compiler-compiler TMG to C99.
  * Based on the original PDP-11 assembly code by M. D. McIlroy.
  * (c) 2020, Andriy Makukha, 2-clause BSD License.
- * 
+ *
  * Phase 2 of translating TMGL into a TMG driving table in C. */
 
 #define SRC_LANGUAGE "phase 1"
@@ -14,8 +14,11 @@ const tword labels[];
 tword start[] = {
 #define __1	(tword)&labels[0]
 	1 + __1,
+#undef  _1
+#define _1	(tword)&start[1]
+	0,
 // __1:
-#define __begin	(tword)&start[1]
+#define __begin	(tword)&start[2]
 	(tword)&_l,
 #define __wsz	(tword)&labels[1]
 	__wsz,
@@ -30,49 +33,60 @@ tword start[] = {
 	(tword)&_s,
 	(tword)&_st,
 	(tword)&_p,
+	(tword)&_l,
+#define __undef	(tword)&labels[4]
+	__undef,
+	(tword)&_l,
+	_1,
+	(tword)&_cm,
+	(tword)&_st,
+	(tword)&_p,
 	(tword)&table,
-#define __ltab	(tword)&labels[4]
+#define __ltab	(tword)&labels[5]
 	__ltab,
 	(tword)&ignore,
-#define __blanks	(tword)&labels[5]
+#define __blanks	(tword)&labels[6]
 	__blanks,
 	(tword)&parse,
-#define __intro	(tword)&labels[6]
+#define __intro	(tword)&labels[7]
 	__intro,
-#define __pr2	(tword)&start[18]
+#define __pr2	(tword)&start[26]
 	(tword)&parse,
-#define __line	(tword)&labels[7]
+#define __line	(tword)&labels[8]
 	__line,
 	(tword)&salt,
 	__pr2,
 	(tword)&diag,
-#define __error	(tword)&labels[8]
+#define __error	(tword)&labels[9]
 	__error,
 	(tword)&salt,
 	__pr2,
-	1 + (tword)&parse,
-#define __outro	(tword)&labels[9]
+	(tword)&parse,
+#define __outro	(tword)&labels[10]
 	__outro,
+	1 + (tword)&diag,
+#define __undefined	(tword)&labels[11]
+	__undefined,
 #undef  _2
-#define _2	(tword)&start[28]
+#define _2	(tword)&start[38]
 	(tword)"//#define SRC_LANGUAGE \"input language\"",
 #undef  _3
-#define _3	(tword)&start[29]
+#define _3	(tword)&start[39]
 	(tword)"//#define DST_LANGUAGE \"output language\"",
 #undef  _4
-#define _4	(tword)&start[30]
+#define _4	(tword)&start[40]
 	(tword)"const tword labels[];",
 #undef  _5
-#define _5	(tword)&start[31]
+#define _5	(tword)&start[41]
 	(tword)"// Driving table for the program",
 #undef  _6
-#define _6	(tword)&start[32]
+#define _6	(tword)&start[42]
 	(tword)"tword start[] = {",
 #undef  _1
-#define _1	(tword)&start[33]
+#define _1	(tword)&start[43]
 	(tword)&_tx,
 	_2,
-#define _tn	(tword)&labels[10]
+#define _tn	(tword)&labels[12]
 	_tn,
 	(tword)&_tx,
 	_3,
@@ -93,19 +107,19 @@ tword start[] = {
 	1 + (tword)&trans,
 	1 + _1,
 #undef  _2
-#define _2	(tword)&start[53]
+#define _2	(tword)&start[63]
 	(tword)"};",
 #undef  _3
-#define _3	(tword)&start[54]
+#define _3	(tword)&start[64]
 	(tword)"// Global label addresses inside the driving table",
 #undef  _4
-#define _4	(tword)&start[55]
+#define _4	(tword)&start[65]
 	(tword)"const tword labels[] = {",
 #undef  _5
-#define _5	(tword)&start[56]
+#define _5	(tword)&start[66]
 	(tword)"};",
 #undef  _1
-#define _1	(tword)&start[57]
+#define _1	(tword)&start[67]
 	(tword)&_tx,
 	_2,
 	_tn,
@@ -123,15 +137,15 @@ tword start[] = {
 	_5,
 	1 + _tn,
 // __outro:
-#define __labelarray	(tword)&labels[11]
+#define __labelarray	(tword)&labels[13]
 	__labelarray,
 	1 + (tword)&trans,
 	1 + _1,
 #undef  _2
-#define _2	(tword)&start[76]
+#define _2	(tword)&start[86]
 	(tword)"??? err2: ",
 #undef  _1
-#define _1	(tword)&start[77]
+#define _1	(tword)&start[87]
 	_tn,
 	(tword)&_tx,
 	_2,
@@ -141,88 +155,88 @@ tword start[] = {
 // __error:
 	(tword)&smark,
 	(tword)&ignore,
-#define __none	(tword)&labels[12]
+#define __none	(tword)&labels[14]
 	__none,
 	(tword)&any,
-#define __ascii	(tword)&labels[13]
+#define __ascii	(tword)&labels[15]
 	__ascii,
 	(tword)&string,
-#define __nonl	(tword)&labels[14]
+#define __nonl	(tword)&labels[16]
 	__nonl,
 	(tword)&scopy,
-#define _pn	(tword)&labels[15]
+#define _pn	(tword)&labels[17]
 	_pn,
 	(tword)&salt,
-#define __2	(tword)&labels[16]
+#define __2	(tword)&labels[18]
 	__2,
 // __2:
 	1 + (tword)&trans,
 	1 + _1,
 #undef  _1
-#define _1	(tword)&start[96]
+#define _1	(tword)&start[106]
 	(tword)&_tp,
 	2,
 	1 + (tword)&_tp,
 	1,
 #undef  _2
-#define _2	(tword)&start[100]
+#define _2	(tword)&start[110]
 	1 + (tword)&generate,
 // __line:
 	(tword)&ignore,
-#define __spaces	(tword)&labels[17]
+#define __spaces	(tword)&labels[19]
 	__spaces,
-#define __strlit	(tword)&labels[18]
+#define __strlit	(tword)&labels[20]
 	__strlit,
 	(tword)&alt,
-#define __14	(tword)&labels[19]
+#define __14	(tword)&labels[21]
 	__14,
 	_pn,
 	(tword)&tgoto,
-#define __3	(tword)&labels[20]
+#define __3	(tword)&labels[22]
 	__3,
 // __14:
-#define __chrlit	(tword)&labels[21]
+#define __chrlit	(tword)&labels[23]
 	__chrlit,
 	(tword)&alt,
-#define __13	(tword)&labels[22]
+#define __13	(tword)&labels[24]
 	__13,
 	_pn,
 	(tword)&tgoto,
-#define __4	(tword)&labels[23]
+#define __4	(tword)&labels[25]
 	__4,
 // __13:
-#define __loclbl	(tword)&labels[24]
+#define __loclbl	(tword)&labels[26]
 	__loclbl,
 	(tword)&alt,
-#define __12	(tword)&labels[25]
+#define __12	(tword)&labels[27]
 	__12,
 	_pn,
 	(tword)&tgoto,
-#define __5	(tword)&labels[26]
+#define __5	(tword)&labels[28]
 	__5,
 // __12:
-#define __labels	(tword)&labels[27]
+#define __labels	(tword)&labels[29]
 	__labels,
 	(tword)&alt,
-#define __11	(tword)&labels[28]
+#define __11	(tword)&labels[30]
 	__11,
-#define __values	(tword)&labels[29]
+#define __values	(tword)&labels[31]
 	__values,
 	(tword)&salt,
-#define __6	(tword)&labels[30]
+#define __6	(tword)&labels[32]
 	__6,
-#define __null	(tword)&labels[31]
+#define __null	(tword)&labels[33]
 	__null,
 // __6:
 	(tword)&trans,
 	1 + _1,
 	(tword)&tgoto,
-#define __7	(tword)&labels[32]
+#define __7	(tword)&labels[34]
 	__7,
 // __11:
 	__values,
 	(tword)&salt,
-#define __10	(tword)&labels[33]
+#define __10	(tword)&labels[35]
 	__10,
 	_pn,
 	(tword)&trans,
@@ -234,19 +248,19 @@ tword start[] = {
 // __3:
 	1 + (tword)&succ,
 #undef  _1
-#define _1	(tword)&start[139]
+#define _1	(tword)&start[149]
 	(tword)"=.",
 #undef  _3
-#define _3	(tword)&start[140]
+#define _3	(tword)&start[150]
 	(tword)"#undef  _",
 #undef  _4
-#define _4	(tword)&start[141]
+#define _4	(tword)&start[151]
 	(tword)"#define _",
 #undef  _5
-#define _5	(tword)&start[142]
+#define _5	(tword)&start[152]
 	(tword)"	(tword)&start[",
 #undef  _2
-#define _2	(tword)&start[143]
+#define _2	(tword)&start[153]
 	(tword)&_tx,
 	_3,
 	(tword)&_tp,
@@ -266,32 +280,32 @@ tword start[] = {
 // __loclbl:
 	(tword)&_pxs,
 	(tword)'_',
-#define __number	(tword)&labels[34]
+#define __number	(tword)&labels[36]
 	__number,
 	(tword)&_px,
 	_1,
 	(tword)&_pxs,
 	(tword)';',
 	(tword)&salt,
-#define __15	(tword)&labels[35]
+#define __15	(tword)&labels[37]
 	__15,
 // __15:
 	(tword)&decimal,
-#define __cnt	(tword)&labels[36]
+#define __cnt	(tword)&labels[38]
 	__cnt,
 	1 + (tword)&trans,
 	1 + _2,
 #undef  _1
-#define _1	(tword)&start[172]
+#define _1	(tword)&start[182]
 	(tword)">",
 #undef  _3
-#define _3	(tword)&start[173]
+#define _3	(tword)&start[183]
 	(tword)"	(tword)\"",
 #undef  _4
-#define _4	(tword)&start[174]
+#define _4	(tword)&start[184]
 	(tword)"\",",
 #undef  _2
-#define _2	(tword)&start[175]
+#define _2	(tword)&start[185]
 	(tword)&_tx,
 	_3,
 	(tword)&_tp,
@@ -306,21 +320,21 @@ tword start[] = {
 	(tword)'<',
 	(tword)&ignore,
 	__none,
-#define __litesc	(tword)&labels[37]
+#define __litesc	(tword)&labels[39]
 	__litesc,
 	(tword)&salt,
-#define __16	(tword)&labels[38]
+#define __16	(tword)&labels[40]
 	__16,
 	__null,
 // __16:
-#define __litb	(tword)&labels[39]
+#define __litb	(tword)&labels[41]
 	__litb,
 	(tword)&_px,
 	_1,
 	(tword)&_pxs,
 	(tword)';',
 	(tword)&salt,
-#define __17	(tword)&labels[40]
+#define __17	(tword)&labels[42]
 	__17,
 // __17:
 	(tword)&_l,
@@ -330,23 +344,23 @@ tword start[] = {
 	1 + (tword)&trans,
 	1 + _2,
 #undef  _1
-#define _1	(tword)&start[205]
+#define _1	(tword)&start[215]
 	(tword)"\\",
 #undef  _2
-#define _2	(tword)&start[206]
+#define _2	(tword)&start[216]
 	(tword)">",
 #undef  _4
-#define _4	(tword)&start[207]
+#define _4	(tword)&start[217]
 	(tword)">",
 #undef  _3
-#define _3	(tword)&start[208]
+#define _3	(tword)&start[218]
 	1 + (tword)&_tx,
 	_4,
 #undef  _6
-#define _6	(tword)&start[210]
+#define _6	(tword)&start[220]
 	(tword)"\\",
 #undef  _5
-#define _5	(tword)&start[211]
+#define _5	(tword)&start[221]
 	1 + (tword)&_tx,
 	_6,
 // __litesc:
@@ -355,12 +369,12 @@ tword start[] = {
 	(tword)&_px,
 	_2,
 	(tword)&alt,
-#define __21	(tword)&labels[41]
+#define __21	(tword)&labels[43]
 	__21,
 	(tword)&trans,
 	1 + _3,
 	(tword)&tgoto,
-#define __20	(tword)&labels[42]
+#define __20	(tword)&labels[44]
 	__20,
 // __21:
 	(tword)&trans,
@@ -368,7 +382,7 @@ tword start[] = {
 // __20:
 	1 + (tword)&succ,
 #undef  _1
-#define _1	(tword)&start[226]
+#define _1	(tword)&start[236]
 	(tword)&_tp,
 	3,
 	(tword)&_tp,
@@ -378,22 +392,22 @@ tword start[] = {
 // __litb:
 	(tword)&smark,
 	(tword)&string,
-#define __litch	(tword)&labels[43]
+#define __litch	(tword)&labels[45]
 	__litch,
 	(tword)&scopy,
-#define __stresc	(tword)&labels[44]
+#define __stresc	(tword)&labels[46]
 	__stresc,
 	(tword)&alt,
-#define __done	(tword)&labels[45]
+#define __done	(tword)&labels[47]
 	__done,
 	__litb,
 	1 + (tword)&trans,
 	1 + _1,
 #undef  _2
-#define _2	(tword)&start[242]
+#define _2	(tword)&start[252]
 	(tword)"\\\"",
 #undef  _1
-#define _1	(tword)&start[243]
+#define _1	(tword)&start[253]
 	1 + (tword)&_tx,
 	_2,
 // __stresc:
@@ -402,32 +416,32 @@ tword start[] = {
 	1 + (tword)&trans,
 	1 + _1,
 #undef  _2
-#define _2	(tword)&start[249]
+#define _2	(tword)&start[259]
 	(tword)"\\'",
 #undef  _1
-#define _1	(tword)&start[250]
+#define _1	(tword)&start[260]
 	1 + (tword)&_tx,
 	_2,
 #undef  _3
-#define _3	(tword)&start[252]
+#define _3	(tword)&start[262]
 	(tword)"\\",
 #undef  _5
-#define _5	(tword)&start[253]
+#define _5	(tword)&start[263]
 	(tword)"\\",
 #undef  _4
-#define _4	(tword)&start[254]
+#define _4	(tword)&start[264]
 	(tword)&_tx,
 	_5,
 	1 + (tword)&_tp,
 	1,
 #undef  _7
-#define _7	(tword)&start[258]
+#define _7	(tword)&start[268]
 	(tword)"	(tword)'",
 #undef  _10
-#define _10	(tword)&start[259]
+#define _10	(tword)&start[269]
 	(tword)"',",
 #undef  _6
-#define _6	(tword)&start[260]
+#define _6	(tword)&start[270]
 	(tword)&_tx,
 	_7,
 	(tword)&_tp,
@@ -443,18 +457,18 @@ tword start[] = {
 	(tword)&_pxs,
 	(tword)'\'',
 	(tword)&alt,
-#define __25	(tword)&labels[46]
+#define __25	(tword)&labels[48]
 	__25,
 	(tword)&trans,
 	1 + _1,
 	(tword)&tgoto,
-#define __22	(tword)&labels[47]
+#define __22	(tword)&labels[49]
 	__22,
 // __25:
 	(tword)&_px,
 	_3,
 	(tword)&alt,
-#define __24	(tword)&labels[48]
+#define __24	(tword)&labels[50]
 	__24,
 	(tword)&smark,
 	(tword)&any,
@@ -463,7 +477,7 @@ tword start[] = {
 	(tword)&trans,
 	1 + _4,
 	(tword)&tgoto,
-#define __23	(tword)&labels[49]
+#define __23	(tword)&labels[51]
 	__23,
 // __24:
 	(tword)&smark,
@@ -477,7 +491,7 @@ tword start[] = {
 	(tword)&_pxs,
 	(tword)';',
 	(tword)&salt,
-#define __26	(tword)&labels[50]
+#define __26	(tword)&labels[52]
 	__26,
 // __26:
 	(tword)&_l,
@@ -487,13 +501,13 @@ tword start[] = {
 	1 + (tword)&trans,
 	1 + _6,
 #undef  _1
-#define _1	(tword)&start[307]
+#define _1	(tword)&start[317]
 	(tword)&_tp,
 	2,
 	1 + (tword)&_tp,
 	1,
 // __labels:
-#define __label	(tword)&labels[51]
+#define __label	(tword)&labels[53]
 	__label,
 	__labels,
 	(tword)&alt,
@@ -501,10 +515,10 @@ tword start[] = {
 	1 + (tword)&trans,
 	1 + _1,
 #undef  _2
-#define _2	(tword)&start[317]
+#define _2	(tword)&start[327]
 	(tword)"// ",
 #undef  _1
-#define _1	(tword)&start[318]
+#define _1	(tword)&start[328]
 	(tword)&_tx,
 	_2,
 	(tword)&_tp,
@@ -513,13 +527,13 @@ tword start[] = {
 	(tword)':',
 	1 + _tn,
 // __label:
-#define __lblnam	(tword)&labels[52]
+#define __lblnam	(tword)&labels[54]
 	__lblnam,
 	(tword)&find,
 	__ltab,
 	__i,
 	(tword)&alt,
-#define __newlbl	(tword)&labels[53]
+#define __newlbl	(tword)&labels[55]
 	__newlbl,
 	(tword)&_l,
 	__ltab,
@@ -533,16 +547,16 @@ tword start[] = {
 	1 + (tword)&trans,
 	1 + _1,
 #undef  _1
-#define _1	(tword)&start[342]
+#define _1	(tword)&start[352]
 	0,
 #undef  _3
-#define _3	(tword)&start[343]
+#define _3	(tword)&start[353]
 	(tword)"#define ",
 #undef  _4
-#define _4	(tword)&start[344]
+#define _4	(tword)&start[354]
 	(tword)"	(tword)&start[",
 #undef  _2
-#define _2	(tword)&start[345]
+#define _2	(tword)&start[355]
 	(tword)&_tx,
 	_3,
 	(tword)&_tp,
@@ -557,30 +571,30 @@ tword start[] = {
 // __newlbl:
 	(tword)&decimal,
 	__cnt,
-#define __tabput	(tword)&labels[54]
+#define __tabput	(tword)&labels[56]
 	__tabput,
 	__ltab,
 	_1,
 	1 + (tword)&trans,
 	1 + _2,
 #undef  _2
-#define _2	(tword)&start[363]
+#define _2	(tword)&start[373]
 	(tword)"__",
 #undef  _1
-#define _1	(tword)&start[364]
+#define _1	(tword)&start[374]
 	(tword)&_tx,
 	_2,
 	1 + (tword)&_tp,
 	1,
 #undef  _3
-#define _3	(tword)&start[368]
+#define _3	(tword)&start[378]
 	1 + (tword)&_tp,
 	1,
 #undef  _5
-#define _5	(tword)&start[370]
+#define _5	(tword)&start[380]
 	(tword)"__",
 #undef  _4
-#define _4	(tword)&start[371]
+#define _4	(tword)&start[381]
 	(tword)&_tx,
 	_5,
 	1 + (tword)&_tp,
@@ -590,38 +604,38 @@ tword start[] = {
 	__none,
 	(tword)&smark,
 	(tword)&any,
-#define __under	(tword)&labels[55]
+#define __under	(tword)&labels[57]
 	__under,
 	(tword)&alt,
-#define __32	(tword)&labels[56]
+#define __32	(tword)&labels[58]
 	__32,
 	(tword)&_pxs,
 	(tword)'_',
 	(tword)&alt,
-#define __30	(tword)&labels[57]
+#define __30	(tword)&labels[59]
 	__30,
 	__number,
 	(tword)&trans,
 	1 + _1,
 	(tword)&tgoto,
-#define __27	(tword)&labels[58]
+#define __27	(tword)&labels[60]
 	__27,
 // __30:
 	(tword)&any,
-#define __tpcls	(tword)&labels[59]
+#define __tpcls	(tword)&labels[61]
 	__tpcls,
 	(tword)&any,
-#define __ncls	(tword)&labels[60]
+#define __ncls	(tword)&labels[62]
 	__ncls,
 	(tword)&scopy,
 	(tword)&trans,
 	1 + _3,
 // __27:
 	(tword)&tgoto,
-#define __31	(tword)&labels[61]
+#define __31	(tword)&labels[63]
 	__31,
 // __32:
-#define __name	(tword)&labels[62]
+#define __name	(tword)&labels[64]
 	__name,
 	(tword)&trans,
 	1 + _4,
@@ -629,11 +643,11 @@ tword start[] = {
 	1 + (tword)&_pxs,
 	(tword)':',
 #undef  _1
-#define _1	(tword)&start[405]
+#define _1	(tword)&start[415]
 	1 + (tword)&_pxs,
 	(tword)';',
 #undef  _2
-#define _2	(tword)&start[407]
+#define _2	(tword)&start[417]
 	(tword)&_tp,
 	2,
 	1 + (tword)&_tp,
@@ -641,12 +655,12 @@ tword start[] = {
 // __values:
 	(tword)&ignore,
 	__spaces,
-#define __comvals	(tword)&start[413]
-#define __extval	(tword)&labels[63]
+#define __comvals	(tword)&start[423]
+#define __extval	(tword)&labels[65]
 	__extval,
 	_1,
 	(tword)&alt,
-#define __nlval	(tword)&labels[64]
+#define __nlval	(tword)&labels[66]
 	__nlval,
 	__comvals,
 	(tword)&alt,
@@ -654,45 +668,45 @@ tword start[] = {
 	1 + (tword)&trans,
 	1 + _2,
 #undef  _1
-#define _1	(tword)&start[422]
+#define _1	(tword)&start[432]
 	1 + _pn,
 // __nlval:
 	__extval,
 	_1,
 	1 + __done,
 #undef  _1
-#define _1	(tword)&start[426]
+#define _1	(tword)&start[436]
 	1,
 #undef  _3
-#define _3	(tword)&start[427]
+#define _3	(tword)&start[437]
 	1 + (tword)&_tp,
 	2,
 #undef  _2
-#define _2	(tword)&start[429]
+#define _2	(tword)&start[439]
 	1 + (tword)&_tp,
 	1,
 	_3,
 #undef  _4
-#define _4	(tword)&start[432]
+#define _4	(tword)&start[442]
 	1 + (tword)&_tp,
 	1,
-#define __nil	(tword)&labels[65]
+#define __nil	(tword)&labels[67]
 	__nil,
 // __extval:
 	(tword)&params,
 	_1,
-#define __extbit	(tword)&labels[66]
+#define __extbit	(tword)&labels[68]
 	__extbit,
 	(tword)&alt,
-#define __34	(tword)&labels[67]
+#define __34	(tword)&labels[69]
 	__34,
-#define __valsep	(tword)&labels[68]
+#define __valsep	(tword)&labels[70]
 	__valsep,
 	(tword)((tuword)-1<<1),
 	(tword)&trans,
 	1 + _2,
 	(tword)&tgoto,
-#define __33	(tword)&labels[69]
+#define __33	(tword)&labels[71]
 	__33,
 // __34:
 	__valsep,
@@ -702,13 +716,13 @@ tword start[] = {
 // __33:
 	1 + (tword)&succ,
 #undef  _1
-#define _1	(tword)&start[451]
+#define _1	(tword)&start[461]
 	(tword)"1 + ",
 #undef  _3
-#define _3	(tword)&start[452]
+#define _3	(tword)&start[462]
 	(tword)"1 + ",
 #undef  _2
-#define _2	(tword)&start[453]
+#define _2	(tword)&start[463]
 	1 + (tword)&_tx,
 	_3,
 // __extbit:
@@ -717,14 +731,14 @@ tword start[] = {
 	1 + (tword)&trans,
 	1 + _2,
 #undef  _1
-#define _1	(tword)&start[459]
+#define _1	(tword)&start[469]
 	1,
 #undef  _3
-#define _3	(tword)&start[460]
+#define _3	(tword)&start[470]
 	1 + (tword)&_tq,
 	1,
 #undef  _2
-#define _2	(tword)&start[462]
+#define _2	(tword)&start[472]
 	(tword)&gpar,
 	1,
 	1 + (tword)&_tp,
@@ -733,16 +747,16 @@ tword start[] = {
 // __valsep:
 	(tword)&params,
 	_1,
-#define __value	(tword)&labels[70]
+#define __value	(tword)&labels[72]
 	__value,
 	(tword)((tuword)-1<<1),
 	1 + (tword)&trans,
 	1 + _2,
 #undef  _1
-#define _1	(tword)&start[473]
+#define _1	(tword)&start[483]
 	1,
 #undef  _2
-#define _2	(tword)&start[474]
+#define _2	(tword)&start[484]
 	(tword)&gpar,
 	1,
 	(tword)&_txs,
@@ -755,10 +769,10 @@ tword start[] = {
 	(tword)',',
 	1 + _tn,
 #undef  _4
-#define _4	(tword)&start[485]
+#define _4	(tword)&start[495]
 	(tword)"(tword)&",
 #undef  _3
-#define _3	(tword)&start[486]
+#define _3	(tword)&start[496]
 	(tword)&gpar,
 	1,
 	(tword)&_txs,
@@ -773,7 +787,7 @@ tword start[] = {
 	(tword)',',
 	1 + _tn,
 #undef  _5
-#define _5	(tword)&start[499]
+#define _5	(tword)&start[509]
 	(tword)&gpar,
 	1,
 	(tword)&_txs,
@@ -788,11 +802,11 @@ tword start[] = {
 // __value:
 	(tword)&params,
 	_1,
-#define __vallit	(tword)&labels[71]
+#define __vallit	(tword)&labels[73]
 	__vallit,
 	(tword)((tuword)-1<<1),
 	(tword)&alt,
-#define __40	(tword)&labels[72]
+#define __40	(tword)&labels[74]
 	__40,
 	(tword)&_l,
 	__cnt,
@@ -801,14 +815,14 @@ tword start[] = {
 	(tword)&trans,
 	1 + _2,
 	(tword)&tgoto,
-#define __35	(tword)&labels[73]
+#define __35	(tword)&labels[75]
 	__35,
 // __40:
-#define __valbtn	(tword)&labels[74]
+#define __valbtn	(tword)&labels[76]
 	__valbtn,
 	(tword)((tuword)-1<<1),
 	(tword)&alt,
-#define __37	(tword)&labels[75]
+#define __37	(tword)&labels[77]
 	__37,
 	(tword)&_l,
 	__cnt,
@@ -817,17 +831,17 @@ tword start[] = {
 	(tword)&trans,
 	1 + _3,
 	(tword)&tgoto,
-#define __36	(tword)&labels[76]
+#define __36	(tword)&labels[78]
 	__36,
 // __37:
-#define __vallbl	(tword)&labels[77]
+#define __vallbl	(tword)&labels[79]
 	__vallbl,
 	(tword)((tuword)-1<<1),
 	(tword)&find,
 	__ltab,
 	__i,
 	(tword)&alt,
-#define __nuvlbl	(tword)&labels[78]
+#define __nuvlbl	(tword)&labels[80]
 	__nuvlbl,
 	(tword)&_l,
 	__cnt,
@@ -839,13 +853,13 @@ tword start[] = {
 // __35:
 	1 + (tword)&succ,
 #undef  _2
-#define _2	(tword)&start[550]
+#define _2	(tword)&start[560]
 	(tword)"#define ",
 #undef  _3
-#define _3	(tword)&start[551]
+#define _3	(tword)&start[561]
 	(tword)"	(tword)&labels[",
 #undef  _1
-#define _1	(tword)&start[552]
+#define _1	(tword)&start[562]
 	(tword)&gpar,
 	1,
 	(tword)&_tx,
@@ -870,9 +884,9 @@ tword start[] = {
 	1 + _tn,
 // __nuvlbl:
 	(tword)&decimal,
-#define __lcnt	(tword)&labels[79]
+#define __lcnt	(tword)&labels[81]
 	__lcnt,
-#define __lblput	(tword)&labels[80]
+#define __lblput	(tword)&labels[82]
 	__lblput,
 	(tword)&_l,
 	__cnt,
@@ -881,25 +895,25 @@ tword start[] = {
 	1 + (tword)&trans,
 	1 + _1,
 #undef  _1
-#define _1	(tword)&start[583]
+#define _1	(tword)&start[593]
 	1,
 #undef  _2
-#define _2	(tword)&start[584]
+#define _2	(tword)&start[594]
 	(tword)".byte",
 #undef  _3
-#define _3	(tword)&start[585]
+#define _3	(tword)&start[595]
 	(tword)"[-",
 #undef  _4
-#define _4	(tword)&start[586]
+#define _4	(tword)&start[596]
 	(tword)"\\<1]",
 #undef  _6
-#define _6	(tword)&start[587]
+#define _6	(tword)&start[597]
 	(tword)"(tword)((tuword)-",
 #undef  _7
-#define _7	(tword)&start[588]
+#define _7	(tword)&start[598]
 	(tword)"<<1)",
 #undef  _5
-#define _5	(tword)&start[589]
+#define _5	(tword)&start[599]
 	(tword)&_tx,
 	_6,
 	(tword)&_tp,
@@ -907,7 +921,7 @@ tword start[] = {
 	1 + (tword)&_tx,
 	_7,
 #undef  _10
-#define _10	(tword)&start[595]
+#define _10	(tword)&start[605]
 	(tword)&_txs,
 	(tword)'_',
 	1 + (tword)&_tp,
@@ -918,19 +932,19 @@ tword start[] = {
 	(tword)&_px,
 	_2,
 	(tword)&alt,
-#define __46	(tword)&labels[81]
+#define __46	(tword)&labels[83]
 	__46,
-#define __byte	(tword)&labels[82]
+#define __byte	(tword)&labels[84]
 	__byte,
 	(tword)((tuword)-1<<1),
 	(tword)&tgoto,
-#define __41	(tword)&labels[83]
+#define __41	(tword)&labels[85]
 	__41,
 // __46:
 	(tword)&_px,
 	_3,
 	(tword)&alt,
-#define __45	(tword)&labels[84]
+#define __45	(tword)&labels[86]
 	__45,
 	__number,
 	(tword)&_px,
@@ -939,23 +953,23 @@ tword start[] = {
 	(tword)&trans,
 	1 + _5,
 	(tword)&tgoto,
-#define __42	(tword)&labels[85]
+#define __42	(tword)&labels[87]
 	__42,
 // __45:
 	(tword)&_pxs,
 	(tword)'_',
 	(tword)&alt,
-#define __44	(tword)&labels[86]
+#define __44	(tword)&labels[88]
 	__44,
 	__number,
 	(tword)((tuword)-1<<1),
 	(tword)&trans,
 	1 + _10,
 	(tword)&tgoto,
-#define __43	(tword)&labels[87]
+#define __43	(tword)&labels[89]
 	__43,
 // __44:
-#define __octnum	(tword)&labels[88]
+#define __octnum	(tword)&labels[90]
 	__octnum,
 	(tword)((tuword)-1<<1),
 // __43:
@@ -963,20 +977,20 @@ tword start[] = {
 // __41:
 	1 + (tword)&succ,
 #undef  _1
-#define _1	(tword)&start[634]
+#define _1	(tword)&start[644]
 	1,
 #undef  _2
-#define _2	(tword)&start[635]
+#define _2	(tword)&start[645]
 	1 + (tword)&_pxs,
 	(tword)',',
 #undef  _4
-#define _4	(tword)&start[637]
+#define _4	(tword)&start[647]
 	(tword)" + (",
 #undef  _5
-#define _5	(tword)&start[638]
+#define _5	(tword)&start[648]
 	(tword)" << 8))",
 #undef  _3
-#define _3	(tword)&start[639]
+#define _3	(tword)&start[649]
 	(tword)&_txs,
 	(tword)'(',
 	(tword)&_tp,
@@ -995,11 +1009,11 @@ tword start[] = {
 	(tword)&_pxs,
 	(tword)'0',
 	(tword)&alt,
-#define __50	(tword)&labels[89]
+#define __50	(tword)&labels[91]
 	__50,
 	(tword)((tuword)-1<<1),
 	(tword)&tgoto,
-#define __47	(tword)&labels[90]
+#define __47	(tword)&labels[92]
 	__47,
 // __50:
 	__octnum,
@@ -1009,14 +1023,14 @@ tword start[] = {
 // __47:
 	1 + (tword)&succ,
 #undef  _1
-#define _1	(tword)&start[665]
+#define _1	(tword)&start[675]
 	1,
 #undef  _2
-#define _2	(tword)&start[666]
+#define _2	(tword)&start[676]
 	1 + (tword)&_tp,
 	1,
 #undef  _3
-#define _3	(tword)&start[668]
+#define _3	(tword)&start[678]
 	(tword)&_txs,
 	(tword)'0',
 	1 + (tword)&_tp,
@@ -1026,17 +1040,17 @@ tword start[] = {
 	_1,
 	(tword)&smark,
 	(tword)&any,
-#define __digit	(tword)&labels[91]
+#define __digit	(tword)&labels[93]
 	__digit,
 	(tword)((tuword)-1<<1),
 	(tword)&alt,
-#define __52	(tword)&labels[92]
+#define __52	(tword)&labels[94]
 	__52,
 	(tword)&scopy,
 	(tword)&trans,
 	1 + _2,
 	(tword)&tgoto,
-#define __51	(tword)&labels[93]
+#define __51	(tword)&labels[95]
 	__51,
 // __52:
 	(tword)&ignore,
@@ -1052,22 +1066,22 @@ tword start[] = {
 // __51:
 	1 + (tword)&succ,
 #undef  _1
-#define _1	(tword)&start[696]
+#define _1	(tword)&start[706]
 	1,
 #undef  _3
-#define _3	(tword)&start[697]
+#define _3	(tword)&start[707]
 	(tword)"__",
 #undef  _2
-#define _2	(tword)&start[698]
+#define _2	(tword)&start[708]
 	(tword)&_tx,
 	_3,
 	1 + (tword)&_tp,
 	1,
 #undef  _5
-#define _5	(tword)&start[702]
+#define _5	(tword)&start[712]
 	(tword)"__",
 #undef  _4
-#define _4	(tword)&start[703]
+#define _4	(tword)&start[713]
 	(tword)&_tx,
 	_5,
 	1 + (tword)&_tp,
@@ -1081,18 +1095,18 @@ tword start[] = {
 	(tword)&any,
 	__under,
 	(tword)&alt,
-#define __56	(tword)&labels[94]
+#define __56	(tword)&labels[96]
 	__56,
 	(tword)&any,
 	__tpcls,
 	(tword)&alt,
-#define __54	(tword)&labels[95]
+#define __54	(tword)&labels[97]
 	__54,
 	(tword)&any,
 	__ncls,
 	(tword)&scopy,
 	(tword)&tgoto,
-#define __53	(tword)&labels[96]
+#define __53	(tword)&labels[98]
 	__53,
 // __54:
 	(tword)&_pxs,
@@ -1102,32 +1116,32 @@ tword start[] = {
 	1 + _2,
 // __53:
 	(tword)&tgoto,
-#define __55	(tword)&labels[97]
+#define __55	(tword)&labels[99]
 	__55,
 // __56:
-#define __usrdef	(tword)&labels[98]
+#define __usrdef	(tword)&labels[100]
 	__usrdef,
 	(tword)&trans,
 	1 + _4,
 // __55:
 	1 + (tword)((tuword)-1<<1),
 #undef  _1
-#define _1	(tword)&start[736]
+#define _1	(tword)&start[746]
 	1,
 #undef  _2
-#define _2	(tword)&start[737]
+#define _2	(tword)&start[747]
 	(tword)&_txs,
 	(tword)'_',
 	1 + (tword)&_tp,
 	1,
 #undef  _3
-#define _3	(tword)&start[741]
+#define _3	(tword)&start[751]
 	(tword)&_txs,
 	(tword)'_',
 	1 + (tword)&_tp,
 	1,
 #undef  _4
-#define _4	(tword)&start[745]
+#define _4	(tword)&start[755]
 	(tword)&_txs,
 	(tword)'_',
 	1 + (tword)&_tp,
@@ -1141,30 +1155,30 @@ tword start[] = {
 	(tword)&_pxs,
 	(tword)'_',
 	(tword)&alt,
-#define __66	(tword)&labels[99]
+#define __66	(tword)&labels[101]
 	__66,
 	(tword)&any,
 	__tpcls,
 	(tword)&alt,
-#define __64	(tword)&labels[100]
+#define __64	(tword)&labels[102]
 	__64,
 	(tword)&any,
 	__ncls,
 	(tword)&alt,
-#define __62	(tword)&labels[101]
+#define __62	(tword)&labels[103]
 	__62,
 	(tword)&scopy,
 	(tword)&alt,
-#define __60	(tword)&labels[102]
+#define __60	(tword)&labels[104]
 	__60,
 	(tword)((tuword)-1<<1),
 	(tword)&fail,
 	(tword)&tgoto,
-#define __57	(tword)&labels[103]
+#define __57	(tword)&labels[105]
 	__57,
 // __60:
 	(tword)&string,
-#define __lowup	(tword)&labels[104]
+#define __lowup	(tword)&labels[106]
 	__lowup,
 	(tword)&scopy,
 	(tword)((tuword)-1<<1),
@@ -1172,7 +1186,7 @@ tword start[] = {
 	1 + _2,
 // __57:
 	(tword)&tgoto,
-#define __61	(tword)&labels[105]
+#define __61	(tword)&labels[107]
 	__61,
 // __62:
 	(tword)&string,
@@ -1183,7 +1197,7 @@ tword start[] = {
 	1 + _3,
 // __61:
 	(tword)&tgoto,
-#define __63	(tword)&labels[106]
+#define __63	(tword)&labels[108]
 	__63,
 // __64:
 	(tword)&any,
@@ -1196,16 +1210,16 @@ tword start[] = {
 	1 + _4,
 // __63:
 	(tword)&tgoto,
-#define __65	(tword)&labels[107]
+#define __65	(tword)&labels[109]
 	__65,
 // __66:
-#define __builtn	(tword)&labels[108]
+#define __builtn	(tword)&labels[110]
 	__builtn,
 	(tword)((tuword)-1<<1),
 // __65:
 	1 + (tword)&succ,
 #undef  _1
-#define _1	(tword)&start[802]
+#define _1	(tword)&start[812]
 	0,
 // __lblput:
 	__tabput,
@@ -1217,7 +1231,7 @@ tword start[] = {
 	__lcnt,
 	(tword)&_m,
 	(tword)&_l,
-#define __lindex	(tword)&labels[109]
+#define __lindex	(tword)&labels[111]
 	__lindex,
 	(tword)&_lv,
 	(tword)&_a,
@@ -1231,7 +1245,7 @@ tword start[] = {
 	(tword)&_ia,
 	1 + (tword)&_p,
 #undef  _1
-#define _1	(tword)&start[824]
+#define _1	(tword)&start[834]
 	2,
 // __tabput:
 	(tword)&params,
@@ -1249,342 +1263,342 @@ tword start[] = {
 	(tword)&_st,
 	1 + (tword)&_p,
 // __builtn:
-#define __built1	(tword)&labels[110]
+#define __built1	(tword)&labels[112]
 	__built1,
 	(tword)&salt,
-#define __67	(tword)&labels[111]
+#define __67	(tword)&labels[113]
 	__67,
-#define __built2	(tword)&labels[112]
+#define __built2	(tword)&labels[114]
 	__built2,
 // __67:
 	1 + (tword)&succ,
 #undef  _1
-#define _1	(tword)&start[844]
+#define _1	(tword)&start[854]
 	(tword)"ccept",
 #undef  _3
-#define _3	(tword)&start[845]
+#define _3	(tword)&start[855]
 	(tword)"accept",
 #undef  _2
-#define _2	(tword)&start[846]
+#define _2	(tword)&start[856]
 	1 + (tword)&_tx,
 	_3,
 #undef  _4
-#define _4	(tword)&start[848]
+#define _4	(tword)&start[858]
 	(tword)"lt",
 #undef  _6
-#define _6	(tword)&start[849]
+#define _6	(tword)&start[859]
 	(tword)"alt",
 #undef  _5
-#define _5	(tword)&start[850]
+#define _5	(tword)&start[860]
 	1 + (tword)&_tx,
 	_6,
 #undef  _7
-#define _7	(tword)&start[852]
+#define _7	(tword)&start[862]
 	(tword)"ny",
 #undef  _11
-#define _11	(tword)&start[853]
+#define _11	(tword)&start[863]
 	(tword)"any",
 #undef  _10
-#define _10	(tword)&start[854]
+#define _10	(tword)&start[864]
 	1 + (tword)&_tx,
 	_11,
 #undef  _12
-#define _12	(tword)&start[856]
+#define _12	(tword)&start[866]
 	(tword)"ppend",
 #undef  _14
-#define _14	(tword)&start[857]
+#define _14	(tword)&start[867]
 	(tword)"append",
 #undef  _13
-#define _13	(tword)&start[858]
+#define _13	(tword)&start[868]
 	1 + (tword)&_tx,
 	_14,
 #undef  _15
-#define _15	(tword)&start[860]
+#define _15	(tword)&start[870]
 	(tword)"ecimal",
 #undef  _17
-#define _17	(tword)&start[861]
+#define _17	(tword)&start[871]
 	(tword)"decimal",
 #undef  _16
-#define _16	(tword)&start[862]
+#define _16	(tword)&start[872]
 	1 + (tword)&_tx,
 	_17,
 #undef  _20
-#define _20	(tword)&start[864]
+#define _20	(tword)&start[874]
 	(tword)"iag",
 #undef  _22
-#define _22	(tword)&start[865]
+#define _22	(tword)&start[875]
 	(tword)"diag",
 #undef  _21
-#define _21	(tword)&start[866]
+#define _21	(tword)&start[876]
 	1 + (tword)&_tx,
 	_22,
 #undef  _23
-#define _23	(tword)&start[868]
+#define _23	(tword)&start[878]
 	(tword)"iscard",
 #undef  _25
-#define _25	(tword)&start[869]
+#define _25	(tword)&start[879]
 	(tword)"discard",
 #undef  _24
-#define _24	(tword)&start[870]
+#define _24	(tword)&start[880]
 	1 + (tword)&_tx,
 	_25,
 #undef  _26
-#define _26	(tword)&start[872]
+#define _26	(tword)&start[882]
 	(tword)"mit",
 #undef  _30
-#define _30	(tword)&start[873]
+#define _30	(tword)&start[883]
 	(tword)"emit",
 #undef  _27
-#define _27	(tword)&start[874]
+#define _27	(tword)&start[884]
 	1 + (tword)&_tx,
 	_30,
 #undef  _31
-#define _31	(tword)&start[876]
+#define _31	(tword)&start[886]
 	(tword)"nter",
 #undef  _33
-#define _33	(tword)&start[877]
+#define _33	(tword)&start[887]
 	(tword)"enter",
 #undef  _32
-#define _32	(tword)&start[878]
+#define _32	(tword)&start[888]
 	1 + (tword)&_tx,
 	_33,
 #undef  _34
-#define _34	(tword)&start[880]
+#define _34	(tword)&start[890]
 	(tword)"ail",
 #undef  _36
-#define _36	(tword)&start[881]
+#define _36	(tword)&start[891]
 	(tword)"fail",
 #undef  _35
-#define _35	(tword)&start[882]
+#define _35	(tword)&start[892]
 	1 + (tword)&_tx,
 	_36,
 #undef  _37
-#define _37	(tword)&start[884]
+#define _37	(tword)&start[894]
 	(tword)"ind",
 #undef  _41
-#define _41	(tword)&start[885]
+#define _41	(tword)&start[895]
 	(tword)"find",
 #undef  _40
-#define _40	(tword)&start[886]
+#define _40	(tword)&start[896]
 	1 + (tword)&_tx,
 	_41,
 #undef  _42
-#define _42	(tword)&start[888]
+#define _42	(tword)&start[898]
 	(tword)"enerate",
 #undef  _44
-#define _44	(tword)&start[889]
+#define _44	(tword)&start[899]
 	(tword)"generate",
 #undef  _43
-#define _43	(tword)&start[890]
+#define _43	(tword)&start[900]
 	1 + (tword)&_tx,
 	_44,
 #undef  _45
-#define _45	(tword)&start[892]
+#define _45	(tword)&start[902]
 	(tword)"etnam",
 #undef  _47
-#define _47	(tword)&start[893]
+#define _47	(tword)&start[903]
 	(tword)"getnam",
 #undef  _46
-#define _46	(tword)&start[894]
+#define _46	(tword)&start[904]
 	1 + (tword)&_tx,
 	_47,
 #undef  _50
-#define _50	(tword)&start[896]
+#define _50	(tword)&start[906]
 	(tword)"oto",
 #undef  _52
-#define _52	(tword)&start[897]
+#define _52	(tword)&start[907]
 	(tword)"tgoto",
 #undef  _51
-#define _51	(tword)&start[898]
+#define _51	(tword)&start[908]
 	1 + (tword)&_tx,
 	_52,
 #undef  _53
-#define _53	(tword)&start[900]
+#define _53	(tword)&start[910]
 	(tword)"otab",
 #undef  _55
-#define _55	(tword)&start[901]
+#define _55	(tword)&start[911]
 	(tword)"gotab",
 #undef  _54
-#define _54	(tword)&start[902]
+#define _54	(tword)&start[912]
 	1 + (tword)&_tx,
 	_55,
 #undef  _56
-#define _56	(tword)&start[904]
+#define _56	(tword)&start[914]
 	(tword)"par",
 #undef  _60
-#define _60	(tword)&start[905]
+#define _60	(tword)&start[915]
 	(tword)"gpar",
 #undef  _57
-#define _57	(tword)&start[906]
+#define _57	(tword)&start[916]
 	1 + (tword)&_tx,
 	_60,
 #undef  _61
-#define _61	(tword)&start[908]
+#define _61	(tword)&start[918]
 	(tword)"arse",
 #undef  _63
-#define _63	(tword)&start[909]
+#define _63	(tword)&start[919]
 	(tword)"parse",
 #undef  _62
-#define _62	(tword)&start[910]
+#define _62	(tword)&start[920]
 	1 + (tword)&_tx,
 	_63,
 #undef  _64
-#define _64	(tword)&start[912]
+#define _64	(tword)&start[922]
 	(tword)"arams",
 #undef  _66
-#define _66	(tword)&start[913]
+#define _66	(tword)&start[923]
 	(tword)"params",
 #undef  _65
-#define _65	(tword)&start[914]
+#define _65	(tword)&start[924]
 	1 + (tword)&_tx,
 	_66,
 #undef  _67
-#define _67	(tword)&start[916]
+#define _67	(tword)&start[926]
 	(tword)"ush",
 #undef  _71
-#define _71	(tword)&start[917]
+#define _71	(tword)&start[927]
 	(tword)"push",
 #undef  _70
-#define _70	(tword)&start[918]
+#define _70	(tword)&start[928]
 	1 + (tword)&_tx,
 	_71,
 #undef  _72
-#define _72	(tword)&start[920]
+#define _72	(tword)&start[930]
 	(tword)"copy",
 #undef  _74
-#define _74	(tword)&start[921]
+#define _74	(tword)&start[931]
 	(tword)"scopy",
 #undef  _73
-#define _73	(tword)&start[922]
+#define _73	(tword)&start[932]
 	1 + (tword)&_tx,
 	_74,
 #undef  _75
-#define _75	(tword)&start[924]
+#define _75	(tword)&start[934]
 	(tword)"alt",
 #undef  _77
-#define _77	(tword)&start[925]
+#define _77	(tword)&start[935]
 	(tword)"salt",
 #undef  _76
-#define _76	(tword)&start[926]
+#define _76	(tword)&start[936]
 	1 + (tword)&_tx,
 	_77,
 #undef  _100
-#define _100	(tword)&start[928]
+#define _100	(tword)&start[938]
 	(tword)"ize",
 #undef  _102
-#define _102	(tword)&start[929]
+#define _102	(tword)&start[939]
 	(tword)"size",
 #undef  _101
-#define _101	(tword)&start[930]
+#define _101	(tword)&start[940]
 	1 + (tword)&_tx,
 	_102,
 #undef  _103
-#define _103	(tword)&start[932]
+#define _103	(tword)&start[942]
 	(tword)"mark",
 #undef  _105
-#define _105	(tword)&start[933]
+#define _105	(tword)&start[943]
 	(tword)"smark",
 #undef  _104
-#define _104	(tword)&start[934]
+#define _104	(tword)&start[944]
 	1 + (tword)&_tx,
 	_105,
 #undef  _106
-#define _106	(tword)&start[936]
+#define _106	(tword)&start[946]
 	(tword)"tack",
 #undef  _110
-#define _110	(tword)&start[937]
+#define _110	(tword)&start[947]
 	(tword)"stack",
 #undef  _107
-#define _107	(tword)&start[938]
+#define _107	(tword)&start[948]
 	1 + (tword)&_tx,
 	_110,
 #undef  _111
-#define _111	(tword)&start[940]
+#define _111	(tword)&start[950]
 	(tword)"tring",
 #undef  _113
-#define _113	(tword)&start[941]
+#define _113	(tword)&start[951]
 	(tword)"string",
 #undef  _112
-#define _112	(tword)&start[942]
+#define _112	(tword)&start[952]
 	1 + (tword)&_tx,
 	_113,
 #undef  _114
-#define _114	(tword)&start[944]
+#define _114	(tword)&start[954]
 	(tword)"top",
 #undef  _116
-#define _116	(tword)&start[945]
+#define _116	(tword)&start[955]
 	(tword)"stop",
 #undef  _115
-#define _115	(tword)&start[946]
+#define _115	(tword)&start[956]
 	1 + (tword)&_tx,
 	_116,
 #undef  _117
-#define _117	(tword)&start[948]
+#define _117	(tword)&start[958]
 	(tword)"ucc",
 #undef  _121
-#define _121	(tword)&start[949]
+#define _121	(tword)&start[959]
 	(tword)"succ",
 #undef  _120
-#define _120	(tword)&start[950]
+#define _120	(tword)&start[960]
 	1 + (tword)&_tx,
 	_121,
 #undef  _122
-#define _122	(tword)&start[952]
+#define _122	(tword)&start[962]
 	(tword)"able",
 #undef  _124
-#define _124	(tword)&start[953]
+#define _124	(tword)&start[963]
 	(tword)"table",
 #undef  _123
-#define _123	(tword)&start[954]
+#define _123	(tword)&start[964]
 	1 + (tword)&_tx,
 	_124,
 #undef  _125
-#define _125	(tword)&start[956]
+#define _125	(tword)&start[966]
 	(tword)"rans",
 #undef  _127
-#define _127	(tword)&start[957]
+#define _127	(tword)&start[967]
 	(tword)"trans",
 #undef  _126
-#define _126	(tword)&start[958]
+#define _126	(tword)&start[968]
 	1 + (tword)&_tx,
 	_127,
 // __built1:
 	(tword)&_pxs,
 	(tword)'a',
 	(tword)&alt,
-#define __157	(tword)&labels[113]
+#define __157	(tword)&labels[115]
 	__157,
 	(tword)&_px,
 	_1,
 	(tword)&alt,
-#define __75	(tword)&labels[114]
+#define __75	(tword)&labels[116]
 	__75,
 	(tword)&trans,
 	1 + _2,
 	(tword)&tgoto,
-#define __70	(tword)&labels[115]
+#define __70	(tword)&labels[117]
 	__70,
 // __75:
 	(tword)&_px,
 	_4,
 	(tword)&alt,
-#define __74	(tword)&labels[116]
+#define __74	(tword)&labels[118]
 	__74,
 	(tword)&trans,
 	1 + _5,
 	(tword)&tgoto,
-#define __71	(tword)&labels[117]
+#define __71	(tword)&labels[119]
 	__71,
 // __74:
 	(tword)&_px,
 	_7,
 	(tword)&alt,
-#define __73	(tword)&labels[118]
+#define __73	(tword)&labels[120]
 	__73,
 	(tword)&trans,
 	1 + _10,
 	(tword)&tgoto,
-#define __72	(tword)&labels[119]
+#define __72	(tword)&labels[121]
 	__72,
 // __73:
 	(tword)&_px,
@@ -1595,34 +1609,34 @@ tword start[] = {
 // __71:
 // __70:
 	(tword)&tgoto,
-#define __76	(tword)&labels[120]
+#define __76	(tword)&labels[122]
 	__76,
 // __157:
 	(tword)&_pxs,
 	(tword)'d',
 	(tword)&alt,
-#define __156	(tword)&labels[121]
+#define __156	(tword)&labels[123]
 	__156,
 	(tword)&_px,
 	_15,
 	(tword)&alt,
-#define __102	(tword)&labels[122]
+#define __102	(tword)&labels[124]
 	__102,
 	(tword)&trans,
 	1 + _16,
 	(tword)&tgoto,
-#define __77	(tword)&labels[123]
+#define __77	(tword)&labels[125]
 	__77,
 // __102:
 	(tword)&_px,
 	_20,
 	(tword)&alt,
-#define __101	(tword)&labels[124]
+#define __101	(tword)&labels[126]
 	__101,
 	(tword)&trans,
 	1 + _21,
 	(tword)&tgoto,
-#define __100	(tword)&labels[125]
+#define __100	(tword)&labels[127]
 	__100,
 // __101:
 	(tword)&_px,
@@ -1632,23 +1646,23 @@ tword start[] = {
 // __100:
 // __77:
 	(tword)&tgoto,
-#define __103	(tword)&labels[126]
+#define __103	(tword)&labels[128]
 	__103,
 // __156:
 	(tword)&_pxs,
 	(tword)'e',
 	(tword)&alt,
-#define __155	(tword)&labels[127]
+#define __155	(tword)&labels[129]
 	__155,
 	(tword)&_px,
 	_26,
 	(tword)&alt,
-#define __105	(tword)&labels[128]
+#define __105	(tword)&labels[130]
 	__105,
 	(tword)&trans,
 	1 + _27,
 	(tword)&tgoto,
-#define __104	(tword)&labels[129]
+#define __104	(tword)&labels[131]
 	__104,
 // __105:
 	(tword)&_px,
@@ -1657,23 +1671,23 @@ tword start[] = {
 	1 + _32,
 // __104:
 	(tword)&tgoto,
-#define __106	(tword)&labels[130]
+#define __106	(tword)&labels[132]
 	__106,
 // __155:
 	(tword)&_pxs,
 	(tword)'f',
 	(tword)&alt,
-#define __154	(tword)&labels[131]
+#define __154	(tword)&labels[133]
 	__154,
 	(tword)&_px,
 	_34,
 	(tword)&alt,
-#define __110	(tword)&labels[132]
+#define __110	(tword)&labels[134]
 	__110,
 	(tword)&trans,
 	1 + _35,
 	(tword)&tgoto,
-#define __107	(tword)&labels[133]
+#define __107	(tword)&labels[135]
 	__107,
 // __110:
 	(tword)&_px,
@@ -1682,56 +1696,56 @@ tword start[] = {
 	1 + _40,
 // __107:
 	(tword)&tgoto,
-#define __111	(tword)&labels[134]
+#define __111	(tword)&labels[136]
 	__111,
 // __154:
 	(tword)&_pxs,
 	(tword)'g',
 	(tword)&alt,
-#define __153	(tword)&labels[135]
+#define __153	(tword)&labels[137]
 	__153,
 	(tword)&_px,
 	_42,
 	(tword)&alt,
-#define __121	(tword)&labels[136]
+#define __121	(tword)&labels[138]
 	__121,
 	(tword)&trans,
 	1 + _43,
 	(tword)&tgoto,
-#define __112	(tword)&labels[137]
+#define __112	(tword)&labels[139]
 	__112,
 // __121:
 	(tword)&_px,
 	_45,
 	(tword)&alt,
-#define __120	(tword)&labels[138]
+#define __120	(tword)&labels[140]
 	__120,
 	(tword)&trans,
 	1 + _46,
 	(tword)&tgoto,
-#define __113	(tword)&labels[139]
+#define __113	(tword)&labels[141]
 	__113,
 // __120:
 	(tword)&_px,
 	_50,
 	(tword)&alt,
-#define __117	(tword)&labels[140]
+#define __117	(tword)&labels[142]
 	__117,
 	(tword)&trans,
 	1 + _51,
 	(tword)&tgoto,
-#define __114	(tword)&labels[141]
+#define __114	(tword)&labels[143]
 	__114,
 // __117:
 	(tword)&_px,
 	_53,
 	(tword)&alt,
-#define __116	(tword)&labels[142]
+#define __116	(tword)&labels[144]
 	__116,
 	(tword)&trans,
 	1 + _54,
 	(tword)&tgoto,
-#define __115	(tword)&labels[143]
+#define __115	(tword)&labels[145]
 	__115,
 // __116:
 	(tword)&_px,
@@ -1743,34 +1757,34 @@ tword start[] = {
 // __113:
 // __112:
 	(tword)&tgoto,
-#define __122	(tword)&labels[144]
+#define __122	(tword)&labels[146]
 	__122,
 // __153:
 	(tword)&_pxs,
 	(tword)'p',
 	(tword)&alt,
-#define __152	(tword)&labels[145]
+#define __152	(tword)&labels[147]
 	__152,
 	(tword)&_px,
 	_61,
 	(tword)&alt,
-#define __126	(tword)&labels[146]
+#define __126	(tword)&labels[148]
 	__126,
 	(tword)&trans,
 	1 + _62,
 	(tword)&tgoto,
-#define __123	(tword)&labels[147]
+#define __123	(tword)&labels[149]
 	__123,
 // __126:
 	(tword)&_px,
 	_64,
 	(tword)&alt,
-#define __125	(tword)&labels[148]
+#define __125	(tword)&labels[150]
 	__125,
 	(tword)&trans,
 	1 + _65,
 	(tword)&tgoto,
-#define __124	(tword)&labels[149]
+#define __124	(tword)&labels[151]
 	__124,
 // __125:
 	(tword)&_px,
@@ -1780,89 +1794,89 @@ tword start[] = {
 // __124:
 // __123:
 	(tword)&tgoto,
-#define __127	(tword)&labels[150]
+#define __127	(tword)&labels[152]
 	__127,
 // __152:
 	(tword)&_pxs,
 	(tword)'s',
 	(tword)&alt,
-#define __151	(tword)&labels[151]
+#define __151	(tword)&labels[153]
 	__151,
 	(tword)&_px,
 	_72,
 	(tword)&alt,
-#define __145	(tword)&labels[152]
+#define __145	(tword)&labels[154]
 	__145,
 	(tword)&trans,
 	1 + _73,
 	(tword)&tgoto,
-#define __130	(tword)&labels[153]
+#define __130	(tword)&labels[155]
 	__130,
 // __145:
 	(tword)&_px,
 	_75,
 	(tword)&alt,
-#define __144	(tword)&labels[154]
+#define __144	(tword)&labels[156]
 	__144,
 	(tword)&trans,
 	1 + _76,
 	(tword)&tgoto,
-#define __131	(tword)&labels[155]
+#define __131	(tword)&labels[157]
 	__131,
 // __144:
 	(tword)&_px,
 	_100,
 	(tword)&alt,
-#define __143	(tword)&labels[156]
+#define __143	(tword)&labels[158]
 	__143,
 	(tword)&trans,
 	1 + _101,
 	(tword)&tgoto,
-#define __132	(tword)&labels[157]
+#define __132	(tword)&labels[159]
 	__132,
 // __143:
 	(tword)&_px,
 	_103,
 	(tword)&alt,
-#define __142	(tword)&labels[158]
+#define __142	(tword)&labels[160]
 	__142,
 	(tword)&trans,
 	1 + _104,
 	(tword)&tgoto,
-#define __133	(tword)&labels[159]
+#define __133	(tword)&labels[161]
 	__133,
 // __142:
 	(tword)&_px,
 	_106,
 	(tword)&alt,
-#define __141	(tword)&labels[160]
+#define __141	(tword)&labels[162]
 	__141,
 	(tword)&trans,
 	1 + _107,
 	(tword)&tgoto,
-#define __134	(tword)&labels[161]
+#define __134	(tword)&labels[163]
 	__134,
 // __141:
 	(tword)&_px,
 	_111,
 	(tword)&alt,
-#define __140	(tword)&labels[162]
+#define __140	(tword)&labels[164]
 	__140,
 	(tword)&trans,
 	1 + _112,
 	(tword)&tgoto,
-#define __135	(tword)&labels[163]
+#define __135	(tword)&labels[165]
 	__135,
 // __140:
 	(tword)&_px,
 	_114,
 	(tword)&alt,
-#define __137	(tword)&labels[164]
+#define __137	(tword)&labels[166]
 	__137,
 	(tword)&trans,
 	1 + _115,
 	(tword)&tgoto,
-#define __136	(tword)&labels[165]
+#define __136	(tword)&labels[167]
 	__136,
 // __137:
 	(tword)&_px,
@@ -1877,7 +1891,7 @@ tword start[] = {
 // __131:
 // __130:
 	(tword)&tgoto,
-#define __146	(tword)&labels[166]
+#define __146	(tword)&labels[168]
 	__146,
 // __151:
 	(tword)&_pxs,
@@ -1885,12 +1899,12 @@ tword start[] = {
 	(tword)&_px,
 	_122,
 	(tword)&alt,
-#define __150	(tword)&labels[167]
+#define __150	(tword)&labels[169]
 	__150,
 	(tword)&trans,
 	1 + _123,
 	(tword)&tgoto,
-#define __147	(tword)&labels[168]
+#define __147	(tword)&labels[170]
 	__147,
 // __150:
 	(tword)&_px,
@@ -1907,119 +1921,119 @@ tword start[] = {
 // __76:
 	1 + (tword)&succ,
 #undef  _1
-#define _1	(tword)&start[1205]
+#define _1	(tword)&start[1215]
 	(tword)"bundle",
 #undef  _3
-#define _3	(tword)&start[1206]
+#define _3	(tword)&start[1216]
 	(tword)"bundle",
 #undef  _2
-#define _2	(tword)&start[1207]
+#define _2	(tword)&start[1217]
 	1 + (tword)&_tx,
 	_3,
 #undef  _4
-#define _4	(tword)&start[1209]
+#define _4	(tword)&start[1219]
 	(tword)"char",
 #undef  _6
-#define _6	(tword)&start[1210]
+#define _6	(tword)&start[1220]
 	(tword)"tchar",
 #undef  _5
-#define _5	(tword)&start[1211]
+#define _5	(tword)&start[1221]
 	1 + (tword)&_tx,
 	_6,
 #undef  _7
-#define _7	(tword)&start[1213]
+#define _7	(tword)&start[1223]
 	(tword)"ignore",
 #undef  _11
-#define _11	(tword)&start[1214]
+#define _11	(tword)&start[1224]
 	(tword)"ignore",
 #undef  _10
-#define _10	(tword)&start[1215]
+#define _10	(tword)&start[1225]
 	1 + (tword)&_tx,
 	_11,
 #undef  _12
-#define _12	(tword)&start[1217]
+#define _12	(tword)&start[1227]
 	(tword)"octal",
 #undef  _14
-#define _14	(tword)&start[1218]
+#define _14	(tword)&start[1228]
 	(tword)"octal",
 #undef  _13
-#define _13	(tword)&start[1219]
+#define _13	(tword)&start[1229]
 	1 + (tword)&_tx,
 	_14,
 #undef  _15
-#define _15	(tword)&start[1221]
+#define _15	(tword)&start[1231]
 	(tword)"reduce",
 #undef  _17
-#define _17	(tword)&start[1222]
+#define _17	(tword)&start[1232]
 	(tword)"reduce",
 #undef  _16
-#define _16	(tword)&start[1223]
+#define _16	(tword)&start[1233]
 	1 + (tword)&_tx,
 	_17,
 #undef  _20
-#define _20	(tword)&start[1225]
+#define _20	(tword)&start[1235]
 	(tword)"unstack",
 #undef  _22
-#define _22	(tword)&start[1226]
+#define _22	(tword)&start[1236]
 	(tword)"unstack",
 #undef  _21
-#define _21	(tword)&start[1227]
+#define _21	(tword)&start[1237]
 	1 + (tword)&_tx,
 	_22,
 // __built2:
 	(tword)&_px,
 	_1,
 	(tword)&alt,
-#define __171	(tword)&labels[169]
+#define __171	(tword)&labels[171]
 	__171,
 	(tword)&trans,
 	1 + _2,
 	(tword)&tgoto,
-#define __160	(tword)&labels[170]
+#define __160	(tword)&labels[172]
 	__160,
 // __171:
 	(tword)&_px,
 	_4,
 	(tword)&alt,
-#define __170	(tword)&labels[171]
+#define __170	(tword)&labels[173]
 	__170,
 	(tword)&trans,
 	1 + _5,
 	(tword)&tgoto,
-#define __161	(tword)&labels[172]
+#define __161	(tword)&labels[174]
 	__161,
 // __170:
 	(tword)&_px,
 	_7,
 	(tword)&alt,
-#define __167	(tword)&labels[173]
+#define __167	(tword)&labels[175]
 	__167,
 	(tword)&trans,
 	1 + _10,
 	(tword)&tgoto,
-#define __162	(tword)&labels[174]
+#define __162	(tword)&labels[176]
 	__162,
 // __167:
 	(tword)&_px,
 	_12,
 	(tword)&alt,
-#define __166	(tword)&labels[175]
+#define __166	(tword)&labels[177]
 	__166,
 	(tword)&trans,
 	1 + _13,
 	(tword)&tgoto,
-#define __163	(tword)&labels[176]
+#define __163	(tword)&labels[178]
 	__163,
 // __166:
 	(tword)&_px,
 	_15,
 	(tword)&alt,
-#define __165	(tword)&labels[177]
+#define __165	(tword)&labels[179]
 	__165,
 	(tword)&trans,
 	1 + _16,
 	(tword)&tgoto,
-#define __164	(tword)&labels[178]
+#define __164	(tword)&labels[180]
 	__164,
 // __165:
 	(tword)&_px,
@@ -2033,30 +2047,30 @@ tword start[] = {
 // __160:
 	1 + (tword)&succ,
 #undef  _1
-#define _1	(tword)&start[1274]
+#define _1	(tword)&start[1284]
 	0,
 #undef  _4
-#define _4	(tword)&start[1275]
+#define _4	(tword)&start[1285]
 	0,
-#undef  _6
-#define _6	(tword)&start[1276]
-	(tword)"	(tword)&start[",
 #undef  _7
-#define _7	(tword)&start[1277]
+#define _7	(tword)&start[1286]
+	(tword)"	(tword)&start[",
+#undef  _10
+#define _10	(tword)&start[1287]
 	(tword)"],	// ",
-#undef  _5
-#define _5	(tword)&start[1278]
-	(tword)&_tx,
-	_6,
-	(tword)&_tp,
-	2,
+#undef  _6
+#define _6	(tword)&start[1288]
 	(tword)&_tx,
 	_7,
 	(tword)&_tp,
+	2,
+	(tword)&_tx,
+	_10,
+	(tword)&_tp,
 	1,
 	1 + _tn,
-#undef  _11
-#define _11	(tword)&start[1287]
+#undef  _12
+#define _12	(tword)&start[1297]
 	(tword)&_tp,
 	2,
 	1 + (tword)&_tp,
@@ -2076,7 +2090,7 @@ tword start[] = {
 	__wsz,
 	(tword)&_m,
 	(tword)&_l,
-#define __lindexend	(tword)&labels[179]
+#define __lindexend	(tword)&labels[181]
 	__lindexend,
 	(tword)&_lv,
 	(tword)&_l,
@@ -2086,7 +2100,7 @@ tword start[] = {
 	(tword)&_le,
 	(tword)&_t,
 	(tword)&alt,
-#define __labelerror	(tword)&labels[180]
+#define __labelerror	(tword)&labels[182]
 	__labelerror,
 	(tword)&_l,
 	__k,
@@ -2094,7 +2108,7 @@ tword start[] = {
 	_4,
 	(tword)&_st,
 	(tword)&_p,
-#define __loop	(tword)&start[1321]
+#define __loop	(tword)&start[1331]
 	(tword)&_l,
 	__i,
 	(tword)&_l,
@@ -2110,7 +2124,7 @@ tword start[] = {
 	(tword)&_st,
 	(tword)&_p,
 	(tword)&_l,
-#define __t	(tword)&labels[181]
+#define __t	(tword)&labels[183]
 	__t,
 	(tword)&_l,
 	__ltab,
@@ -2118,14 +2132,28 @@ tword start[] = {
 	__i,
 	(tword)&_f,
 	(tword)&_st,
+	(tword)&_t,
+	(tword)&salt,
+#define __172	(tword)&labels[184]
+	__172,
+	(tword)&_l,
+	__undef,
+	(tword)&_l,
+	__i,
+	(tword)&_st,
 	(tword)&_p,
+	(tword)&salt,
+#define __173	(tword)&labels[185]
+	__173,
+// __173:
+// __172:
 	(tword)&decimal,
 	__t,
 	(tword)&getnam,
 	__ltab,
 	__i,
 	(tword)&trans,
-	1 + _5,
+	1 + _6,
 	(tword)&_l,
 	__k,
 	(tword)&_ib,
@@ -2137,24 +2165,52 @@ tword start[] = {
 	__done,
 	__loop,
 	1 + (tword)&trans,
-	1 + _11,
+	1 + _12,
+#undef  _1
+#define _1	(tword)&start[1383]
+	0,
+#undef  _4
+#define _4	(tword)&start[1384]
+	(tword)"ERROR: undefined \"",
+#undef  _3
+#define _3	(tword)&start[1385]
+	(tword)&_tx,
+	_4,
+	(tword)&_tp,
+	1,
+	(tword)&_txs,
+	(tword)'"',
+	1 + _tn,
+// __undefined:
+	(tword)&_l,
+	__undef,
+	(tword)&_l,
+	_1,
+	(tword)&_cm,
+	(tword)&_ne,
+	(tword)&_t,
+	(tword)&getnam,
+	__ltab,
+	__undef,
+	1 + (tword)&trans,
+	1 + _3,
 #undef  _2
-#define _2	(tword)&start[1363]
+#define _2	(tword)&start[1404]
 	(tword)"// ERROR: label index array too small",
 #undef  _1
-#define _1	(tword)&start[1364]
+#define _1	(tword)&start[1405]
 	(tword)&_tx,
 	_2,
 	1 + _tn,
 // __labelerror:
 	(tword)&diag,
-#define __labelerr	(tword)&labels[182]
+#define __labelerr	(tword)&labels[186]
 	__labelerr,
 // __labelerr:
 	1 + (tword)&trans,
 	1 + _1,
 // __name:
-#define __ident	(tword)&labels[183]
+#define __ident	(tword)&labels[187]
 	__ident,
 	1 + (tword)&scopy,
 // __ident:
@@ -2162,14 +2218,14 @@ tword start[] = {
 	(tword)&ignore,
 	__none,
 	(tword)&any,
-#define __letter	(tword)&labels[184]
+#define __letter	(tword)&labels[188]
 	__letter,
 	1 + (tword)&string,
-#define __alpha	(tword)&labels[185]
+#define __alpha	(tword)&labels[189]
 	__alpha,
 // __number:
 	(tword)&smark,
-#define __num	(tword)&labels[186]
+#define __num	(tword)&labels[190]
 	__num,
 	1 + (tword)&scopy,
 // __num:
@@ -2179,7 +2235,7 @@ tword start[] = {
 	__digit,
 	1 + (tword)&string,
 	__digit,
-#define __wrd	(tword)&start[1389]
+#define __wrd	(tword)&start[1430]
 	(tword)&smark,
 	(tword)&ignore,
 	__none,
@@ -2210,6 +2266,8 @@ tword start[] = {
 // __ltab:
 	0,
 // __wsz:
+	0,
+// __undef:
 	0,
 // __done:
 	1 + (tword)&succ,
@@ -3269,7 +3327,7 @@ tword start[] = {
 	0,
 	0,
 	0,
-#define __lind2K	(tword)&start[2453]
+#define __lind2K	(tword)&start[2495]
 	0,
 	0,
 	0,
@@ -4294,7 +4352,7 @@ tword start[] = {
 	0,
 	0,
 	0,
-#define __lind3K	(tword)&start[3477]
+#define __lind3K	(tword)&start[3519]
 	0,
 	0,
 	0,
@@ -5319,7 +5377,7 @@ tword start[] = {
 	0,
 	0,
 	0,
-#define __lind4K	(tword)&start[4501]
+#define __lind4K	(tword)&start[4543]
 	0,
 	0,
 	0,
@@ -6346,7 +6404,7 @@ tword start[] = {
 	0,
 // __lindexend:
 	0,
-#define __classtab	(tword)&start[5526]
+#define __classtab	(tword)&start[5568]
 	0,
 	02240,
 	02240,
@@ -6486,197 +6544,202 @@ tword start[] = {
 // Global label addresses inside the driving table
 
 const tword labels[] = {
-	(tword)&start[1],	// __1
-	(tword)&start[1411],	// __wsz
-	(tword)&start[1406],	// __k
-	(tword)&start[1405],	// __i
-	(tword)&start[1410],	// __ltab
-	(tword)&start[1425],	// __blanks
-	(tword)&start[51],	// __intro
-	(tword)&start[101],	// __line
-	(tword)&start[83],	// __error
-	(tword)&start[73],	// __outro
-	(tword)&start[5656],	// _tn
-	(tword)&start[1291],	// __labelarray
-	(tword)&start[1422],	// __none
-	(tword)&start[1423],	// __ascii
-	(tword)&start[1426],	// __nonl
-	(tword)&start[5654],	// _pn
-	(tword)&start[94],	// __2
-	(tword)&start[1424],	// __spaces
-	(tword)&start[184],	// __strlit
-	(tword)&start[109],	// __14
-	(tword)&start[138],	// __3
-	(tword)&start[267],	// __chrlit
-	(tword)&start[115],	// __13
-	(tword)&start[138],	// __4
-	(tword)&start[159],	// __loclbl
-	(tword)&start[121],	// __12
-	(tword)&start[138],	// __5
-	(tword)&start[311],	// __labels
-	(tword)&start[132],	// __11
-	(tword)&start[411],	// __values
-	(tword)&start[128],	// __6
-	(tword)&start[1413],	// __null
-	(tword)&start[138],	// __7
-	(tword)&start[138],	// __10
-	(tword)&start[1380],	// __number
-	(tword)&start[168],	// __15
-	(tword)&start[1408],	// __cnt
-	(tword)&start[213],	// __litesc
-	(tword)&start[192],	// __16
-	(tword)&start[232],	// __litb
-	(tword)&start[199],	// __17
-	(tword)&start[223],	// __21
-	(tword)&start[225],	// __20
-	(tword)&start[1421],	// __litch
-	(tword)&start[245],	// __stresc
-	(tword)&start[1412],	// __done
-	(tword)&start[279],	// __25
-	(tword)&start[295],	// __22
-	(tword)&start[291],	// __24
-	(tword)&start[295],	// __23
-	(tword)&start[301],	// __26
-	(tword)&start[325],	// __label
-	(tword)&start[375],	// __lblnam
-	(tword)&start[356],	// __newlbl
-	(tword)&start[825],	// __tabput
-	(tword)&start[1416],	// __under
-	(tword)&start[400],	// __32
-	(tword)&start[391],	// __30
-	(tword)&start[398],	// __27
-	(tword)&start[1427],	// __tpcls
-	(tword)&start[1428],	// __ncls
-	(tword)&start[403],	// __31
-	(tword)&start[1371],	// __name
-	(tword)&start[435],	// __extval
-	(tword)&start[423],	// __nlval
-	(tword)&start[1415],	// __nil
-	(tword)&start[455],	// __extbit
-	(tword)&start[446],	// __34
-	(tword)&start[467],	// __valsep
-	(tword)&start[450],	// __33
-	(tword)&start[510],	// __value
-	(tword)&start[599],	// __vallit
-	(tword)&start[524],	// __40
-	(tword)&start[549],	// __35
-	(tword)&start[749],	// __valbtn
-	(tword)&start[536],	// __37
-	(tword)&start[549],	// __36
-	(tword)&start[707],	// __vallbl
-	(tword)&start[574],	// __nuvlbl
-	(tword)&start[1409],	// __lcnt
-	(tword)&start[803],	// __lblput
-	(tword)&start[609],	// __46
-	(tword)&start[649],	// __byte
-	(tword)&start[633],	// __41
-	(tword)&start[621],	// __45
-	(tword)&start[633],	// __42
-	(tword)&start[631],	// __44
-	(tword)&start[633],	// __43
-	(tword)&start[672],	// __octnum
-	(tword)&start[660],	// __50
-	(tword)&start[664],	// __47
-	(tword)&start[1417],	// __digit
-	(tword)&start[685],	// __52
-	(tword)&start[695],	// __51
-	(tword)&start[732],	// __56
-	(tword)&start[725],	// __54
-	(tword)&start[730],	// __53
-	(tword)&start[735],	// __55
-	(tword)&start[1397],	// __usrdef
-	(tword)&start[799],	// __66
-	(tword)&start[789],	// __64
-	(tword)&start[781],	// __62
-	(tword)&start[773],	// __60
-	(tword)&start[779],	// __57
-	(tword)&start[1418],	// __lowup
-	(tword)&start[787],	// __61
-	(tword)&start[797],	// __63
-	(tword)&start[801],	// __65
-	(tword)&start[839],	// __builtn
-	(tword)&start[1429],	// __lindex
-	(tword)&start[960],	// __built1
-	(tword)&start[843],	// __67
-	(tword)&start[1229],	// __built2
-	(tword)&start[994],	// __157
-	(tword)&start[972],	// __75
-	(tword)&start[992],	// __70
-	(tword)&start[980],	// __74
-	(tword)&start[992],	// __71
-	(tword)&start[988],	// __73
-	(tword)&start[992],	// __72
-	(tword)&start[1204],	// __76
-	(tword)&start[1020],	// __156
-	(tword)&start[1006],	// __102
-	(tword)&start[1018],	// __77
-	(tword)&start[1014],	// __101
-	(tword)&start[1018],	// __100
-	(tword)&start[1204],	// __103
-	(tword)&start[1038],	// __155
-	(tword)&start[1032],	// __105
-	(tword)&start[1036],	// __104
-	(tword)&start[1204],	// __106
-	(tword)&start[1056],	// __154
-	(tword)&start[1050],	// __110
-	(tword)&start[1054],	// __107
-	(tword)&start[1204],	// __111
-	(tword)&start[1098],	// __153
-	(tword)&start[1068],	// __121
-	(tword)&start[1096],	// __112
-	(tword)&start[1076],	// __120
-	(tword)&start[1096],	// __113
-	(tword)&start[1084],	// __117
-	(tword)&start[1096],	// __114
-	(tword)&start[1092],	// __116
-	(tword)&start[1096],	// __115
-	(tword)&start[1204],	// __122
-	(tword)&start[1124],	// __152
-	(tword)&start[1110],	// __126
-	(tword)&start[1122],	// __123
-	(tword)&start[1118],	// __125
-	(tword)&start[1122],	// __124
-	(tword)&start[1204],	// __127
-	(tword)&start[1190],	// __151
-	(tword)&start[1136],	// __145
-	(tword)&start[1188],	// __130
-	(tword)&start[1144],	// __144
-	(tword)&start[1188],	// __131
-	(tword)&start[1152],	// __143
-	(tword)&start[1188],	// __132
-	(tword)&start[1160],	// __142
-	(tword)&start[1188],	// __133
-	(tword)&start[1168],	// __141
-	(tword)&start[1188],	// __134
-	(tword)&start[1176],	// __140
-	(tword)&start[1188],	// __135
-	(tword)&start[1184],	// __137
-	(tword)&start[1188],	// __136
-	(tword)&start[1204],	// __146
-	(tword)&start[1200],	// __150
-	(tword)&start[1204],	// __147
-	(tword)&start[1237],	// __171
-	(tword)&start[1273],	// __160
-	(tword)&start[1245],	// __170
-	(tword)&start[1273],	// __161
-	(tword)&start[1253],	// __167
-	(tword)&start[1273],	// __162
-	(tword)&start[1261],	// __166
-	(tword)&start[1273],	// __163
-	(tword)&start[1269],	// __165
-	(tword)&start[1273],	// __164
-	(tword)&start[5525],	// __lindexend
-	(tword)&start[1367],	// __labelerror
-	(tword)&start[1407],	// __t
-	(tword)&start[1369],	// __labelerr
-	(tword)&start[1373],	// __ident
-	(tword)&start[1419],	// __letter
-	(tword)&start[1420],	// __alpha
-	(tword)&start[1383],	// __num
+	(tword)&start[2],	// __1
+	(tword)&start[1452],	// __wsz
+	(tword)&start[1447],	// __k
+	(tword)&start[1446],	// __i
+	(tword)&start[1453],	// __undef
+	(tword)&start[1451],	// __ltab
+	(tword)&start[1467],	// __blanks
+	(tword)&start[61],	// __intro
+	(tword)&start[111],	// __line
+	(tword)&start[93],	// __error
+	(tword)&start[83],	// __outro
+	(tword)&start[1392],	// __undefined
+	(tword)&start[5698],	// _tn
+	(tword)&start[1301],	// __labelarray
+	(tword)&start[1464],	// __none
+	(tword)&start[1465],	// __ascii
+	(tword)&start[1468],	// __nonl
+	(tword)&start[5696],	// _pn
+	(tword)&start[104],	// __2
+	(tword)&start[1466],	// __spaces
+	(tword)&start[194],	// __strlit
+	(tword)&start[119],	// __14
+	(tword)&start[148],	// __3
+	(tword)&start[277],	// __chrlit
+	(tword)&start[125],	// __13
+	(tword)&start[148],	// __4
+	(tword)&start[169],	// __loclbl
+	(tword)&start[131],	// __12
+	(tword)&start[148],	// __5
+	(tword)&start[321],	// __labels
+	(tword)&start[142],	// __11
+	(tword)&start[421],	// __values
+	(tword)&start[138],	// __6
+	(tword)&start[1455],	// __null
+	(tword)&start[148],	// __7
+	(tword)&start[148],	// __10
+	(tword)&start[1421],	// __number
+	(tword)&start[178],	// __15
+	(tword)&start[1449],	// __cnt
+	(tword)&start[223],	// __litesc
+	(tword)&start[202],	// __16
+	(tword)&start[242],	// __litb
+	(tword)&start[209],	// __17
+	(tword)&start[233],	// __21
+	(tword)&start[235],	// __20
+	(tword)&start[1463],	// __litch
+	(tword)&start[255],	// __stresc
+	(tword)&start[1454],	// __done
+	(tword)&start[289],	// __25
+	(tword)&start[305],	// __22
+	(tword)&start[301],	// __24
+	(tword)&start[305],	// __23
+	(tword)&start[311],	// __26
+	(tword)&start[335],	// __label
+	(tword)&start[385],	// __lblnam
+	(tword)&start[366],	// __newlbl
+	(tword)&start[835],	// __tabput
+	(tword)&start[1458],	// __under
+	(tword)&start[410],	// __32
+	(tword)&start[401],	// __30
+	(tword)&start[408],	// __27
+	(tword)&start[1469],	// __tpcls
+	(tword)&start[1470],	// __ncls
+	(tword)&start[413],	// __31
+	(tword)&start[1412],	// __name
+	(tword)&start[445],	// __extval
+	(tword)&start[433],	// __nlval
+	(tword)&start[1457],	// __nil
+	(tword)&start[465],	// __extbit
+	(tword)&start[456],	// __34
+	(tword)&start[477],	// __valsep
+	(tword)&start[460],	// __33
+	(tword)&start[520],	// __value
+	(tword)&start[609],	// __vallit
+	(tword)&start[534],	// __40
+	(tword)&start[559],	// __35
+	(tword)&start[759],	// __valbtn
+	(tword)&start[546],	// __37
+	(tword)&start[559],	// __36
+	(tword)&start[717],	// __vallbl
+	(tword)&start[584],	// __nuvlbl
+	(tword)&start[1450],	// __lcnt
+	(tword)&start[813],	// __lblput
+	(tword)&start[619],	// __46
+	(tword)&start[659],	// __byte
+	(tword)&start[643],	// __41
+	(tword)&start[631],	// __45
+	(tword)&start[643],	// __42
+	(tword)&start[641],	// __44
+	(tword)&start[643],	// __43
+	(tword)&start[682],	// __octnum
+	(tword)&start[670],	// __50
+	(tword)&start[674],	// __47
+	(tword)&start[1459],	// __digit
+	(tword)&start[695],	// __52
+	(tword)&start[705],	// __51
+	(tword)&start[742],	// __56
+	(tword)&start[735],	// __54
+	(tword)&start[740],	// __53
+	(tword)&start[745],	// __55
+	(tword)&start[1438],	// __usrdef
+	(tword)&start[809],	// __66
+	(tword)&start[799],	// __64
+	(tword)&start[791],	// __62
+	(tword)&start[783],	// __60
+	(tword)&start[789],	// __57
+	(tword)&start[1460],	// __lowup
+	(tword)&start[797],	// __61
+	(tword)&start[807],	// __63
+	(tword)&start[811],	// __65
+	(tword)&start[849],	// __builtn
+	(tword)&start[1471],	// __lindex
+	(tword)&start[970],	// __built1
+	(tword)&start[853],	// __67
+	(tword)&start[1239],	// __built2
+	(tword)&start[1004],	// __157
+	(tword)&start[982],	// __75
+	(tword)&start[1002],	// __70
+	(tword)&start[990],	// __74
+	(tword)&start[1002],	// __71
+	(tword)&start[998],	// __73
+	(tword)&start[1002],	// __72
+	(tword)&start[1214],	// __76
+	(tword)&start[1030],	// __156
+	(tword)&start[1016],	// __102
+	(tword)&start[1028],	// __77
+	(tword)&start[1024],	// __101
+	(tword)&start[1028],	// __100
+	(tword)&start[1214],	// __103
+	(tword)&start[1048],	// __155
+	(tword)&start[1042],	// __105
+	(tword)&start[1046],	// __104
+	(tword)&start[1214],	// __106
+	(tword)&start[1066],	// __154
+	(tword)&start[1060],	// __110
+	(tword)&start[1064],	// __107
+	(tword)&start[1214],	// __111
+	(tword)&start[1108],	// __153
+	(tword)&start[1078],	// __121
+	(tword)&start[1106],	// __112
+	(tword)&start[1086],	// __120
+	(tword)&start[1106],	// __113
+	(tword)&start[1094],	// __117
+	(tword)&start[1106],	// __114
+	(tword)&start[1102],	// __116
+	(tword)&start[1106],	// __115
+	(tword)&start[1214],	// __122
+	(tword)&start[1134],	// __152
+	(tword)&start[1120],	// __126
+	(tword)&start[1132],	// __123
+	(tword)&start[1128],	// __125
+	(tword)&start[1132],	// __124
+	(tword)&start[1214],	// __127
+	(tword)&start[1200],	// __151
+	(tword)&start[1146],	// __145
+	(tword)&start[1198],	// __130
+	(tword)&start[1154],	// __144
+	(tword)&start[1198],	// __131
+	(tword)&start[1162],	// __143
+	(tword)&start[1198],	// __132
+	(tword)&start[1170],	// __142
+	(tword)&start[1198],	// __133
+	(tword)&start[1178],	// __141
+	(tword)&start[1198],	// __134
+	(tword)&start[1186],	// __140
+	(tword)&start[1198],	// __135
+	(tword)&start[1194],	// __137
+	(tword)&start[1198],	// __136
+	(tword)&start[1214],	// __146
+	(tword)&start[1210],	// __150
+	(tword)&start[1214],	// __147
+	(tword)&start[1247],	// __171
+	(tword)&start[1283],	// __160
+	(tword)&start[1255],	// __170
+	(tword)&start[1283],	// __161
+	(tword)&start[1263],	// __167
+	(tword)&start[1283],	// __162
+	(tword)&start[1271],	// __166
+	(tword)&start[1283],	// __163
+	(tword)&start[1279],	// __165
+	(tword)&start[1283],	// __164
+	(tword)&start[5567],	// __lindexend
+	(tword)&start[1408],	// __labelerror
+	(tword)&start[1448],	// __t
+	(tword)&start[1364],	// __172
+	(tword)&start[1364],	// __173
+	(tword)&start[1410],	// __labelerr
+	(tword)&start[1414],	// __ident
+	(tword)&start[1461],	// __letter
+	(tword)&start[1462],	// __alpha
+	(tword)&start[1424],	// __num
 };
 
 // Used builtins:
 //   _a
+//   _cm
 //   _f
 //   _gt
 //   _ia
@@ -6686,6 +6749,7 @@ const tword labels[] = {
 //   _lt
 //   _lv
 //   _m
+//   _ne
 //   _p
 //   _px
 //   _pxs

@@ -58,8 +58,6 @@ However, there is still room for improvement:
    in RAM by default
  - figure out how to use LR-parsing builtins, contributed by Johnson and Aho,
    but not documented in the Manual
- - detect undefined identifiers (this was done by assembler in the original
-   implementation)
  - achieve self-compilation in a single phase (very hard).
 
 The language itself is extremely spartan and could be improved by addition of

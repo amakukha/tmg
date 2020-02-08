@@ -3,13 +3,14 @@
 /* Phase 2: converts the output of phase 1 into a C header file. */
 /* (c) 2020, Andrii Makukha, 2-clause BSD License. */
 
-begin:  [wsz = &k - &i]
+begin:  [wsz = &k - &i] [undef = ~0]
         table(ltab)
         ignore(blanks)
         parse(intro)
 pr2:    parse(line)\pr2    
         diag(error)\pr2
-        parse(outro);
+        parse(outro)
+        parse(undefined);
 
 intro:  = { <//#define SRC_LANGUAGE "input language"> *
             <//#define DST_LANGUAGE "output language"> * *
@@ -151,13 +152,14 @@ labelarray: [lcnt > 0?]/null
             [lcnt*wsz <= (&lindexend - &lindex)?]/labelerror
             [k = 0]
 loop:       [i = *(wsz*k + &lindex)]
-            [t = ltab[i]]
-            decimal(t)
-            getnam(ltab, i)
+            ([t = ltab[i]?] | [undef = i] | () )
+            decimal(t) getnam(ltab, i)
             = { <	(tword)&start[> 2 <],	// > 1 * }
             [++k < lcnt?]/done
             loop
             = { 2 1 };
+undefined:  [undef != ~0 ?] getnam(ltab, undef)
+            = { * <// ERROR: undefined "> 1 <"> * };
 labelerror: diag(labelerr)
 labelerr:   = { <// ERROR: label index array too small> * }; 
 
@@ -178,6 +180,7 @@ cnt:    0;          /* Word counter */
 lcnt:   0;          /* Label counter */
 ltab:   0;          /* Labels dictionary */ 
 wsz:    0;          /* Architecture word size */
+undef:  0;          /* Undefined label index */
 
                                                                 /* Idioms */
 done:   ;           /* Same as:     done: = { 1 }; */
