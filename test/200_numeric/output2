@@ -1,0 +1,15 @@
+ True: 123
+ True: 12345.678
+ True: .678
+ True: 1.
+ True: 1.0e99
+ True: -7.
+ True: -123e-123
+ True: 00000
+False: .
+False: 1.2.3
+False: 0x123
+False: a1-a5
+False: 1 000 000
+False: 1,000,000
+False: 1.00e1e1
