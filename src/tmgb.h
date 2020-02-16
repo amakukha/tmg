@@ -448,21 +448,21 @@ void _true() {
     return _p();    // Tail call
 }
 
-// TODO: what is it? what it does?
+// Description:
+//      loads a parameter of translation (like $1, $2)
 void _tq() {
     DEBUG("    _tq()");
     r0 = *i++;
-    ((translation_frame_t*)f)->si = i;
-    r1 = (tword)((translation_frame_t*)f)->ep;
-    translation_frame_t* _f_fs = (translation_frame_t*)((tword)f + fs);      // For convenience
-    _f_fs->ep = ((translation_frame_t*)r1)->ep;
-    _f_fs->ek = ((translation_frame_t*)r1)->ek;
-    r1 = (tword)((translation_frame_t*)r1)->si;
+    TF(f, si) = i;
+    r1 = (tword)TF(f, ep);
+    TF((tuword)f + fs, ep) = TF(r1, ep);
+    TF((tuword)f + fs, ek) = TF(r1, ek);
+    r1 = (tword)TF(r1, si);
     r0 *= sizeof(tword);    //r0 <<= 1;   // Accounting for word size
     r1 -= r0;
     i = (tptr)(*(tptr)r1);
-    f = (tptr)((tword)f + fs);      // Alternatively: f = _f_fs;
-    ((parse_frame_t*)f)->x = 0;     // Clear exit bit
+    f = (tptr)((tuword)f + fs);
+    PF(f, x) = 0;           // Clear exit bit
     generate();
     return generate();  // Tail call
 }
@@ -521,7 +521,7 @@ void _accept() {
     do {
         if (r1 >= (tword)g)
             break; 
-        bool r = (*(tptr)r1) & (HIGHEST_BIT | 1);       // Statefull
+        bool r = (*(tptr)r1) & (HIGHEST_BIT | 1);       // Temporary
         r1 = (tword)((tptr)r1 + 1);     // (r1)+
         if (!r)
             continue;
@@ -707,7 +707,6 @@ next:                   // get index of next entry
     r0 = stack[sp];     // index + 3 +/- 1
     seekchar();
     getword();
-    //tst r0    // Sets n- and z-bits, clears v- (overflow) and c-bits
     if (!r0)            // No table entry found for the current string
         goto nomore;
     stack[sp] = r0;
@@ -720,20 +719,22 @@ next:                   // get index of next entry
         getschar();     // Character from the table entry
         PUSH(r0);
         getcstr();      // Character from the current string
-        tword pop = POP();
-        if (r0 > pop)   // Current string is greater -> go to the right.
+        if (r0 > stack[sp]) {   // Current string is greater -> go to the right.
+            POP();
             goto right;
-        if (r0 < pop)   // Current string is lower -> go to the left.
+        }
+        if (r0 < stack[sp]) {   // Current string is lower -> go to the left.
+            POP();
             goto left;
-        //tst r0
-        if (!r0)        // Reached the end of the current string
+        }
+        POP();
+        if (!r0)          // Reached the end of the current string
             goto found;
     } while (1);
 
 nomore:         // not in table
     if (stack[sp+3]) {     // which(sp); (If non-zero, then it was a find() call.)
         // exit from find
-        //tst (i)+
         i++;
         sp += 4;        // Instead of 4x POP()
         return fail();
@@ -975,9 +976,8 @@ void push() {
     // preserve c bit from here on
     r2 = POP();             // Original n
     do {
-        tword value   = POP();
-        tword address = POP(); 
-        *(tptr)address = value;
+        *(tptr)stack[sp+1] = stack[sp];
+        POP(); POP();
     } while (--r2 > 0);
     // pass sret or fret back to invoking rule
     return;

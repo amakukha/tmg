@@ -137,6 +137,8 @@ typedef struct translation_frame {
 #define POP_PREV()          do { stack[sp+1]=stack[sp]; sp++; } while(0)        // mov (sp)+,(sp)
 #define SWAP_BYTES(x)       (((x & 0xFF)<<8) | ((x & 0xFF00)>>8))               // swab r0
 #define HIGHEST_BIT         ((tuword)1<<(8*sizeof(tword)-1))
+#define TF(addr, field)     ((translation_frame_t*)(addr))->field
+#define PF(addr, field)     ((parse_frame_t*)(addr))->field
 
 // Debugging output enabled?
 #if DEBUG_MODE

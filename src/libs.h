@@ -25,7 +25,13 @@
 #include "tmgc.h"
 
 #define ASMEM   "alloc.d"               // filename
+#ifdef _MORE_MEMORY
+#define DATASZ  (1<<28)                 // 256 MB
+#define FRSIZE  30
+#else
 #define DATASZ  (1<<14)                 // 16K bytes
+#define FRSIZE  16
+#endif
 #define HSZ     (512*sizeof(tword))     // Size of struct shead
 #define HEADSZ  HSZ
 #define NUMB    4
@@ -33,7 +39,6 @@
 #define NBUF    NUMB
 #define NBUF2   NUMB2
 #define BUFSIZE 512
-#define FRSIZE  16
 #define BLKSSZ  (HSZ-(FRSIZE+1)*sizeof(tword))      // Size of strbuf
 #define DATADR  (HEADSZ+DATASZ)         // end of data offset (in bytes)
 

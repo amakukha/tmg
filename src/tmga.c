@@ -237,13 +237,11 @@ void errcom(const char* error) {
 void adv() {
     advc++;
     DEBUG("%s>adv()", DEPTH);
-    parse_frame_t* _f = (parse_frame_t*)f;      // Cast for conveniencee
-    parse_frame_t* _g = (parse_frame_t*)g;
-    _g->prev = _f;
-    _f->si = i;
-    _g->j = _f->j;
-    _g->k = _f->k;
-    _g->n = _f->n;
+    PF(g, prev) = (parse_frame_t*)f;
+    PF(f, si) = i;
+    PF(g, j) = PF(f, j);
+    PF(g, k) = PF(f, k);
+    PF(g, n) = PF(f, n);
     f = g;
     DEBUG_DEEPER;
     g = (tptr)((tword)g + sizeof(parse_frame_t)); // g1
@@ -251,7 +249,7 @@ void adv() {
         errcom("stack overflow");
     i = (tptr)r0;                       // Initially this contains &start[0]
     DEBUG("%s>adv(): env=0x%lX, f=0x%lX", DEPTH, (tuword)r1, (tuword)f);
-    ((parse_frame_t*)f)->env = (tptr)r1;
+    PF(f, env) = (tptr)r1;
     return contin();    // Tail call
 }
 
@@ -324,13 +322,11 @@ void gcontin() {
         // tmg-coded translation subroutine
         // execute it in current environment
         DEBUG("TMG-CODED ROUTINE: [%lu]", ((tptr)r0-start));
-        translation_frame_t* _f = (translation_frame_t*)f;      // Cast for convenience
-        translation_frame_t* _n = (translation_frame_t*)((tuword)f + fs);
-        _f->si = i;
+        TF(f, si) = i;
         i = (tptr)r0;
-        _n->ek = _f->ek;
-        _n->ep = _f->ep;
-        f = (tptr)_n;
+        TF((tuword)f + fs, ek) = TF(f, ek);
+        TF((tuword)f + fs, ep) = TF(f, ep);
+        f = (tptr)((tuword)f + fs);
         DEBUG_DEEPER;
         DEBUG("%s>gcontin(): f=%lu, g=%lu", DEPTH, (tuword)(f-(tptr)stkb), (tuword)(g-(tptr)stkb));
         gcontin();
@@ -370,16 +366,14 @@ void _tp() {
     i++;    // Using only two bytes of the word
     //r0 = (r0 + 1)<<1;    // Accounting for word size
     r0 = (r0 + 1)*sizeof(tword);
-    translation_frame_t* _f = (translation_frame_t*)f;    // Cast for convenience
-    translation_frame_t* _n = (translation_frame_t*)((tword)f + fs);
-    _f->si = i;
-    _n->ep = (tptr)f;
-    r1 = (tword)_f->ek;
-    i = ((translation_frame_t*)r1)->si;
+    TF(f, si) = i;
+    TF((tuword)f + fs, ep) = (tptr)f;
+    r1 = (tword) TF(f, ek);
+    i = TF(r1, si);
     i = (tptr)((tword)i - r0);
-    f = (tptr)_n;
+    f = (tptr)((tuword)f + fs);
     DEBUG_DEEPER;
-    ((translation_frame_t*)f)->ek = f;
+    TF(f, ek) = f;
     //r2 <<= 1;     // Accounting for word size
     r2 *= sizeof(tword);
     if (r2 != 0) {
@@ -599,16 +593,25 @@ int main(int argc, char* argv[]) {
 	(tptr)&tchar,	(tptr)&trace,	(tptr)&trans,	(tptr)&tstack,
 	(tptr)&unstack,	(tptr)&update,	(tptr)&append,	//(tptr)&emit,
     };
+    bool odd_func_address = false;
     func_max = 0;
     func_min = (tptr)SIZE_MAX;
     for (tword j = 0; j < sizeof(funcs)/sizeof(*funcs); j++) {
         if (funcs[j] > func_max)  func_max = funcs[j];
         if (funcs[j] < func_min)  func_min = funcs[j];
+        if ((tword)funcs[j] & 1)  odd_func_address = 1;
     }
     if (verbose)
         fprintf(dfile, "Functions range (%lu): 0x%08lX..0x%08lX\n", 
                         sizeof(funcs)/sizeof(funcs[0]),
                         (tuword)func_min, (tuword)func_max);
+    if (odd_func_address)
+        // Original code on PDP-11 assumes that builtin function addresses
+        // are all even. We accomplish this by using C compiler option
+        // -falign-functions=16
+        // If we are here, it means the option didn't work or TMG was built
+        // without this option.
+        errcom("invalid build: odd function address");
 
     // set up tables
     // initialize stack

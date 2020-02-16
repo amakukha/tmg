@@ -9,8 +9,8 @@ program:  readint(n) [n>0] readint(m) readint(r)
 loop:     parse(random) [--n>0?]/done loop;
 random:   [r =* 541217502651445277455]
           [r =+ 363243712661420032053] 
-          [o = r%m] [o = o<0 ? m+o : o]
-          decimal(o) = { 1 * };
+          [i = r%m] [i = i<0 ? m+i : i]
+          decimal(i) = { 1 * };
 done:     ;
 
 /* Reads decimal integer */
@@ -24,4 +24,4 @@ spaces:   <<
 n:        0;
 m:        0;
 r:        0;
-o:        0;
+i:        0;
