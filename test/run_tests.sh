@@ -9,6 +9,7 @@
 ##     ./run_tests.sh 05
 ##         - to run a specific test
 
+OPT=-O1
 BUILD_DIR="build"
 TMP="out.tmp"
 

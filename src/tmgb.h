@@ -378,24 +378,24 @@ void _rv() {
 //      r0 - address of C-string
 void _pxcommon() {
     litc++;
-    PUSH(((parse_frame_t*)f)->n);
-    PUSH(((parse_frame_t*)f)->j);
+    PUSH(PF(f, n));
+    PUSH(PF(f, j));
     PUSH(r0);
     while (*(char*)stack[sp]) {
         jget();
         if (r0!=*(char*)stack[sp]) {
             POP();
-            ((parse_frame_t*)f)->j = POP();
-            ((parse_frame_t*)f)->n = POP();     // Restore input cursor on failure
+            PF(f, j) = POP();
+            PF(f, n) = POP();     // Restore input cursor on failure
             return fail();  // Tail call
         }
-        ((parse_frame_t*)f)->n = 0;             // Do not ignore any characters
+        PF(f, n) = 0;             // Do not ignore any characters
         stack[sp]++;                            // TODO: what is the meaning?
-        ((parse_frame_t*)f)->j++;               // Advance input cursor
+        PF(f, j)++;               // Advance input cursor
     }
     //cmp   (sp)+,(sp)+
     POP();  POP();
-    ((parse_frame_t*)f)->n = POP();             // Restore ignored character class
+    PF(f, n) = POP();             // Restore ignored character class
     return succ();  // Tail call
 }
 
@@ -538,14 +538,14 @@ void _accept() {
 
 void any() {
     DEBUG("    any()");
-    PUSH(((parse_frame_t*)f)->j);
+    PUSH(PF(f, j));
     iget();
     ctest();
     if (carry) {
         POP();
         return succ();  // Tail call
     } else {
-        ((parse_frame_t*)f)->j = POP();
+        PF(f, j) = POP();
         return fail();  // Tail call
     }
 }
@@ -594,7 +594,7 @@ void tchar() {
     PUSH(r0);
     iget();
     *(tptr)r0 = POP();
-    ((parse_frame_t*)f)->j++;
+    PF(f, j)++;
     return succ();  // Tail call
 }
 
@@ -615,7 +615,7 @@ void ctest() {
         carry = false;
         //r0 >>= 1;
         putcstr();
-        ((parse_frame_t*)f)->j++;
+        PF(f, j)++;
         carry = true;
     } else {
         carry = false;
@@ -860,17 +860,19 @@ void gotab() {
     return tgoto(); // Tail call 
 }
 
+// Description
+//      Used for handling parenthesis.
 void gpar() {
     r0 = *i++;
-    r1 = (tword)((translation_frame_t*)f)->ep;
+    r1 = (tword)TF(f, ep);
     //r0 <<= 1;         // Accounting for word size
-    ((translation_frame_t*)r1)->si += r0;
+    TF(r1, si) += r0;
     return generate();  // Tail call
 }
 
 void ignore() {
     iget();
-    ((parse_frame_t*)f)->n = *(tptr)r0;
+    PF(f, n) = *(tptr)r0;
     return succ();  // Tail call
 }
 
@@ -881,7 +883,7 @@ void ignore() {
 void jget() {
     jgetc++;
     do {
-        r1 = ((parse_frame_t*)f)->j;    // input cursor
+        r1 = PF(f, j);    // input cursor
         r0 = BIT_CLEAR(INPT-1, r1);     // Clear lower 7 bits of r1 (INPT is 128); input file offset
         r1 = BIT_CLEAR(r0, r1);         // Leave lower 7 bits of r1
         if (r0 != inpr) {               // Input buffer needs to be updated?
@@ -899,9 +901,9 @@ void jget() {
             r0 = inpb[r1];
             DEBUG("    jget: char=\"%c\" (%d)", (char)r0>=32 && (char)r0<127 ? (char)r0 : '?', (uint8_t)r0);
             //r0 <<= 1;                 // Conversion to word offset
-            if (!(classtab[r0] & ((parse_frame_t*)f)->n))   // n - address of ignored character class
+            if (!(classtab[r0] & PF(f, n)))   // n - address of ignored character class
                 goto done;
-            ((parse_frame_t*)f)->j++;
+            PF(f, j)++;
             r1++;
         } while (r1 < INPT);
     } while (1);
@@ -917,8 +919,8 @@ done:
 // Side effect:
 //      r1 - Contains ktab offset in bytes where r0 was put
 void kput() {
-    ((parse_frame_t*)f)->k -= sizeof(tword);
-    r1 = -((parse_frame_t*)f)->k;
+    PF(f, k) -= sizeof(tword);
+    r1 = -PF(f, k);
     if (r1 >= KTAT)
         errcom("translation overflow");
     *((tptr)(ktab + r1)) = r0;
@@ -949,8 +951,8 @@ void params() {
     iget();
     r0 = *(tptr)r0;
     //r0 <<= 1;     // Accounting for word size
-    r1 = (tword)((parse_frame_t*)f)->env;
-    ((parse_frame_t*)r1)->si += r0;
+    r1 = (tword)PF(f, env);
+    PF(r1, si) += r0;
     return succ();  // Tail call
 }
 
@@ -991,7 +993,7 @@ void push() {
 void putcall() {
     DEBUG("    putcall: r0=%lx", r0);
     kput();
-    *g++ = ((parse_frame_t*)f)->k;
+    *g++ = PF(f, k);
 }
 
 // Description:
@@ -1077,7 +1079,7 @@ void scopy() {
     r0 = 1 + (tword)&_scopy;
     putcall();
     rewcstr();
-    r2 = -(tword)((parse_frame_t*)f)->k + sizeof(tword);
+    r2 = -(tword)PF(f, k) + sizeof(tword);
     do {
         getcstr();
         if (!r0) break;
@@ -1088,7 +1090,7 @@ void scopy() {
     ktab[r2] = 0;
     r2 = BIT0_CLEAR(r2);    // TODO: this is like .even directive; maybe needs change for 32- and 64-bit architectures?
     r2 = -r2;
-    ((parse_frame_t*)f)->k = r2;
+    PF(f, k) = r2;
     return succ();  // Tail call
 }
 
@@ -1133,12 +1135,12 @@ void string() {
     PUSH(0);        // Temporary
     iget();         // Retrieve pointer to character class into r0
     do {
-        stack[sp] = ((parse_frame_t*)f)->j;     // Update Temporary
+        stack[sp] = PF(f, j);     // Update Temporary
         PUSH(r0);
         ctest();
         r0 = POP();
     } while (carry);
-    ((parse_frame_t*)f)->j = POP();             // Retrieve Temporary
+    PF(f, j) = POP();             // Retrieve Temporary
     return succ();  // Tail call
 }
 

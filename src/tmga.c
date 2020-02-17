@@ -81,11 +81,11 @@ void iget() {
         PUSH(r0 & 1);               // save the exit bit
         r0 &= ~(tuword)stack[sp];   // Clear exit bit in r0
         do {                        // chase parameter
-            r1 = (tword)((parse_frame_t*)r1)->env; 
-            r0 = (tword)( ((parse_frame_t*)r1)->si + (r0 >> 1) );   // It is expected that negative values are doubled
+            r1 = (tword)PF(r1, env); 
+            r0 = (tword)( PF(r1, si) + (r0 >> 1) );   // It is expected that negative values are doubled
             r0 = *(tptr)r0;
         } while (r0 < 0);
-        r1 = (tword)((parse_frame_t*)r1)->env; 
+        r1 = (tword)PF(r1, env); 
         r0 |= (tword)POP();         // Restore the exit bit
     }
 }
@@ -104,8 +104,8 @@ void contin() {
     // save its exit bit (bit 0) on stack
     // distinguish type of instruction by ranges of value
     iget();
-    ((parse_frame_t*)f)->x = r0;
-    DEBUG("%s          x==0x%lx", DEPTH, ((parse_frame_t*)f)->x);
+    PF(f, x) = r0;
+    DEBUG("%s          x==0x%lx", DEPTH, PF(f, x));
     r0 = BIT0_CLEAR(r0);
     if ((tptr)r0 >= start && (tptr)r0 < ARRAY_END(start)) {
         // tmg-coded rule, execute and test its success
@@ -164,11 +164,11 @@ void tgoto() {
 void fail() {
     DEBUG("%sfail(): f=%ld, g=%ld", DEPTH, (tword)(f-(tptr)stkb), (tword)(g-(tptr)stkb));
     failc++;
-    if (!(((parse_frame_t*)f)->x & 1)) {    // Exit bit not set
+    if (!(PF(f, x) & 1)) {    // Exit bit not set
         DEBUG("%sexit bit not set", DEPTH);
         iget();
-        ((parse_frame_t*)f)->x = r0;        // checked both
-        DEBUG("%s        x==0x%lx", DEPTH, ((parse_frame_t*)f)->x);
+        PF(f, x) = r0;        // checked both
+        DEBUG("%s        x==0x%lx", DEPTH, PF(f, x));
         r0 = BIT0_CLEAR(r0);
         if (r0 == (tword)&alt)      // Failure alternate (/) -> goto alternative rule
             return salt();  // Tail call
@@ -181,8 +181,8 @@ void fail() {
     // do not update j or k
     // restore interpreted instruction counter
     g = f;
-    f = (tptr)((parse_frame_t*)f)->prev;
-    i = ((parse_frame_t*)f)->si;
+    f = (tptr)PF(f, prev);
+    i = PF(f, si);
     DEBUG_SHALLOWER;
     DEBUG("%s<failure: f=%ld, g=%ld", DEPTH, (tword)(f-(tptr)stkb), (tword)(g-(tptr)stkb));
     failure = true;
@@ -194,7 +194,7 @@ void fail() {
 void succ() {
     ++succc;
     DEBUG("%ssucc() f=%ld, g=%ld, c=%lu", DEPTH, (tword)(f-(tptr)stkb), (tword)(g-(tptr)stkb), succc);
-    if (((parse_frame_t*)f)->x & 1) {       // Exit bit set
+    if (PF(f, x) & 1) {       // Exit bit set
         // do a success return
         // bundle translations delivered to this rule,
         // pop stack frame
@@ -206,10 +206,10 @@ void succ() {
         r0 = (tword)f + sizeof(parse_frame_t);
         pbundle();
         g = f;
-        f = (tptr)(((parse_frame_t*)f)->prev);
-        i = ((parse_frame_t*)f)->si;
-        ((parse_frame_t*)f)->j = ((parse_frame_t*)g)->j;
-        ((parse_frame_t*)f)->k = ((parse_frame_t*)g)->k;
+        f = (tptr)(PF(f, prev));
+        i = PF(f, si);
+        PF(f, j) = PF(g, j);
+        PF(f, k) = PF(g, k);
         if (r0)
             *g++ = r0;      // TODO: what is the meaning of this?
         DEBUG_SHALLOWER;
@@ -281,7 +281,7 @@ void pbundle() {
             r0 = *(tptr)r1;
             r1 += sizeof(tword);
         } while((tptr)r1 <= g);
-        r0 = ((parse_frame_t*)f)->k;
+        r0 = PF(f, k);
     } else {
         DEBUG("%s\"trivial\" bundle: r1==g", DEPTH);
     }
@@ -291,13 +291,13 @@ void pbundle() {
 // tmg translation rule interpreter (generator)
 
 void generate() {
-    DEBUG("%sgenerate(), exit=%lu, f=%lu, g=%lu", DEPTH, ((parse_frame_t*)f)->x & 1,
+    DEBUG("%sgenerate(), exit=%lu, f=%lu, g=%lu", DEPTH, PF(f, x) & 1,
                                                   (tuword)(f-(tptr)stkb), (tuword)(g-(tptr)stkb));
     // checked
-    if (((parse_frame_t*)f)->x & 1) {       // Exit bit set
+    if (PF(f, x) & 1) {       // Exit bit set
         // exit bit is on -> pop stack frame, restore instruction counter and return
         f = (tptr)((tuword)f - fs);
-        i = ((parse_frame_t*)f)->si;
+        i = PF(f, si);
         DEBUG_SHALLOWER;
         return;
     }
@@ -314,7 +314,7 @@ void gcontin() {
 #endif
     // get interpreted instruction, decode by range of values
     r0 = (tword)*i++;
-    ((parse_frame_t*)f)->x = r0;
+    PF(f, x) = r0;
     DEBUG("%s           x==0x%lx", DEPTH, r0);
     r0 = BIT0_CLEAR(r0);
     DEBUG("%s          r0==0x%lx", DEPTH, r0);
@@ -341,7 +341,7 @@ void gcontin() {
         // set the k environment for understanding 1, 2 ...
         // to designate this frame
         DEBUG("COMPOUND");
-        ((translation_frame_t*)f)->ek = f;
+        TF(f, ek) = f;
         r0 = (tword)(ktab - r0);            // Effectively &ktab[-r0], r0 is negative
         i = (tptr)r0;
         DEBUG("COMPOUND: r0=0x%lx", r0);
@@ -412,7 +412,7 @@ void _process() {
     DEBUG("    _process");
     PUSH(cfile);
     cfile = (FILE*) r1;
-    PUSH(((parse_frame_t*)f)->k);
+    PUSH(PF(f, k));
     PUSH(g);
     iget();
     adv();
@@ -425,24 +425,24 @@ void _process() {
         if (g > (tptr)POP()) {
             r0 = *(--g);        // TODO: what is the point here? reversing what's in succ?
             kput();
-            i = (tptr)(ktab - ((parse_frame_t*)f)->k);
+            i = (tptr)(ktab - PF(f, k));
             PUSH(f);
             f = g;
             DEBUG("%sx==0, f=%ld, f=%ld", DEPTH, (tword)(f-(tptr)stkb), (tword)(g-(tptr)stkb));
-            ((parse_frame_t*)f)->x = 0;     // checked
+            PF(f, x) = 0;     // checked
             DEBUG(">generating (in parse)");
             generate();
             DEBUG("<generated");
             f = (tptr)POP();
-            i = ((parse_frame_t*)f)->si;
+            i = PF(f, si);
         }
-        ((parse_frame_t*)f)->k = POP();
+        PF(f, k) = POP();
         cfile = (FILE*)POP();
         DEBUG("%s_process -> succ", DEPTH);
         return succ();  // Tail call
     } else {
         g = (tptr)POP();
-        ((parse_frame_t*)f)->k = POP();
+        PF(f, k) = POP();
         cfile = (FILE*)POP();
         return fail();  // Tail call
     }
@@ -618,10 +618,9 @@ int main(int argc, char* argv[]) {
     // go interpret beginning at "start"
     // finish up
     f = (tptr) stkb;
-    parse_frame_t* _f = (parse_frame_t*) f;
-    _f->j = 0;
-    _f->k = 0;
-    _f->n = 0;
+    PF(f, j) = 0;
+    PF(f, k) = 0;
+    PF(f, n) = 0;
     g = (tptr)((uint8_t*)f + sizeof(parse_frame_t));
     r0 = (tword)start;
     adv();
