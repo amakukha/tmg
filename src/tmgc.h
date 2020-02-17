@@ -67,13 +67,13 @@ tword sp = sizeof(stack)/sizeof(*stack);
 // Constants could also be increased to provide bigger buffers and k table
 
 #ifdef MORE_MEMORY
-#define OUTT (1<<12)                    // output buffer top
-#define STKT (1<<23)                    // stack top for (f), not for (sp)
-#define KTAT ((1<<20)*sizeof(tword))    // k table top
+#define OUTT (1<<12)                    // output buffer size; 4096 bytes
+#define STKT (1<<23)                    // stack size for (f), not for (sp); 8 MB
+#define KTAT ((1<<21)*sizeof(tword))    // k table size; 2M words, or ~16 MB
 #else
-#define OUTT 64                         // output buffer top
-#define STKT (1<<16)                    // stack top for (f), not for (sp)
-#define KTAT (1200*sizeof(tword))       // k table top
+#define OUTT 64                         // output buffer size
+#define STKT (1<<16)                    // stack size for (f), not for (sp)
+#define KTAT (1200*sizeof(tword))       // k table size
 #endif // MORE_MEMORY
 
 FILE* input;                    // input
@@ -142,9 +142,9 @@ typedef struct translation_frame {
 
 // Debugging output enabled?
 #if DEBUG_MODE
-int _depth = 0;
-const char* _space = "......................................................................";
-#define DEPTH               ((const char*)(_space + strlen(_space) - 2*_depth))
+tuword _depth = 0;
+const char* _space = ">>>>..................................................................";
+#define DEPTH               ((const char*)(_space + strlen(_space) - ((2*_depth < strlen(_space)) ? 2*_depth : strlen(_space)) ))
 #define DEBUG(msg, ...)     do { if (verbose) fprintf(dfile, msg "\n", ##__VA_ARGS__); } while(0)
 #define DEBUG_DEEPER        _depth++
 #define DEBUG_SHALLOWER     _depth--

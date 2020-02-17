@@ -248,7 +248,7 @@ void adv() {
     if ((uint8_t*)g >= stke)
         errcom("stack overflow");
     i = (tptr)r0;                       // Initially this contains &start[0]
-    DEBUG("%s>adv(): env=0x%lX, f=0x%lX", DEPTH, (tuword)r1, (tuword)f);
+    DEBUG("%s>adv(): env=0x%lX, f=0x%lX, depth=%lu", DEPTH, (tuword)r1, (tuword)f, _depth);
     PF(f, env) = (tptr)r1;
     return contin();    // Tail call
 }
@@ -328,7 +328,7 @@ void gcontin() {
         TF((tuword)f + fs, ep) = TF(f, ep);
         f = (tptr)((tuword)f + fs);
         DEBUG_DEEPER;
-        DEBUG("%s>gcontin(): f=%lu, g=%lu", DEPTH, (tuword)(f-(tptr)stkb), (tuword)(g-(tptr)stkb));
+        DEBUG("%s>gcontin(): f=%lu, g=%lu, depth=%lu", DEPTH, (tuword)(f-(tptr)stkb), (tuword)(g-(tptr)stkb), _depth);
         gcontin();
         return generate();  // Tail call
     } else if ((tptr)r0 >= func_min && (tptr)r0 <= func_max) {

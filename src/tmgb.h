@@ -609,9 +609,9 @@ void ctest() {
     ctestc++;
     PUSH(r0);
     jget();
-    DEBUG("    ctest(): classtab[r0] = %ld", classtab[r0]);
+    DEBUG("    ctest(): classtab[r0] = %ld", classtab[(uint8_t)r0]);
     //r0 <<= 1;     // Conversion to word offset
-    if (*(tptr)POP() & classtab[r0]) {
+    if (*(tptr)POP() & classtab[(uint8_t)r0]) {
         carry = false;
         //r0 >>= 1;
         putcstr();
@@ -897,11 +897,15 @@ void jget() {
             for (; r0<INPT; r0++)
                 inpb[r0] = 0;           // Rest of buffer is zeroed, loop will exit on '\0'
         }
+        // Skip all characters from the ignored character class
         do {
             r0 = inpb[r1];
-            DEBUG("    jget: char=\"%c\" (%d)", (char)r0>=32 && (char)r0<127 ? (char)r0 : '?', (uint8_t)r0);
-            //r0 <<= 1;                 // Conversion to word offset
-            if (!(classtab[r0] & PF(f, n)))   // n - address of ignored character class
+            DEBUG("    jget: %schar=\"%c\" (%d)", 
+                       r0>127 ? "non-ASCII " : "",
+                       (char)r0>=32 && (char)r0<127 ? (char)r0 : '?', 
+                       (uint8_t)r0);
+            if (!(classtab[(uint8_t)r0] & PF(f, n)))   // n - address of ignored character class
+                // This character is not in the ignored character class -> return
                 goto done;
             PF(f, j)++;
             r1++;

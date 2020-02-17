@@ -18,14 +18,10 @@
 // TODO:
 // - review HEADSZ usage
 
-// NOTE: some of the functions here received state (like bufchar and copy) and will
-//       use stack as a result. If stackoverflow ever happens, might need to
-//       convert back to using explicit stack[] array.
-
 #include "tmgc.h"
 
 #define ASMEM   "alloc.d"               // filename
-#ifdef _MORE_MEMORY
+#ifdef MORE_MEMORY
 #define DATASZ  (1<<28)                 // 256 MB
 #define FRSIZE  30
 #else

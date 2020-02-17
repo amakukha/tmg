@@ -6533,6 +6533,134 @@ tword start[] = {
 	02240,
 	02240,
 	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
+	02240,
 // _pn:
 	1 + (tword)&_pxs,
 	(tword)'\n',
@@ -6544,241 +6672,195 @@ tword start[] = {
 // Global label addresses inside the driving table
 
 const tword labels[] = {
-	(tword)&start[2],	// __1
-	(tword)&start[1452],	// __wsz
-	(tword)&start[1447],	// __k
-	(tword)&start[1446],	// __i
-	(tword)&start[1453],	// __undef
-	(tword)&start[1451],	// __ltab
-	(tword)&start[1467],	// __blanks
-	(tword)&start[61],	// __intro
-	(tword)&start[111],	// __line
-	(tword)&start[93],	// __error
-	(tword)&start[83],	// __outro
-	(tword)&start[1392],	// __undefined
-	(tword)&start[5698],	// _tn
-	(tword)&start[1301],	// __labelarray
-	(tword)&start[1464],	// __none
-	(tword)&start[1465],	// __ascii
-	(tword)&start[1468],	// __nonl
-	(tword)&start[5696],	// _pn
-	(tword)&start[104],	// __2
-	(tword)&start[1466],	// __spaces
-	(tword)&start[194],	// __strlit
-	(tword)&start[119],	// __14
-	(tword)&start[148],	// __3
-	(tword)&start[277],	// __chrlit
-	(tword)&start[125],	// __13
-	(tword)&start[148],	// __4
-	(tword)&start[169],	// __loclbl
-	(tword)&start[131],	// __12
-	(tword)&start[148],	// __5
-	(tword)&start[321],	// __labels
-	(tword)&start[142],	// __11
-	(tword)&start[421],	// __values
-	(tword)&start[138],	// __6
-	(tword)&start[1455],	// __null
-	(tword)&start[148],	// __7
-	(tword)&start[148],	// __10
-	(tword)&start[1421],	// __number
-	(tword)&start[178],	// __15
-	(tword)&start[1449],	// __cnt
-	(tword)&start[223],	// __litesc
-	(tword)&start[202],	// __16
-	(tword)&start[242],	// __litb
-	(tword)&start[209],	// __17
-	(tword)&start[233],	// __21
-	(tword)&start[235],	// __20
-	(tword)&start[1463],	// __litch
-	(tword)&start[255],	// __stresc
-	(tword)&start[1454],	// __done
-	(tword)&start[289],	// __25
-	(tword)&start[305],	// __22
-	(tword)&start[301],	// __24
-	(tword)&start[305],	// __23
-	(tword)&start[311],	// __26
-	(tword)&start[335],	// __label
-	(tword)&start[385],	// __lblnam
-	(tword)&start[366],	// __newlbl
-	(tword)&start[835],	// __tabput
-	(tword)&start[1458],	// __under
-	(tword)&start[410],	// __32
-	(tword)&start[401],	// __30
-	(tword)&start[408],	// __27
-	(tword)&start[1469],	// __tpcls
-	(tword)&start[1470],	// __ncls
-	(tword)&start[413],	// __31
-	(tword)&start[1412],	// __name
-	(tword)&start[445],	// __extval
-	(tword)&start[433],	// __nlval
-	(tword)&start[1457],	// __nil
-	(tword)&start[465],	// __extbit
-	(tword)&start[456],	// __34
-	(tword)&start[477],	// __valsep
-	(tword)&start[460],	// __33
-	(tword)&start[520],	// __value
-	(tword)&start[609],	// __vallit
-	(tword)&start[534],	// __40
-	(tword)&start[559],	// __35
-	(tword)&start[759],	// __valbtn
-	(tword)&start[546],	// __37
-	(tword)&start[559],	// __36
-	(tword)&start[717],	// __vallbl
-	(tword)&start[584],	// __nuvlbl
-	(tword)&start[1450],	// __lcnt
-	(tword)&start[813],	// __lblput
-	(tword)&start[619],	// __46
-	(tword)&start[659],	// __byte
-	(tword)&start[643],	// __41
-	(tword)&start[631],	// __45
-	(tword)&start[643],	// __42
-	(tword)&start[641],	// __44
-	(tword)&start[643],	// __43
-	(tword)&start[682],	// __octnum
-	(tword)&start[670],	// __50
-	(tword)&start[674],	// __47
-	(tword)&start[1459],	// __digit
-	(tword)&start[695],	// __52
-	(tword)&start[705],	// __51
-	(tword)&start[742],	// __56
-	(tword)&start[735],	// __54
-	(tword)&start[740],	// __53
-	(tword)&start[745],	// __55
-	(tword)&start[1438],	// __usrdef
-	(tword)&start[809],	// __66
-	(tword)&start[799],	// __64
-	(tword)&start[791],	// __62
-	(tword)&start[783],	// __60
-	(tword)&start[789],	// __57
-	(tword)&start[1460],	// __lowup
-	(tword)&start[797],	// __61
-	(tword)&start[807],	// __63
-	(tword)&start[811],	// __65
-	(tword)&start[849],	// __builtn
-	(tword)&start[1471],	// __lindex
-	(tword)&start[970],	// __built1
-	(tword)&start[853],	// __67
-	(tword)&start[1239],	// __built2
-	(tword)&start[1004],	// __157
-	(tword)&start[982],	// __75
-	(tword)&start[1002],	// __70
-	(tword)&start[990],	// __74
-	(tword)&start[1002],	// __71
-	(tword)&start[998],	// __73
-	(tword)&start[1002],	// __72
-	(tword)&start[1214],	// __76
-	(tword)&start[1030],	// __156
-	(tword)&start[1016],	// __102
-	(tword)&start[1028],	// __77
-	(tword)&start[1024],	// __101
-	(tword)&start[1028],	// __100
-	(tword)&start[1214],	// __103
-	(tword)&start[1048],	// __155
-	(tword)&start[1042],	// __105
-	(tword)&start[1046],	// __104
-	(tword)&start[1214],	// __106
-	(tword)&start[1066],	// __154
-	(tword)&start[1060],	// __110
-	(tword)&start[1064],	// __107
-	(tword)&start[1214],	// __111
-	(tword)&start[1108],	// __153
-	(tword)&start[1078],	// __121
-	(tword)&start[1106],	// __112
-	(tword)&start[1086],	// __120
-	(tword)&start[1106],	// __113
-	(tword)&start[1094],	// __117
-	(tword)&start[1106],	// __114
-	(tword)&start[1102],	// __116
-	(tword)&start[1106],	// __115
-	(tword)&start[1214],	// __122
-	(tword)&start[1134],	// __152
-	(tword)&start[1120],	// __126
-	(tword)&start[1132],	// __123
-	(tword)&start[1128],	// __125
-	(tword)&start[1132],	// __124
-	(tword)&start[1214],	// __127
-	(tword)&start[1200],	// __151
-	(tword)&start[1146],	// __145
-	(tword)&start[1198],	// __130
-	(tword)&start[1154],	// __144
-	(tword)&start[1198],	// __131
-	(tword)&start[1162],	// __143
-	(tword)&start[1198],	// __132
-	(tword)&start[1170],	// __142
-	(tword)&start[1198],	// __133
-	(tword)&start[1178],	// __141
-	(tword)&start[1198],	// __134
-	(tword)&start[1186],	// __140
-	(tword)&start[1198],	// __135
-	(tword)&start[1194],	// __137
-	(tword)&start[1198],	// __136
-	(tword)&start[1214],	// __146
-	(tword)&start[1210],	// __150
-	(tword)&start[1214],	// __147
-	(tword)&start[1247],	// __171
-	(tword)&start[1283],	// __160
-	(tword)&start[1255],	// __170
-	(tword)&start[1283],	// __161
-	(tword)&start[1263],	// __167
-	(tword)&start[1283],	// __162
-	(tword)&start[1271],	// __166
-	(tword)&start[1283],	// __163
-	(tword)&start[1279],	// __165
-	(tword)&start[1283],	// __164
-	(tword)&start[5567],	// __lindexend
-	(tword)&start[1408],	// __labelerror
-	(tword)&start[1448],	// __t
-	(tword)&start[1364],	// __172
-	(tword)&start[1364],	// __173
-	(tword)&start[1410],	// __labelerr
-	(tword)&start[1414],	// __ident
-	(tword)&start[1461],	// __letter
-	(tword)&start[1462],	// __alpha
-	(tword)&start[1424],	// __num
+	(tword)&start[2],	// 1
+	(tword)&start[1452],	// wsz
+	(tword)&start[1447],	// k
+	(tword)&start[1446],	// i
+	(tword)&start[1453],	// undef
+	(tword)&start[1451],	// ltab
+	(tword)&start[1467],	// blanks
+	(tword)&start[61],	// intro
+	(tword)&start[111],	// line
+	(tword)&start[93],	// error
+	(tword)&start[83],	// outro
+	(tword)&start[1392],	// undefined
+	(tword)&start[5826],	// _tn
+	(tword)&start[1301],	// labelarray
+	(tword)&start[1464],	// none
+	(tword)&start[1465],	// ascii
+	(tword)&start[1468],	// nonl
+	(tword)&start[5824],	// _pn
+	(tword)&start[104],	// 2
+	(tword)&start[1466],	// spaces
+	(tword)&start[194],	// strlit
+	(tword)&start[119],	// 14
+	(tword)&start[148],	// 3
+	(tword)&start[277],	// chrlit
+	(tword)&start[125],	// 13
+	(tword)&start[148],	// 4
+	(tword)&start[169],	// loclbl
+	(tword)&start[131],	// 12
+	(tword)&start[148],	// 5
+	(tword)&start[321],	// labels
+	(tword)&start[142],	// 11
+	(tword)&start[421],	// values
+	(tword)&start[138],	// 6
+	(tword)&start[1455],	// null
+	(tword)&start[148],	// 7
+	(tword)&start[148],	// 10
+	(tword)&start[1421],	// number
+	(tword)&start[178],	// 15
+	(tword)&start[1449],	// cnt
+	(tword)&start[223],	// litesc
+	(tword)&start[202],	// 16
+	(tword)&start[242],	// litb
+	(tword)&start[209],	// 17
+	(tword)&start[233],	// 21
+	(tword)&start[235],	// 20
+	(tword)&start[1463],	// litch
+	(tword)&start[255],	// stresc
+	(tword)&start[1454],	// done
+	(tword)&start[289],	// 25
+	(tword)&start[305],	// 22
+	(tword)&start[301],	// 24
+	(tword)&start[305],	// 23
+	(tword)&start[311],	// 26
+	(tword)&start[335],	// label
+	(tword)&start[385],	// lblnam
+	(tword)&start[366],	// newlbl
+	(tword)&start[835],	// tabput
+	(tword)&start[1458],	// under
+	(tword)&start[410],	// 32
+	(tword)&start[401],	// 30
+	(tword)&start[408],	// 27
+	(tword)&start[1469],	// tpcls
+	(tword)&start[1470],	// ncls
+	(tword)&start[413],	// 31
+	(tword)&start[1412],	// name
+	(tword)&start[445],	// extval
+	(tword)&start[433],	// nlval
+	(tword)&start[1457],	// nil
+	(tword)&start[465],	// extbit
+	(tword)&start[456],	// 34
+	(tword)&start[477],	// valsep
+	(tword)&start[460],	// 33
+	(tword)&start[520],	// value
+	(tword)&start[609],	// vallit
+	(tword)&start[534],	// 40
+	(tword)&start[559],	// 35
+	(tword)&start[759],	// valbtn
+	(tword)&start[546],	// 37
+	(tword)&start[559],	// 36
+	(tword)&start[717],	// vallbl
+	(tword)&start[584],	// nuvlbl
+	(tword)&start[1450],	// lcnt
+	(tword)&start[813],	// lblput
+	(tword)&start[619],	// 46
+	(tword)&start[659],	// byte
+	(tword)&start[643],	// 41
+	(tword)&start[631],	// 45
+	(tword)&start[643],	// 42
+	(tword)&start[641],	// 44
+	(tword)&start[643],	// 43
+	(tword)&start[682],	// octnum
+	(tword)&start[670],	// 50
+	(tword)&start[674],	// 47
+	(tword)&start[1459],	// digit
+	(tword)&start[695],	// 52
+	(tword)&start[705],	// 51
+	(tword)&start[742],	// 56
+	(tword)&start[735],	// 54
+	(tword)&start[740],	// 53
+	(tword)&start[745],	// 55
+	(tword)&start[1438],	// usrdef
+	(tword)&start[809],	// 66
+	(tword)&start[799],	// 64
+	(tword)&start[791],	// 62
+	(tword)&start[783],	// 60
+	(tword)&start[789],	// 57
+	(tword)&start[1460],	// lowup
+	(tword)&start[797],	// 61
+	(tword)&start[807],	// 63
+	(tword)&start[811],	// 65
+	(tword)&start[849],	// builtn
+	(tword)&start[1471],	// lindex
+	(tword)&start[970],	// built1
+	(tword)&start[853],	// 67
+	(tword)&start[1239],	// built2
+	(tword)&start[1004],	// 157
+	(tword)&start[982],	// 75
+	(tword)&start[1002],	// 70
+	(tword)&start[990],	// 74
+	(tword)&start[1002],	// 71
+	(tword)&start[998],	// 73
+	(tword)&start[1002],	// 72
+	(tword)&start[1214],	// 76
+	(tword)&start[1030],	// 156
+	(tword)&start[1016],	// 102
+	(tword)&start[1028],	// 77
+	(tword)&start[1024],	// 101
+	(tword)&start[1028],	// 100
+	(tword)&start[1214],	// 103
+	(tword)&start[1048],	// 155
+	(tword)&start[1042],	// 105
+	(tword)&start[1046],	// 104
+	(tword)&start[1214],	// 106
+	(tword)&start[1066],	// 154
+	(tword)&start[1060],	// 110
+	(tword)&start[1064],	// 107
+	(tword)&start[1214],	// 111
+	(tword)&start[1108],	// 153
+	(tword)&start[1078],	// 121
+	(tword)&start[1106],	// 112
+	(tword)&start[1086],	// 120
+	(tword)&start[1106],	// 113
+	(tword)&start[1094],	// 117
+	(tword)&start[1106],	// 114
+	(tword)&start[1102],	// 116
+	(tword)&start[1106],	// 115
+	(tword)&start[1214],	// 122
+	(tword)&start[1134],	// 152
+	(tword)&start[1120],	// 126
+	(tword)&start[1132],	// 123
+	(tword)&start[1128],	// 125
+	(tword)&start[1132],	// 124
+	(tword)&start[1214],	// 127
+	(tword)&start[1200],	// 151
+	(tword)&start[1146],	// 145
+	(tword)&start[1198],	// 130
+	(tword)&start[1154],	// 144
+	(tword)&start[1198],	// 131
+	(tword)&start[1162],	// 143
+	(tword)&start[1198],	// 132
+	(tword)&start[1170],	// 142
+	(tword)&start[1198],	// 133
+	(tword)&start[1178],	// 141
+	(tword)&start[1198],	// 134
+	(tword)&start[1186],	// 140
+	(tword)&start[1198],	// 135
+	(tword)&start[1194],	// 137
+	(tword)&start[1198],	// 136
+	(tword)&start[1214],	// 146
+	(tword)&start[1210],	// 150
+	(tword)&start[1214],	// 147
+	(tword)&start[1247],	// 171
+	(tword)&start[1283],	// 160
+	(tword)&start[1255],	// 170
+	(tword)&start[1283],	// 161
+	(tword)&start[1263],	// 167
+	(tword)&start[1283],	// 162
+	(tword)&start[1271],	// 166
+	(tword)&start[1283],	// 163
+	(tword)&start[1279],	// 165
+	(tword)&start[1283],	// 164
+	(tword)&start[5567],	// lindexend
+	(tword)&start[1408],	// labelerror
+	(tword)&start[1448],	// t
+	(tword)&start[1364],	// 172
+	(tword)&start[1364],	// 173
+	(tword)&start[1410],	// labelerr
+	(tword)&start[1414],	// ident
+	(tword)&start[1461],	// letter
+	(tword)&start[1462],	// alpha
+	(tword)&start[1424],	// num
 };
-
-// Used builtins:
-//   _a
-//   _cm
-//   _f
-//   _gt
-//   _ia
-//   _ib
-//   _l
-//   _le
-//   _lt
-//   _lv
-//   _m
-//   _ne
-//   _p
-//   _px
-//   _pxs
-//   _rv
-//   _s
-//   _st
-//   _t
-//   _tp
-//   _tq
-//   _tx
-//   _txs
-//   alt
-//   any
-//   decimal
-//   diag
-//   enter
-//   fail
-//   find
-//   generate
-//   getnam
-//   gpar
-//   ignore
-//   params
-//   parse
-//   salt
-//   scopy
-//   smark
-//   string
-//   succ
-//   table
-//   tgoto
-//   trans
