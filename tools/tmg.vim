@@ -21,6 +21,10 @@ syn match tmgComment "/\*.*\*/" contains=tmgTodo
 " TODO multiline chatacter classes
 syn match tmgCharClass '<<.\{-}>>' display
 
+" Arithmetic elements
+syn match tmgOctNumber '-\=[01234567]\+' display
+syn region tmgArith start="\[" end="\]" transparent contains=tmgOctNumber
+
 " Strings
 syn match tmgString '<[^<][^>]*>' display
 " TODO fix it to not include the next character
@@ -44,7 +48,6 @@ syn keyword tmgBuiltin fail find getnam goto ignore octal params parse proc
 syn keyword tmgBuiltin push reduce scopy size smark string stop succ table
 syn keyword tmgBuiltin accept gotab stack unstack
 
-syn match tmgOctNumber '-\=[01234567]\+' display
 
 " Hidden reserved words (see ``UNIX Programmer's Manual. Sixth Edition''); except goto
 syn keyword tmgReserved gpar classtab trans alt salt
