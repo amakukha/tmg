@@ -12,11 +12,6 @@
 // TODO: this library should be reworked to either:
 //  - do all operations completely in memory
 //  - write files only when the size is getting too big
-// TODO:
-//  - write a unit test for this (starting with log2)
-//  - check whether stack[sp+2] have correct offsets (especially when r3 was present)
-// TODO:
-// - review HEADSZ usage
 
 #include "tmgc.h"
 
@@ -24,17 +19,18 @@
 #ifdef MORE_MEMORY
 #define DATASZ  (1<<28)                 // 256 MB
 #define FRSIZE  30
+#define HSZ     (1024*sizeof(tword))    // Size of struct shead
 #else
 #define DATASZ  (1<<14)                 // 16K bytes
 #define FRSIZE  16
-#endif
 #define HSZ     (512*sizeof(tword))     // Size of struct shead
+#endif
 #define HEADSZ  HSZ
 #define NUMB    4
 #define NUMB2   NUMB*sizeof(tword)      // assuming 2 was word size
 #define NBUF    NUMB
 #define NBUF2   NUMB2
-#define BUFSIZE 512
+#define BUFSIZE 512                     // Must be a power of 2
 #define BLKSSZ  (HSZ-(FRSIZE+1)*sizeof(tword))      // Size of strbuf
 #define DATADR  (HEADSZ+DATASZ)         // end of data offset (in bytes)
 
@@ -95,14 +91,16 @@ typedef struct sblock {
     tword l;
 } sblock_t;
 
-#define BLOCK_SIZE(b)   (((sblock_t*)b)->l - ((sblock_t*)b)->a)
-
+// Convenience macros
+#define BLOCK_SIZE(b)           (((sblock_t*)b)->l - ((sblock_t*)b)->a)
+#define BLOCK(addr, field)      ((sblock_t*)(addr))->field
 
 // Function declarations
 
 void allocate();
 void alterchar();
 void alterword();
+void altertword();
 void bufchar();
 void clean(tword bn, char* buf);
 void collect();
@@ -113,6 +111,7 @@ void getb();
 void getbuf();
 void getschar();        // Originally getchar, collision with stdio.h
 void getword();
+void gettword();
 int ilog2(tuword x);
 void initl();
 void length();
@@ -122,6 +121,7 @@ void plausible();
 void preposterous();
 void putschar();        // Originally putchar, collision with stdio.h
 void putword();
+void puttword();
 void release();
 void reset();
 void rewinds();         // Originally rewind, collision with stdio.h
@@ -258,7 +258,7 @@ void alterchar() {
 //      r0 - Word (two bytes).
 //      r1 - The string.
 void alterword() {
-    DEBUG("    alterword()");
+    //DEBUG("    alterword()");
     alterchar();
     r0 = SWAP_BYTES(r0);
     alterchar();
@@ -266,14 +266,29 @@ void alterword() {
 }
 
 // Description:
+//      Like alterword, but saves a machine-dependent word.
+// Parameters:
+//      r0 - tword (machine-dependent).
+//      r1 - The string.
+void altertword() {
+    tword tmp = r0;
+    DEBUG("    altertword()");
+    for (tword i=0; i < sizeof(tword)/2; i++) {   // Little-endian
+        r0 = ((tuword)tmp >> (i*16)) & 0xFFFF;      // TODO: optimize, and puttword as well
+        alterword();
+    }
+    r0 = tmp;
+}
+
+// Description:
 //      routine to get buffer addr of byte whose disc
 //      addr is in r0. also returns addr of write
 //      flag for buffer in r2.
 // Parameters:
-//      r0 - disc addr (Byte offset in the file)
+//      r0 - disc addr. (Byte offset in the file.)
 // Return:
-//      (r0) - r0 for read (Memory address of the character.)
-//      (r2) - for write must inc w (Number of the buffer)
+//      (r0) - r0 for read. (Memory address of the character.)
+//      (r2) - for write must inc w. (Number of the buffer.)
 //      failure (c-bit) - set if char not in either buffer
 void bufchar() {
     for (tword r3 = 0; r3 < NBUF; r3++) {
@@ -476,6 +491,7 @@ void fixct() {
     while (1) {
         u1[r2] = r1--;
         if (r1<0) break;
+        // Find next maximum usage time
         for (r2=0, r3=1; r3<NBUF; r3++)
             if (u1[r3] >= u1[r2])
                 r2 = r3;
@@ -499,7 +515,7 @@ inline void getb() {
     r1 = (tuword)b1 + r2*BUFSIZE;       // Current buffer starting byte
     if (w1[r2] > 0)
         clean(r2, (char*)r1);
-    r0 = BIT_CLEAR(0777, stack[sp]);    // get lowest multiple of 512.
+    r0 = BIT_CLEAR(BUFSIZE-1, stack[sp]);    // get lowest multiple of BUFSIZE
     b1s[r2] = r0;                       // set start
     fseek(afi, r0, SEEK_SET);
     fread((char*)r1, 1, BUFSIZE, afi);
@@ -553,16 +569,32 @@ void getschar() {
 
 // Description:
 //      routine to get a word from the string
-//      (Unlike lookword advances the read pointer.)
+//      (Unlike lookword advances the read pointer. Result is 2-byte long.)
 // Parameters:
 //      r1 - The string.
 // Return:
-//      r0 - Word (two bytes)
+//      r0 - Word (two bytes!); Zero on EOF
 //      failure - Set on EOF
 void getword() {
     lookword();
     if (!failure)
-        ((sblock_t*)r1)->r += 2;
+        ((sblock_t*)r1)->r += 2;        // 16-bit
+}
+
+// Description:
+//      Like getword, but returns a machine-dependent word.
+// Parameters:
+//      r1 - The string.
+// Return:
+//      r0 - tword (machine-dependent); Zero on EOF
+void gettword() {
+    tuword res = 0;
+    for (tword i=0; i<sizeof(tword)/2; i++) {   // Little-endian
+        getword();
+        if (failure) break;
+        res |= (tuword)r0 << (i*16);
+    }
+    r0 = res;
 }
 
 // Description:
@@ -633,7 +665,7 @@ void initl() {
 
 // Description:
 //      routine to return the length of a string
-//      (From: /usr/source/s1/dc4.s)
+//      (From: /usr/source/s1/dc4.s in Unix V6)
 // Parameters:
 //      r1 - The string.
 // Return:
@@ -653,7 +685,7 @@ void length() {
 //      r0 - Char (one byte)
 //      failure - Set on EOF
 void lookchar() {
-    DEBUG("    lookchar()");
+    //DEBUG("    lookchar()");
     PUSH(r2);
     plausible();
     if (((sblock_t*)r1)->w > ((sblock_t*)r1)->r) {
@@ -671,7 +703,7 @@ void lookchar() {
         failure = false;
     } else {
     //noch:
-        DEBUG("    lookchar: EOF");
+        //DEBUG("    lookchar: EOF");
         r2 = POP();
         r0 = 0;
         failure = true;
@@ -687,7 +719,7 @@ void lookchar() {
 //      r0 - Word (two bytes); Zero on EOF
 //      failure - Set on EOF
 void lookword() {
-    DEBUG("    lookword()");
+    //DEBUG("    lookword()");
     lookchar();
     if (failure)
         return;
@@ -758,12 +790,13 @@ botch:
 //      r1 - points to the string. (Pointer to the header sblock_t) 
 //           after return and must be saved.
 void putschar() {
-    DEBUG("    putschar(): char=%ld", r0);
+    //DEBUG("    putschar(): char=%ld", r0);
     PUSH(r2);
     PUSH(r1);
     nchar = r0;
     plausible();
     if (((sblock_t*)r1)->w >= ((sblock_t*)r1)->l) {
+        // Extend block if needed
         r0 = ((sblock_t*)r1)->w + 1 - ((sblock_t*)r1)->a;   // W-A+1
         allocate();             // Pointer to a new block is in r1
         r0 = stack[sp];         // Old block (originally r1)
@@ -775,18 +808,21 @@ void putschar() {
         show_block_string(r1);
         #endif
     }
+    // Load the necessary portion of the block from disk (if not in RAM already)
     r0 = ((sblock_t*)r1)->w;
     bufchar();
     if (failure)
         getbuf();
+
+    // Modify character in RAM
     *(char*)r0 = (char)nchar;   // movb nchar,(r0)
-    w1[r2] = 1;     // Buffer was modified
+    w1[r2] = 1;     // Mark buffer as modified
 
     r0 = nchar;     // to preserve r0 for user. (Important for putword routine.)
-    ((sblock_t*)r1)->w++;
-    flag++;
+    ((sblock_t*)r1)->w++;       // Advance write pointer of the block
+    flag++;                     // Advance use time counter
     if (++flag)
-        u1[r2] = flag;
+        u1[r2] = flag;          // Record use time
     else
         fixct();
     r1 = POP();
@@ -799,11 +835,26 @@ void putschar() {
 //      r0 - Word (two bytes).
 //      r1 - The string.
 void putword() {
-    DEBUG("    putword(): 0x%lx", r0 & 0xFFFF);
+    //DEBUG("    putword(): 0x%lx", r0 & 0xFFFF);
     putschar();
     r0 = SWAP_BYTES(r0);
     putschar();
     r0 = SWAP_BYTES(r0);
+}
+
+// Description:
+//      Like putword, but puts a machine-dependent word.
+// Parameters:
+//      r0 - tword (machine-dependent).
+//      r1 - The string.
+void puttword() {
+    tword tmp = r0;
+    //DEBUG("    puttword(): 0x%lx", r0);
+    for (tword i=0; i < sizeof(tword)/2; i++) {   // Little-endian
+        r0 = ((tuword)tmp >> (i*16)) & 0xFFFF;
+        putword();
+    }
+    r0 = tmp;
 }
 
 // Description:
@@ -869,12 +920,12 @@ void seekchar() {
         if (r0 > ((sblock_t*)r1)->l) {
             // Step 1: extend string (if necessary)
             r0 = stack[sp];     // Requested allocation size for string r1
-            allocate();
-            r0 = stack[sp+1];
-            copy();             // Copy the string to newly allocated block currently in r1
-            swap();             // r0 <- new block, r1 <- old block
+            allocate();         // Pointer to a newly allocated string is in r1
+            r0 = stack[sp+1];   // Put the old string pointer into r0
+            copy();             // Copy the old string (r0) to newly allocated block (r1)
+            swap();             // Swap data: r0 <- new block, r1 <- old block
             release();          // Free old block pointed by r1
-            r1 = stack[sp+1];   // Restore r1 (string)
+            r1 = stack[sp+1];   // Restore the original string pointer (now it contains extended string)
         } else {
             // Step 2: actually move the read pointer
             ((sblock_t*)r1)->r = r0;
@@ -888,9 +939,9 @@ void seekchar() {
 }
 
 // Description:
-//      Swap data in two block headers.
+//      Swap data in two block headers pointed by r0 and r1.
 // Parameters:
-//      r0, r1 - pointers to sblock_t
+//      r0, r1 - pointers to struct sblock.
 void swap() {
     sblock_t tmp = *(sblock_t*)r1;
     *(sblock_t*)r1 = *(sblock_t*)r0;

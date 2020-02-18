@@ -15,9 +15,9 @@ unique and powerful dialect of McClure's TMG. This version of TMG was
 included into Unix from Version 2 to Version 6, after which it was phased
 out in favor of Stephen Johnson's YACC.
 
-To the best of our knowledge, unlike other Unix tools, it was never before
-implemented in a high-level language. This is a translation of TMG from PDP-11
-assembly to portable C.
+This is a translation of TMG from PDP-11 assembly to portable C. To the best of
+our knowledge, it is the first implementation of TMG in a high-level language,
+done more than 50 years after the tool first appeared.
 
 Quotes about TMG
 --
@@ -52,8 +52,6 @@ However, there is still room for improvement:
 
  - make the `makefile`
  - make necessary adjustments for Windows (and/or make a Windows release)
- - table data word `t[i]` is still 16 bits long; needs to be adjusted to hold a
-   machine-dependent word
  - `libs.h` library needs to be removed or adjusted to performs all operations
    in RAM by default
  - figure out how to use LR-parsing builtins, contributed by Johnson and Aho,

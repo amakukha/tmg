@@ -69,7 +69,7 @@ tword sp = sizeof(stack)/sizeof(*stack);
 #ifdef MORE_MEMORY
 #define OUTT (1<<12)                    // output buffer size; 4096 bytes
 #define STKT (1<<23)                    // stack size for (f), not for (sp); 8 MB
-#define KTAT ((1<<21)*sizeof(tword))    // k table size; 2M words, or ~16 MB
+#define KTAT ((1<<22)*sizeof(tword))    // k table size; 4M words, or ~32 MB
 #else
 #define OUTT 64                         // output buffer size
 #define STKT (1<<16)                    // stack size for (f), not for (sp)
@@ -102,14 +102,14 @@ typedef struct parse_frame {
 
 #define g1   sizeof(parse_frame_t)      // Not really intended to be used
 
-// symbol table entry layout
+// symbol table entry layout (Records in tables.)
 typedef struct symbol {
-    tword custom;               // word 0 is for customer
-    tptr lptr;                  // index of next entry on tree to left
-    tptr rptr;                  // index of next entry to right
-    char* sptr;                 // first character of string in this entry
-                                // next char is in *(sptr+1), etc.
-} symbol_t;
+    tword custom;           // word 0 is for customer. (User-accessible table data.)
+    tuword lptr;            // index of next entry on tree to left
+    tuword rptr;            // index of next entry to right
+    char* sptr;             // first character of string in this entry
+                            // next char is in *(sptr+1), etc.
+} __attribute__((packed)) symbol_t;
 	 
 // translation frame layout
 // used as ek(f), ep(f), etc.
@@ -128,17 +128,19 @@ typedef struct translation_frame {
 #define fs  (sizeof(translation_frame_t)+sizeof(tword))     // frame size
 
 // Convenience macros
-#define ARRAY_END(x)        (x + sizeof(x)/sizeof(*x))
-#define BIT_CLEAR(mask,x)   ((~(tuword)(mask)) & ((tuword)(x)))
-#define BIT0_CLEAR(x)       BIT_CLEAR(1, x)
-#define NEG(x)              ((~(tuword)(x)) + 1)
-#define PUSH(x)             (stack[--sp] = (tword)(x))
-#define POP()               (stack[sp++])
-#define POP_PREV()          do { stack[sp+1]=stack[sp]; sp++; } while(0)        // mov (sp)+,(sp)
-#define SWAP_BYTES(x)       (((x & 0xFF)<<8) | ((x & 0xFF00)>>8))               // swab r0
-#define HIGHEST_BIT         ((tuword)1<<(8*sizeof(tword)-1))
-#define TF(addr, field)     ((translation_frame_t*)(addr))->field
-#define PF(addr, field)     ((parse_frame_t*)(addr))->field
+#define ARRAY_END(x)            (x + sizeof(x)/sizeof(*x))
+#define BIT_CLEAR(mask,x)       ((~(tuword)(mask)) & ((tuword)(x)))
+#define BIT0_CLEAR(x)           BIT_CLEAR(1, x)
+#define NEG(x)                  ((~(tuword)(x)) + 1)
+#define PUSH(x)                 (stack[--sp] = (tword)(x))
+#define POP()                   (stack[sp++])
+#define POP_PREV()              do { stack[sp+1]=stack[sp]; sp++; } while(0)        // mov (sp)+,(sp)
+#define SWAP_BYTES(x)           (((x & 0xFF)<<8) | ((x & 0xFF00)>>8))               // swab r0
+#define HIGHEST_BIT             ((tuword)1<<(8*sizeof(tword)-1))
+#define FIELD_SIZE(type, field) sizeof(((type *)0)->field)
+#define TF(addr, field)         ((translation_frame_t*)(addr))->field
+#define PF(addr, field)         ((parse_frame_t*)(addr))->field
+#define RECORD(addr, field)     ((symbol_t*)(addr))->field
 
 // Debugging output enabled?
 #if DEBUG_MODE

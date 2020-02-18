@@ -48,15 +48,6 @@ tword cstrr;            // read pointer. (Index of cstrb.)
 tword cstrw = 0;        // current string write pointer. (Index of cstrb.)
 sblock_t* symp = NULL;  // pointer to dynamically allocated (part of the) current string
 
-// Structure from tmgb/find.s
-//typedef struct table_record {
-//    tword index;
-//    tword tablep;
-//    tword temp;
-//    tword which;
-//} table_record_t;
-//#define framel sizeof(table_record_t)       // just for reference, not to be used
-
 // Function declarations
 void _a();
 void _cm();
@@ -193,9 +184,9 @@ void _f() {
     stack[sp+3] = r0;
     r1 = stack[sp+2];   // Pointer to the string (sblock_t)
     seekchar();
-    getword();
+    gettword();
     DEBUG("    _f: val=%ld", r0);
-    stack[sp] = r0;
+    stack[sp] = r0;     // Store result
     stack[sp+1] = -1;
     return succ();  // Tail call
 }
@@ -421,7 +412,9 @@ void _sr() {
     return _p();    // Tail call
 }
 
-// infix =
+// Description:
+//      infix =
+//      Simple assignment. (For "two-address assignments" _u() is called after the operation.)
 void _st() {
     DEBUG("    _st: infix =");
     sprv();
@@ -679,7 +672,6 @@ void find() {
     return _find(); // Tail call
 }
 
-// TODO: not entirely clear how it works
 void _find() {
     DEBUG("    _find(): find=%ld", stack[sp]);
     rewcstr();
@@ -692,67 +684,64 @@ void _find() {
     DEBUG("    _find(): chr=%c", (char)r0);
     PUSH(0);            // temp(sp)
     iget();             // Get first parameter: the table pointer
-    PUSH(*(tptr)r0);    // tablep(sp)
-    PUSH(0);            // index(sp)
+    PUSH(*(tptr)r0);    // tablep(sp) - Save table pointer to stack
+    PUSH(0);            // index(sp) = 0
 right:
-    //add     $rptr,index(sp)
-    //br      1f
-    stack[sp] += 4;
+    // Jump to right child: index <- right pointer location
+    stack[sp] = (tword)&RECORD(stack[sp], rptr);
     goto next;
 left:
-    //add     $lptr,index(sp)
-    stack[sp] += 2;
+    // Jump to left child: index <- left pointer location
+    stack[sp] = (tword)&RECORD(stack[sp], lptr);
 next:                   // get index of next entry
     r1 = stack[sp+1];   // tablep (Which is an sblock_t*.) 
-    r0 = stack[sp];     // index + 3 +/- 1
-    seekchar();
-    getword();
-    if (!r0)            // No table entry found for the current string
+    r0 = stack[sp];     // Right or left pointer location
+    seekchar();         // Set read pointer to right or left child location (extends block as needed)
+    gettword();         // Get right or left pointer
+    if (!r0)            // No pointer: no right or left child
         goto nomore;
-    stack[sp] = r0;
-    r0 += 6;            // add $sptr,r0     (Location of the table entry string is in r0 now.)
-    //r0 = (tword)((symbol_t*)r0)->sptr;
+    stack[sp] = r0;     // Jump to right or left position
+    r0 = (tword)&RECORD(r0, sptr);      // Location of the table entry string is in r0 now.
     seekchar();
     rewcstr();
     do {                // comparison loop. (Compare the current string with the table entry string.)
         r1 = stack[sp+1];   // tablep
         getschar();     // Character from the table entry
-        PUSH(r0);
+        tword tch = r0; // Store the character (temporary)
         getcstr();      // Character from the current string
-        if (r0 > stack[sp]) {   // Current string is greater -> go to the right.
-            POP();
+        if (r0 > tch)   // Current string is greater -> go to the right.
             goto right;
-        }
-        if (r0 < stack[sp]) {   // Current string is lower -> go to the left.
-            POP();
+        if (r0 < tch)   // Current string is lower -> go to the left.
             goto left;
-        }
-        POP();
-        if (!r0)          // Reached the end of the current string
+        if (!r0)        // Reached the end of the current string
             goto found;
     } while (1);
 
 nomore:         // not in table
-    if (stack[sp+3]) {     // which(sp); (If non-zero, then it was a find() call.)
+    if (stack[sp+3]) {     // which(sp); (If true, then it was a find() call.)
         // exit from find
         i++;
-        sp += 4;        // Instead of 4x POP()
+        sp += 4;        // 4x POP()
         return fail();
     }
 
     // Enter the current string into the table
     r1 = stack[sp+1];   // tablep
     length();
-    stack[sp+2] = r0;   // temp <- Length
+    stack[sp+2] = r0;   // temp <- End of the table block (write location relative to the beginning)
     r0 = 0;
-    putword();          // scratch word. (User-accessible table data.)
-    putword();          // left pointer
-    putword();          // right pointer
+    // Add symbol into the end of the table block
+    // TODO: make it cleaner: either remove sblock_t or make the size of word here dependent on it
+    puttword();         // scratch word. (Field `custom`.)
+    puttword();         // left pointer. (Field `lptr`.)
+    puttword();         // right pointer. (Field `rptr`.)
     r0 = stack[sp];     // index
     seekchar();         // Move the read pointer of the string to this newly added table entry
     r0 = stack[sp+2];   // temp == Length
-    stack[sp] = r0;     // index
-    alterword();
+    stack[sp] = r0;     // index <- Previous end of the table block (location of the new record).
+    altertword();       // Save current end of block as right or left pointer location
+
+    // Copy current string into the end of the table block
     rewcstr();
     do {                // copy loop
         getcstr();
@@ -764,7 +753,7 @@ found:
     // Table entry for the current string was found or added
     iget();             // Get second parameter: index variable
     *(tptr)r0 = stack[sp];     // Save index into the supplied variable
-    sp += 4;            // Instead of 4x POP()
+    sp += 4;            // 4x POP()
     return succ();  // Tail call
 }
 
@@ -773,22 +762,24 @@ found:
 // Return:
 //      r0 - Character from the current string 
 void getcstr() {
-    r1 = cstrr;
-    if (r1 >= cstrw) {
+    if (cstrr >= cstrw) {
         r0 = 0;             // end of string
         return;
     }
-    cstrr++;
-    if (r1 < CSTRT) {       // Within the quick access fragment?
-        r0 = cstrb[r1];     // Yes. 
+    // Did not reach end of the current string
+    r1 = cstrr++;
+    if (r1 < CSTRT) {
+        // Character is within the quick access fragment
+        r0 = cstrb[r1];
         return;
-    }
-    if (r1 == CSTRT) {      // Reached the end of the quick access fragment -> prepare sblock
+    } else if (r1 == CSTRT) {
+        // Reached the end of the quick access fragment -> prepare sblock
         r1 = (tword)symp;
         rewinds();
     }
+    // Retrieve character from the sblock
     r1 = (tword)symp;
-    getschar();             // Read character from the sblock
+    getschar();
 }
 
 // Description:
@@ -816,7 +807,9 @@ void _getnam() {
     }
     r1 = *i++;          // Table "string"
     PUSH(r1);
-    r0 = *i++ + 6;      // sptr == three words    TODO: change to actual word size
+    r0 = *i++ + FIELD_SIZE(symbol_t, custom)
+              + FIELD_SIZE(symbol_t, lptr)
+              + FIELD_SIZE(symbol_t, rptr);
     seekchar();         // Register r0 contains the character position (i + 6)
     do {
         r1 = stack[sp]; // Restore the table "string"
@@ -1156,9 +1149,10 @@ void table() {
     allocate();
     PUSH(r1);       // Save pointer to header of allocated block 
     r0 = 0;
-    putword();      // Field `custom`
-    putword();      // Field `lptr`
-    putword();      // Field `rptr`
+    // Add struct symbol
+    puttword();     // Field `custom`
+    puttword();     // Field `lptr`
+    puttword();     // Field `rptr`
     putschar();     // Field `sptr`
     iget();
     *(tptr)r0 = POP();      // Return pointer to the table string (sblock_t*)
@@ -1220,8 +1214,9 @@ void unstack() {
     return _accept();   // Tail call
 }
 
-// From: arith.s
-// update a stored value, used by all assignments
+// Description:
+//      update a stored value, used by all assignments
+//      From: tmgb/arith.s
 // NOTE: all stack offsets are smaller by 1, because calls don't use `stack`
 void update() {
     DEBUG("    update()");
@@ -1237,6 +1232,6 @@ void update() {
     r0 = stack[sp+3];
     seekchar();
     r0 = stack[sp];
-    alterword();
+    altertword();
     return sprv();  // Tail call
 }

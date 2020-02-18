@@ -11,13 +11,19 @@
 
 progrm: readn/error
         table(freq) table(chain) [firstword = ~0]
-loop:   not(!<<>>) output 
-    |   word/loop skip loop;
+loop:   not(!<<>>) output
+    |   [j=777] batch/loop loop;
+
+/* To use less stack, divide input into batches.                */
+/* (Avoid interpreting entire output as a single "sentence".)   */
+batch:  [j<=0?] succ
+     |  word/skip [j--] skip batch;
 skip:   string(other);
 not:    params(1) (any($1) fail | ());
-readn:  string(!<<09123456789>>) readint(n) skip;
+readn:  string(!<<0123456789>>) readint(n) skip;
 error:  diag(( ={ <ERROR: input must start with a number> * } ));
 
+/* Process a word */
 word:   smark any(letter) string(letter) scopy
         locate/new
         [freq[k]++] newmax;
@@ -44,18 +50,20 @@ readint:  proc(n;i) ignore(<<>>) [n=0] inta
 int1:     [n = n*12+i] inta\int1;
 inta:     char(i) [i<72?] [(i =- 60)>=0?];
 
+/* Variables */
 prevword:   0;  /* Head of the linked list */
 firstword:  0;  /* First word's index to know where to stop */
 k: 0;
 i: 0;
 j: 0;
 n: 0;           /* Number of most frequent words to display */ 
-max: 0;         /* Current highest number of occurrences */
+max:  0;        /* Current highest number of occurrences */
 next: 0;        /* Next highest number of occurrences */
 
 /* Tables */
 freq:   0;
 chain:  0;
 
+/* Character classes */
 letter:   <<abcdefghijklmnopqrstuvwxyz>>;
 other:   !<<abcdefghijklmnopqrstuvwxyz>>;
