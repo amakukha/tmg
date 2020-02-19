@@ -51,9 +51,7 @@ in two phases).
 However, there is still room for improvement:
 
  - make the `makefile`
- - make necessary adjustments for Windows (and/or make a Windows release)
- - `libs.h` library needs to be removed or adjusted to performs all operations
-   in RAM by default
+ - prepare a release for Windows
  - figure out how to use LR-parsing builtins, contributed by Johnson and Aho,
    but not documented in the Manual
  - achieve self-compilation in a single phase (very hard).

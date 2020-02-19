@@ -11,7 +11,6 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
 #include "tmgb.h"
 #include "tmgl.h"
 
@@ -625,7 +624,7 @@ int main(int argc, char* argv[]) {
     r0 = (tword)start;
     adv();
     flush();
-    unlink("alloc.d");
+    cleanup();
 
     return 0;
 }

@@ -9,11 +9,23 @@
 // Comments starting with a lowercase letter were either copied from the 
 // original assembly code or directly stem from it.
 
-// TODO: this library should be reworked to either:
-//  - do all operations completely in memory
-//  - write files only when the size is getting too big
+// For better performance, an option to do all operations completely in RAM was
+// added in this port. If you want to use the original disk swapping logic,
+// just uncomment the definition of USE_DISK_SWAPPING macro.
 
 #include "tmgc.h"
+
+// Defined in tmga.c
+extern bool verbose;
+extern void errcom(const char* msg);
+
+#define USE_DISK_SWAPPING
+
+#ifdef USE_DISK_SWAPPING
+
+// --------------------------- The original logic ---------------------------
+
+#include <unistd.h>
 
 #define ASMEM   "alloc.d"               // filename
 #ifdef MORE_MEMORY
@@ -33,10 +45,6 @@
 #define BUFSIZE 512                     // Must be a power of 2
 #define BLKSSZ  (HSZ-(FRSIZE+1)*sizeof(tword))      // Size of strbuf
 #define DATADR  (HEADSZ+DATASZ)         // end of data offset (in bytes)
-
-// Defined in tmga.c
-extern bool verbose;
-extern void errcom(const char* msg);
 
 // Globals (from alloc3.s)
 
@@ -97,35 +105,39 @@ typedef struct sblock {
 
 // Function declarations
 
+// - used from tmgb
 void allocate();
+void altertword();
+void cleanup();         // Added to do the cleanup
+void creates();         // Originally create (was and is a confusing name)
+void getschar();        // Originally getchar, collision with stdio.h
+void gettword();
+void length();
+void putschar();        // Originally putchar, collision with stdio.h
+void puttword();
+void release();
+void rewinds();         // Originally rewind, collision with stdio.h
+void seekchar();
+
+// - used internally
 void alterchar();
 void alterword();
-void altertword();
 void bufchar();
 void clean(tword bn, char* buf);
 void collect();
 void copy();
-void creates();         // Originally create (was and is a confusing name)
 void fixct();
 void getb();
 void getbuf();
-void getschar();        // Originally getchar, collision with stdio.h
 void getword();
-void gettword();
 int ilog2(tuword x);
 void initl();
-void length();
 void lookchar();
 void lookword();
 void plausible();
 void preposterous();
-void putschar();        // Originally putchar, collision with stdio.h
 void putword();
-void puttword();
-void release();
 void reset();
-void rewinds();         // Originally rewind, collision with stdio.h
-void seekchar();
 void swap();
 void wc();
 void whead();
@@ -161,9 +173,9 @@ zzz:
     // found it, allocate and return
     r1 = frlist[r0] + (tuword)&hblk;
     frlist[r0] = *(tptr)r1;     // Same as ((sblock_t*)r1)->w
-    r0 = ((sblock_t*)r1)->a;
-    ((sblock_t*)r1)->w = r0;
-    ((sblock_t*)r1)->r = r0;
+    r0 = BLOCK(r1, a);
+    BLOCK(r1, w) = r0;
+    BLOCK(r1, r) = r0;
     DEBUG("    allocated: %ld bytes", BLOCK_SIZE(r1));
     POP();
     r2 = POP();
@@ -193,16 +205,16 @@ yyy:
     r3 = hblk;      // get free header block
     if (!r3) goto www;
     r1 = frlist[r0] + (tuword)&hblk;    // Pointer to header of the free block
-    frlist[r0] = ((sblock_t*)r1)->w;    // Removing the free block from the original size list
-    ((sblock_t*)r1)->w = r3;
+    frlist[r0] = BLOCK(r1, w);          // Removing the free block from the original size list
+    BLOCK(r1, w) = r3;
     r3 += (tuword)&hblk;                // Pointer to free header
     r2 = 1<<(r0-1);                     // Halved block size
-    r2 += ((sblock_t*)r1)->a;           // Middle of the original free block
-    hblk = ((sblock_t*)r3)->w;          // Removing the free header from the list of free headers
-    ((sblock_t*)r3)->l = ((sblock_t*)r1)->l;
-    ((sblock_t*)r1)->l = r2;
-    ((sblock_t*)r3)->a = r2;
-    ((sblock_t*)r3)->w = 0;             // These two block are the only ones of this size
+    r2 += BLOCK(r1, a);                 // Middle of the original free block
+    hblk = BLOCK(r3, w);                // Removing the free header from the list of free headers
+    BLOCK(r3, l) = BLOCK(r1, l);
+    BLOCK(r1, l) = r2;
+    BLOCK(r3, a) = r2;
+    BLOCK(r3, w) = 0;                   // These two block are the only ones of this size
     r2 = r1 - (tuword)&hblk;
     frlist[r0-1] = r2;
     goto zzz;
@@ -224,8 +236,8 @@ void alterchar() {
     nchar = r0;
     plausible();
     stats[4]++;
-    if (((sblock_t*)r1)->r >= ((sblock_t*)r1)->l) {
-        r0 = 1 + ((sblock_t*)r1)->l - ((sblock_t*)r1)->a;       // W-A+1
+    if (BLOCK(r1, r) >= BLOCK(r1, l)) {
+        r0 = 1 + BLOCK(r1, l) - BLOCK(r1, a);       // W-A+1
         allocate();
         r0 = stack[sp];
         copy();
@@ -233,17 +245,17 @@ void alterchar() {
         release();
         r1 = stack[sp];
     }
-    r0 = ((sblock_t*)r1)->r;
+    r0 = BLOCK(r1, r);
     bufchar();
     if (failure)
         getbuf();
     
     *(char*)r0 = (char)nchar;   // movb nchar,(r0)
     r0 = nchar;                 // to preserve r0 for user. (Important for alterword.)
-    ((sblock_t*)r1)->r++;
+    BLOCK(r1, r)++;
     w1[r2] = 1;                 // Buffer was modified
-    if (((sblock_t*)r1)->r >= ((sblock_t*)r1)->w)
-        ((sblock_t*)r1)->w = ((sblock_t*)r1)->r;
+    if (BLOCK(r1, r) >= BLOCK(r1, w))
+        BLOCK(r1, w) = BLOCK(r1, r);
     if (++flag)
         u1[r2] = flag;
     else
@@ -312,7 +324,7 @@ void bufchar() {
 //      bn  - buffer index
 //      buf - beginning of buffer
 void clean(tword bn, char* buf) {
-    DEBUG("    clean() %ld <--", bn);
+    DEBUG("    clean() %ld", bn);
     fseek(afout, b1s[bn], SEEK_SET);
     fwrite(buf, 1, BUFSIZE, afout);
     w1[bn] = 0;
@@ -341,10 +353,10 @@ loop2:
     r3 = *(tptr)r1;
     if (!r3) goto advance;      // list is empty
     r3 += (tuword)&hblk;
-    if (((sblock_t*)r3)->w == 0) goto advance;  // only one list element
+    if (BLOCK(r3, w) == 0) goto advance;  // only one list element
 
     // calculate address of buddy
-    r4 = ((sblock_t*)r3)->a - HEADSZ;
+    r4 = BLOCK(r3, a) - HEADSZ;
     exp = 1<<r0;
     if (exp & r4)
         r4 = BIT_CLEAR(exp, r4);
@@ -354,10 +366,10 @@ loop2:
 
     // and search for him
 loop3:
-    r4 = ((sblock_t*)r3)->a;
+    r4 = BLOCK(r3, a);
     if (!r4) goto coal;
     r2 = r3;
-    r3 = ((sblock_t*)r3)->w;
+    r3 = BLOCK(r3, w);
     if (!r3) goto nocoal;
     r3 += (tuword)&hblk;
     goto loop3;
@@ -366,25 +378,25 @@ loop3:
     // coalesce them, and put them on next higher list
 coal:
     useful++;
-    ((sblock_t*)r2)->w = ((sblock_t*)r3)->w;    // remove him from list
+    BLOCK(r2, w) = BLOCK(r3, w);    // remove him from list
     r2 = *(tptr)r1 + (tuword)&hblk;
     r4 = r3;
-    ((sblock_t*)r1)->w = ((sblock_t*)r2)->w;    // remove other one
-    if (((sblock_t*)r2)->a <= ((sblock_t*)r4)->a) {
+    BLOCK(r1, w) = BLOCK(r2, w);    // remove other one
+    if (BLOCK(r2, a) <= BLOCK(r3, a)) {
         tword tmp = r2;
         r2 = r4;
         r4 = tmp;
     }
     *(tptr)r2 = hblk;
-    ((sblock_t*)r2)->r = 0;
-    ((sblock_t*)r2)->a = HEADSZ;
-    ((sblock_t*)r2)->l = HEADSZ;
+    BLOCK(r2, r) = 0;
+    BLOCK(r2, a) = HEADSZ;
+    BLOCK(r2, l) = HEADSZ;
     r2 -= (tuword)&hblk;
     hblk = r2;
     exp = 1<<r0;
-    ((sblock_t*)r4)->l += exp;
-    ((sblock_t*)r4)->r = 0;
-    ((sblock_t*)r4)->w = frlist[r0+1];
+    BLOCK(r4, l) += exp;
+    BLOCK(r4, r) = 0;
+    BLOCK(r4, w) = frlist[r0+1];
     r4 -= (tuword)&hblk;
     frlist[r0+1] = r4;
     goto loop2;
@@ -413,28 +425,24 @@ advance:
 // Return:
 //      r1 points to the new string and should be saved.
 void copy() {
-    DEBUG("    copy() <--");
+    DEBUG("    copy()");
     PUSH(r0);
     PUSH(r2);
     tword r3;
     wc();
     reset();
 
-    sblock_t* _r0 = (sblock_t*)r0;      // Convenience cast
-    sblock_t* _r1 = (sblock_t*)r1;
-    r2 = _r0->w - _r0->a;               // W-A: number of bytes to be copied from source
-    r3 = _r1->l - _r1->a;               // L-A: number of bytes allocated in in dest
+    r2 = BLOCK(r0, w) - BLOCK(r0, a);   // W-A: number of bytes to be copied from source
+    r3 = BLOCK(r1, l) - BLOCK(r1, a);   // L-A: number of bytes allocated in in dest
     if (r2 > r3) {
         release();                      // Free block pointed by r1
         r0 = r2;                        // New size
         allocate();
         r0 = stack[sp+1];               // restore r0 (source)
-        _r0 = (sblock_t*)r0;
     }
 
-    _r1 = (sblock_t*)r1;                // Convenience cast
-    _r1->w = _r1->a;                    // rewind w pointer
-    tword roff = _r0->a;                // Read offset
+    BLOCK(r1, w) = BLOCK(r1, a);        // rewind w pointer
+    tword roff = BLOCK(r0, a);          // Read offset
     do {
         // set input pointer
         fseek(afi, roff, SEEK_SET);
@@ -450,14 +458,14 @@ void copy() {
         DEBUG("    copied: \"%s\"", b1); 
         #endif
         if (ret < r3) goto bad;
-        fseek(afout, _r1->w, SEEK_SET);
-        _r1->w += r3;
+        fseek(afout, BLOCK(r1, w), SEEK_SET);
+        BLOCK(r1, w) += r3;
         ret = fwrite(b1, 1, r3, afout);
         if (ret < r3) goto bad;
     } while (r2 > 0);
 
     // fix up read ptr of new string
-    _r1->r = _r0->r - _r0->a + _r1->a;
+    BLOCK(r1, r) = BLOCK(r0, r) - BLOCK(r0, a) + BLOCK(r1, a);
 
     // restore and return
     r2 = POP();
@@ -468,13 +476,19 @@ bad:
 }
 
 // Description:
+//      Cleanup: remove the temporary file.
+void cleanup() {
+    unlink("alloc.d");
+}
+
+// Description:
 //      routine to rewind write pointer of string
 //      pointed to by r1
 // Parameters:
 //      r1 - pointer to header (sblock_t)
 void creates() {
-    ((sblock_t*)r1)->w = ((sblock_t*)r1)->a;
-    ((sblock_t*)r1)->r = ((sblock_t*)r1)->a;
+    BLOCK(r1, w) = BLOCK(r1, a);
+    BLOCK(r1, r) = BLOCK(r1, a);
 }
 
 // Description:
@@ -509,7 +523,7 @@ void fixct() {
 // Return:
 //      r0 - addr of byte in buffer (Memory address of the byte)
 inline void getb() {
-    DEBUG("    getb() <--");
+    DEBUG("    getb()");
     PUSH(r1);
     PUSH(r0);
     r1 = (tuword)b1 + r2*BUFSIZE;       // Current buffer starting byte
@@ -526,15 +540,14 @@ inline void getb() {
 }
 
 // Description:
-//      routine to get a buffer
+//      routine to get a buffer. (Load buffer from disk into RAM.)
 // Parameters:
 //      r0 - disc addr (Offset of a byte in the file.)
 // Return:
 //      (r0) - r0 (for read) (Memory address of the byte.)
 //      (r2) - must inc w for w (Buffer number.)
 void getbuf() {
-    // Determine what buffer was used longest time ago to replace it with the
-    // needed one
+    // Determine what buffer was used longest time ago to replace it
     tword r4 = 1;
     r2 = 0;         // Index of the min. usage time
     while (r4 < NBUF) {
@@ -561,7 +574,7 @@ void getschar() {
     DEBUG("    getschar()");
     lookchar();
     if (!failure) {
-        ((sblock_t*)r1)->r++;       // Advance read pointer
+        BLOCK(r1, r)++;             // Advance read pointer
         //tst r0                    // Sets n- and z-bits, clears v- (overflow) and c-bits
         failure = false;
     }
@@ -578,7 +591,7 @@ void getschar() {
 void getword() {
     lookword();
     if (!failure)
-        ((sblock_t*)r1)->r += 2;        // 16-bit
+        BLOCK(r1, r) += 2;          // 16-bit
 }
 
 // Description:
@@ -610,7 +623,7 @@ int ilog2(tuword x) {
 // Description:
 //      Initialization, used by allocate()
 void initl() {
-    DEBUG("    initl() <<--");
+    DEBUG("    initl()");
     PUSH(r0);
     PUSH(r2);
 
@@ -628,10 +641,10 @@ void initl() {
     // Initialize headers with pointers to next header (arithmetic offset in file)
     while ((tuword)r2 < (tuword)strend - sizeof(sblock_t)) {
         r0 += sizeof(sblock_t);
-        ((sblock_t*)r2)->w = r0;    // Next header offset?
+        BLOCK(r2, w) = r0;          // Next header offset?
         r2 += sizeof(sblock_t);
     }
-    ((sblock_t*)(r2-sizeof(sblock_t)))->w = 0;
+    BLOCK(r2-sizeof(sblock_t), w) = 0;
 
     // Clear list of free blocks
     memset(frlist, 0, sizeof(frlist));
@@ -639,9 +652,9 @@ void initl() {
     // Create one big free block
     r2 = hblk + (tuword)&hblk;      // Points to the first header location
     hblk = *(tptr)r2;               // Next header location (free header)
-    ((sblock_t*)r2)->w = 0;         // Write pointer in the string (arithmetic offset)
-    ((sblock_t*)r2)->a = HEADSZ;    // Where does the block start in the file (arithmetic offset)
-    ((sblock_t*)r2)->l = DATADR;    // Where does the block end in the file (arithmetic offset)
+    BLOCK(r2, w) = 0;               // Write pointer in the string (arithmetic offset)
+    BLOCK(r2, a) = HEADSZ;          // Where does the block start in the file (arithmetic offset)
+    BLOCK(r2, l) = DATADR;          // Where does the block end in the file (arithmetic offset)
     r0 = ilog2(DATASZ);             // Index for frlist
     if (r0 >= FRSIZE)
         errcom("frlist error");
@@ -654,8 +667,8 @@ void initl() {
         r1 = *(tword*)r1;
         if (!r1) break;
         r1 += (tuword)&hblk;
-        ((sblock_t*)r1)->a = r1;    // doesn't make sense, because we were holding arithmetic offsets in a & l
-        ((sblock_t*)r1)->l = r1;
+        BLOCK(r1, a) = r1;          // Doesn't make sense? because we were holding arithmetic offsets in a & l TODO
+        BLOCK(r1, l) = r1;
     }
     whead();
     reset();
@@ -671,7 +684,7 @@ void initl() {
 // Return:
 //      r0 - Length.
 void length() {
-    r0 = ((sblock_t*)r1)->w - ((sblock_t*)r1)->a;
+    r0 = BLOCK(r1, w) - BLOCK(r1, a);
 }
 
 // Description:
@@ -688,8 +701,8 @@ void lookchar() {
     //DEBUG("    lookchar()");
     PUSH(r2);
     plausible();
-    if (((sblock_t*)r1)->w > ((sblock_t*)r1)->r) {
-        r0 = ((sblock_t*)r1)->r;
+    if (BLOCK(r1, w) > BLOCK(r1, r)) {
+        r0 = BLOCK(r1, r);
         bufchar();
         if (failure)
             getbuf();
@@ -724,12 +737,12 @@ void lookword() {
     if (failure)
         return;
     nchar = (unsigned char)r0;      // movb r0,nchar;  NOTE: this clears upper bits of nchar
-    ((sblock_t*)r1)->r++;
+    BLOCK(r1, r)++;
     lookchar();
     if (failure)
         return; // Isn't it bad that we don't restore ->r here?
     nchar |= (r0 & 0xFF) << 8;      // movb r0,nchar+1
-    ((sblock_t*)r1)->r--;
+    BLOCK(r1, r)--;
     r0 = nchar;
 }
 
@@ -757,12 +770,11 @@ void preposterous() {
     // Check bounds
     if ((tptr)r1 < (tptr)strbuf) goto botch;
     if ((tptr)r1 >= (tptr)strend) goto botch;
-    sblock_t* _r1 = (sblock_t*)r1;      // Conveniene casting
-    if (_r1->a < HEADSZ) goto botch;
-    if (_r1->l > DATADR) goto botch;
+    if (BLOCK(r1, a) < HEADSZ) goto botch;
+    if (BLOCK(r1, l) > DATADR) goto botch;
     
     // Check that allocated block size is a power of 2
-    tword asz = _r1->l - _r1->a;        // Allocated size of the block
+    tword asz = BLOCK(r1, l) - BLOCK(r1, a);    // Allocated size of the block
     tword ilog = ilog2(asz);
     //ilog <<= 1;                       // This was to convert r0 (ilog) to byte offset for frlist; not needed
     if ((1<<ilog) != asz) goto botch;
@@ -795,9 +807,9 @@ void putschar() {
     PUSH(r1);
     nchar = r0;
     plausible();
-    if (((sblock_t*)r1)->w >= ((sblock_t*)r1)->l) {
+    if (BLOCK(r1, w) >= BLOCK(r1, l)) {
         // Extend block if needed
-        r0 = ((sblock_t*)r1)->w + 1 - ((sblock_t*)r1)->a;   // W-A+1
+        r0 = BLOCK(r1, w) + 1 - BLOCK(r1, a);   // W-A+1
         allocate();             // Pointer to a new block is in r1
         r0 = stack[sp];         // Old block (originally r1)
         copy();                 // Copy the string from old block (r0) to new block (r1)
@@ -809,7 +821,7 @@ void putschar() {
         #endif
     }
     // Load the necessary portion of the block from disk (if not in RAM already)
-    r0 = ((sblock_t*)r1)->w;
+    r0 = BLOCK(r1, w);
     bufchar();
     if (failure)
         getbuf();
@@ -819,7 +831,7 @@ void putschar() {
     w1[r2] = 1;     // Mark buffer as modified
 
     r0 = nchar;     // to preserve r0 for user. (Important for putword routine.)
-    ((sblock_t*)r1)->w++;       // Advance write pointer of the block
+    BLOCK(r1, w)++;             // Advance write pointer of the block
     flag++;                     // Advance use time counter
     if (++flag)
         u1[r2] = flag;          // Record use time
@@ -870,9 +882,8 @@ void release() {
 
     // find free list index and link block to that entry
     stats[1]++; 
-    sblock_t* _r1 = (sblock_t*)r1;      // Convenience casting
-    _r1->w = frlist[r0];                // Log size (r0) is received from preposterous()
-    _r1->r = 0;
+    BLOCK(r1, w) = frlist[r0];      // Log size (r0) is received from preposterous()
+    BLOCK(r1, r) = 0;
     frlist[r0] = (tuword)r1 - (tuword)&hblk;        // Byte offset of the sblock header within the file
     r1 = 0;                 // self-defense
     // whead()
@@ -899,7 +910,7 @@ void reset() {
 //      r1 - pointer to header (sblock_t)
 void rewinds() {
     DEBUG("    rewinds()");
-    ((sblock_t*)r1)->r = ((sblock_t*)r1)->a;
+    BLOCK(r1, r) = BLOCK(r1, a);
 }
 
 // Description:
@@ -916,8 +927,8 @@ void seekchar() {
     PUSH(r0);
     do {
         r0 = stack[sp];         // Restore r0 (position)
-        r0 += (tuword)((sblock_t*)r1)->a;
-        if (r0 > ((sblock_t*)r1)->l) {
+        r0 += (tuword)BLOCK(r1, a);
+        if (r0 > BLOCK(r1, l)) {
             // Step 1: extend string (if necessary)
             r0 = stack[sp];     // Requested allocation size for string r1
             allocate();         // Pointer to a newly allocated string is in r1
@@ -928,9 +939,9 @@ void seekchar() {
             r1 = stack[sp+1];   // Restore the original string pointer (now it contains extended string)
         } else {
             // Step 2: actually move the read pointer
-            ((sblock_t*)r1)->r = r0;
-            if (r0 >= ((sblock_t*)r1)->w)
-                ((sblock_t*)r1)->w = r0;
+            BLOCK(r1, r) = r0;
+            if (r0 >= BLOCK(r1, w))
+                BLOCK(r1, w) = r0;
             break;
         }
     } while(1);
@@ -963,7 +974,7 @@ void wc() {
 // Description:
 //      write header block to the output file
 void whead() {
-    DEBUG("    whead() <--");
+    DEBUG("    whead()");
     fseek(afout, 0, SEEK_SET);
     fwrite(&hblk, 1, sizeof(struct shead), afout);
 }
@@ -974,3 +985,275 @@ void show_block_string(tword p) {
     DEBUG("    new block: %lx, size=%ld", p, BLOCK_SIZE(p));
     // TODO
 }
+
+#else // do not USE_DISK_SWAPPING
+
+// ----------------------------- Added logic ---------------------------------
+// --------------------- to do all operations in RAM -------------------------
+
+typedef struct mblock {
+    uint8_t* d;         // Data
+    tuword r;           // Read pointer
+    tuword w;           // Write pointer
+    size_t sz;          // Size of the allocated block
+} mblock_t;
+
+#define sblock_t                mblock_t
+#define BLOCK(addr, field)      ((mblock_t*)(addr))->field
+
+mblock_t** blocks = NULL;
+tuword    nblocks;          // How many blocks are there currently
+tuword    mxblocks;         // Maximum number of blocks (allocated size)
+
+void allocate();
+void altertword();
+void creates();         // Originally create (was and is a confusing name)
+void getschar();        // Originally getchar, collision with stdio.h
+void gettword();
+void length();
+void putschar();        // Originally putchar, collision with stdio.h
+void puttword();
+void release();
+void rewinds();         // Originally rewind, collision with stdio.h
+void seekchar();
+
+void cleanup();
+void ensure(mblock_t* b, tuword loc);
+void forget(mblock_t* b);
+void remember(mblock_t* b);
+
+// Description:
+//      allocate a new block
+// Parameters:
+//      r0 - requested size in bytes (preserved)
+//      (convert to words, adjust for header, round up
+//      to a power of two)
+// Return:
+//      r1 - Pointer the header of allocated mblock.
+void allocate() {
+    tuword sz = 1;
+    while (sz && sz < r0) sz <<= 1;
+    DEBUG("    allocate: sz=%lu", (tuword)sz);
+    if (!sz)
+        errcom("too much space requested");
+    mblock_t* res = (mblock_t*) calloc(sizeof(mblock_t), 1); 
+    if (res == NULL)
+        errcom("could not allocate block header");
+    res->d = (uint8_t*) malloc(sz);
+    if (res->d == NULL)
+        errcom("could not allocate block");
+    res->sz = sz;
+    remember(res);
+    r1 = (tword)res;
+}
+
+// Description:
+//      routine to rewrite the tword pointed to by
+//      read pointer.  The read pointer is advanced.
+//      the block is extended if necessary.
+//      there is no error return.
+// Parameters:
+//      r0 - tword (machine-specific word)
+//      r1 - Pointer to the block header (mblock_t*)
+void altertword() {
+    DEBUG("    altertword()");
+    ensure((mblock_t*)r1, BLOCK(r1, r) + sizeof(tword));
+    *(tword*)(BLOCK(r1, d) + BLOCK(r1, r)) = r0;
+    BLOCK(r1, r) += sizeof(tword);
+}
+
+// Description:
+//      Free all allocated blocks.
+void cleanup() {
+    tuword cnt = 0;
+    for (tword i = 0; i < mxblocks; i++) {
+        if (blocks[i] != NULL) {
+            r1 = (tword)blocks[i];
+            release();
+            cnt++;
+        }
+    }
+    DEBUG("Blocks released: %lu", cnt);
+    if (nblocks) errcom("nblocks not zero");
+}
+
+// Description:
+//      routine to rewind write pointer of block
+//      pointed to by r1
+// Parameters:
+//      r1 - pointer to header (mblock_t)
+void creates() {
+    BLOCK(r1, w) = 0;
+    BLOCK(r1, r) = 0;
+}
+
+// Description:
+//      Ensure the byte location is within the block.
+//      Extend block if necessary.
+void ensure(mblock_t* b, tuword loc) {
+    DEBUG("    ensure(): loc=%lu", loc);
+    if (loc >= b->sz) {
+        // Extend block
+        while (b->sz && b->sz <= loc) b->sz <<= 1;
+        if (!b->sz) goto err;
+        uint8_t* d = (uint8_t*) realloc(b->d, b->sz);
+        if (d == NULL) goto err;
+        b->d = d;
+    }
+    return;
+err:
+    errcom("realloc failed");
+}
+
+// Description:
+//      Forget a record of a block which is about to be released
+void forget(mblock_t* b) {
+    for (tword i = 0; i < mxblocks; i++) {
+        if (blocks[i] == b) {
+            blocks[i] = NULL;
+            nblocks--;
+            return;
+        }
+    }
+    errcom("block not found: could not forget");
+}
+
+// Description:
+//      routine to read next character from block
+//      pointer to by r1; character returned in r0
+//      c-bit set if character not availiable (eof)
+// Parameters:
+//      r1 - pointer to mblock_t
+// Return:
+//      r0 - next character; Zero on EOF
+//      failure (c-bit) - EOF
+void getschar() {
+    DEBUG("    getschar()");
+    if (BLOCK(r1, r) + sizeof(uint8_t) <= BLOCK(r1, w)) {
+        r0 = *(uint8_t*)(BLOCK(r1, d) + BLOCK(r1, r));
+        BLOCK(r1, r) += sizeof(uint8_t);
+        failure = false;
+    } else {
+        r0 = 0;
+        failure = true;
+    }
+}
+
+// Description:
+//      Like getschar, but returns a machine-specific word.
+// Parameters:
+//      r1 - Pointer to the block header (mblock_t*).
+// Return:
+//      r0 - tword (machine-specific); Zero on EOF
+void gettword() {
+    DEBUG("    gettword()");
+    if (BLOCK(r1, r) + sizeof(tword) <= BLOCK(r1, w)) {
+        r0 = *(tword*)(BLOCK(r1, d) + BLOCK(r1, r));
+        BLOCK(r1, r) += sizeof(tword);
+        failure = false;
+    } else {
+        r0 = 0;
+        failure = true;
+    }
+}
+
+// Description:
+//      routine to return the length of a block
+// Parameters:
+//      r1 - Pointer to the block header (mblock_t*).
+// Return:
+//      r0 - Length.
+void length() {
+    r0 = BLOCK(r1, w);  // Trivial
+}
+
+// Description:
+//      routine to put a character into the block
+//      pointed to by r1
+// Parameters:
+//      r0 - char
+//      r1 - Pointer to the block header (mblock_t*).
+void putschar() {
+    DEBUG("    putschar()");
+    ensure((mblock_t*)r1, BLOCK(r1, w) + sizeof(uint8_t));
+    *(uint8_t*)(BLOCK(r1, d) + BLOCK(r1, w)) = (uint8_t)r0;
+    BLOCK(r1, w) += sizeof(uint8_t);
+}
+
+// Description:
+//      Like putschar, but puts a machine-specific word.
+// Parameters:
+//      r0 - tword (machine-specific).
+//      r1 - Pointer to the block header (mblock_t*).
+void puttword() {
+    DEBUG("    puttword()");
+    ensure((mblock_t*)r1, BLOCK(r1, w) + sizeof(tword));
+    *(tword*)(BLOCK(r1, d) + BLOCK(r1, w)) = r0;
+    BLOCK(r1, w) += sizeof(tword);
+}
+
+// Description:
+//      here to release a block
+// Parameters:
+//      pointer to block in r1
+void release() {
+    DEBUG("    release()");
+    if (BLOCK(r1, sz)) free(BLOCK(r1, d));
+    BLOCK(r1, sz) = 0;
+    forget((mblock_t*)r1);
+    free((mblock_t*)r1);
+}
+
+// Description:
+//      Remember an allocated block to release it in the end.
+void remember(mblock_t* b) {
+    if (blocks == NULL ) {
+        DEBUG("    remember(): calloc");
+        mxblocks = 4;
+        blocks = (mblock_t**) calloc(sizeof(mblock_t*), mxblocks);
+        if (blocks == NULL) goto err;
+    } else if (nblocks >= mxblocks) {
+        DEBUG("    remember(): realloc");
+        mxblocks *= 2;
+        blocks = (mblock_t**) realloc(blocks, sizeof(mblock_t*)*mxblocks);
+        if (blocks == NULL) goto err;
+        for (tword i = mxblocks/2; i < mxblocks; i++)
+            blocks[i] = NULL;
+    }
+    for (tword i = 0; i < mxblocks; i++) {
+        if (blocks[i] == NULL) {
+            blocks[i] = b;
+            nblocks++;
+            return;
+        }
+    }
+    errcom("error in remember");
+err:
+    errcom("out of memory");
+}
+
+// Description:
+//      routine to rewind read pointer of block
+//      pointed to by r1
+// Parameters:
+//      r1 - Pointer to the block header (mblock_t*).
+void rewinds() {
+    BLOCK(r1, r) = 0;   // Trivial
+}
+
+// Description:
+//      routine to move the read pointer of a block to the
+//      relative position indicated by r0.  the block is
+//      extended if necessary - there is no error return.
+// Parameters:
+//      r0 - position
+//      r1 - Pointer to the block header (mblock_t*).
+void seekchar() {
+    DEBUG("    seekchar(): pos=%ld", r0);
+    ensure((mblock_t*)r1, r0);
+    BLOCK(r1, r) = r0;
+    if (r0 >= BLOCK(r1, w))
+        BLOCK(r1, w) = r0;
+}
+
+#endif // USE_DISK_SWAPPING

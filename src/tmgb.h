@@ -731,7 +731,7 @@ nomore:         // not in table
     stack[sp+2] = r0;   // temp <- End of the table block (write location relative to the beginning)
     r0 = 0;
     // Add symbol into the end of the table block
-    // TODO: make it cleaner: either remove sblock_t or make the size of word here dependent on it
+    // TODO: make it cleaner: either remove symbol_t or make the size of word here dependent on it
     puttword();         // scratch word. (Field `custom`.)
     puttword();         // left pointer. (Field `lptr`.)
     puttword();         // right pointer. (Field `rptr`.)
