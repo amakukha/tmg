@@ -15,7 +15,7 @@ loop:   not(!<<>>) output
     |   [j=777] batch/loop loop;
 
 /* To use less stack, divide input into batches.                */
-/* (Avoid interpreting entire output as a single "sentence".)   */
+/* (Avoid interpreting entire input as a single "sentence".)    */
 batch:  [j<=0?] succ
      |  word/skip [j--] skip batch;
 skip:   string(other);
