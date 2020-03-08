@@ -523,11 +523,8 @@ int main(int argc, char* argv[]) {
         printf("\t-v    \t- verbose output\n");
         printf("\t-h    \t- display this message and exit\n");
         
-        if (verbose) {
-            DEBUG("Driving table values:");
-            for (int i=0; i<sizeof(start)/sizeof(*start) && i<25; i++)
-                printf("%08lx\n", (tword)start[i]);
-        }
+        if (verbose) DEBUG("Built with Unix TMG");
+
         return 0;
     }
 
@@ -550,7 +547,7 @@ int main(int argc, char* argv[]) {
     // Replace global label references in the driving table
     for (tword j = 0; j < sizeof(start)/sizeof(*start); j++)
         if ((tptr)start[j] >= labels && (tptr)start[j] < ARRAY_END(labels))
-            start[j] = *((tword *)BIT0_CLEAR(start[j])) | (start[j] & 1);   // Preserve exit bit
+            start[j] = *((tword *)BIT0_CLEAR(start[j])) | (start[j] & 1);   // Preserve the exit bit
     if (verbose) {
         fprintf(dfile, "Driving table size = %lu words (%lu bytes)\n", 
                         sizeof(start)/sizeof(*start), sizeof(start));
