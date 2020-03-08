@@ -2,7 +2,7 @@
 
 set -o nounset && set -o errexit
 
-# Enter the src directory
+# Enter the src directory (if not there already)
 [ ! -f build.sh ] && [ -d src ] && cd src
 
 # Make sure TMG is built
@@ -23,6 +23,7 @@ cmnd="$HOME/bin/tmg"
 if [ -f "$cmnd" ]; then
     read -p "Do you want to overwrite $cmnd? [yN] " -s -r -n 1 YESNO
     echo "$YESNO"
-    [[ ! $YESNO =~ ^[Yy]$ ]] && echo "ERROR: $cmnd exists" && exit 1
+    [[ ! $YESNO =~ ^[Yy]$ ]] && echo "ERROR: $cmnd already exists" && exit 1
 fi
 cp tmg.sh "$cmnd"
+echo "TMG installed into \$HOME/bin; make sure it's in \$PATH"

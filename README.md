@@ -24,7 +24,7 @@ Usage
 
 Installation:
 
-    src/install.sh
+    ./install.sh
 
 Compiling:
 
