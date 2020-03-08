@@ -38,11 +38,11 @@ tmgl2="./tmgl2"
 # Determine TMG source and build locations
 build_dir="/tmp/tmg_build"
 tmg_src_dir="$HOME/.local/share/tmg/src"
-if [ ! -d "$build_dir" ] || [ ! -d "$tmg_src_dir" ]; then
+if [ ! -d "$tmg_src_dir" ]; then
     build_dir="build"
     tmg_src_dir="."
 fi
-[ ! -f "$tmg_src_dir/tmga.c" ] && error "TMG source not found"
+[ ! -f "$tmg_src_dir/tmga.c" ] && error "TMG source not found in $tmg_src_dir/"
 echo "TMG source found at: $tmg_src_dir/"
 echo "Build location: $build_dir/"
 
@@ -50,7 +50,7 @@ echo "Build location: $build_dir/"
 compile () {
     align="-falign-functions=16"
     opt="-O1"
-    while True; do
+    while true; do
         cc -std=c99 "$align" "$opt" tmga.c -o $1
         if [ $? -eq 0 ]; then
             [ -z "$align" ] && echo "WARNING: functions could not be aligned"
