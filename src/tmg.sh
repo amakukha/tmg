@@ -12,39 +12,73 @@
 # translations by TMG (from TMGL to C arrays), while the original required only
 # one phase (from TMGL to an assembly table).
 
-inp="$1"
-echo "TMGL file: $inp"
-out="a.out"
-if [ $# -gt 1 ]; then
-    out="$2"
-fi
+set -o nounset
 
-compile () {
-    cc -std=c99 -falign-functions=16 $OPT tmga.c -o $1
-    if [ $? -ne 0 ]
-    then
-        cc -std=c99 $OPT tmga.c -o $1;
-        echo "WARNING: functions could not be aligned"
-    fi
+# What is the input and output files?
+inp_file="$1"
+echo "TMGL file: $inp_file"
+out_file="a.out"
+[ $# -ge 2 ] && out_file="$2"
+cur_dir=$( pwd )
+dst_file="$cur_dir/$out_file"
+
+error () {
+    # Error helper
+    echo "ERROR: $1" && exit 1
 }
 
-echo "Dest file: $out"
-./tmgl1  "$inp" > table.1.tmp
-if [ $? -eq 0 ]; then
-    ./tmgl2 table.1.tmp > table.tmp
-    if [ $? -eq 0 ]; then
-        rm table.1.tmp
-        mkdir -p build/
-        if [ -e build/tmga.c ]; then rm build/*; fi
-        cp *.h *.c build/
-        mv table.tmp build/tmgl.h               # overwrite
-        cd build/
-        compile "../$out"
-        cd ..
-        echo "Compiling done" 
-    else 
-        echo "Compiling TMGL file FAILED at phase 2"
-    fi
-else 
-    echo "Compiling TMGL file FAILED at phase 1"
+# Determine location of TMGL translators
+tmgl1="./tmgl1"
+[ ! -x "$tmgl1" ] && tmgl1="$HOME/bin/tmgl1"
+[ ! -x "$tmgl1" ] && error "tmgl1 not found"
+tmgl2="./tmgl2"
+[ ! -x "$tmgl2" ] && tmgl2="$HOME/bin/tmgl2"
+[ ! -x "$tmgl2" ] && error "tmgl2 not found"
+
+# Determine TMG source and build locations
+build_dir="/tmp/tmg_build"
+tmg_src_dir="$HOME/.local/share/tmg/src"
+if [ ! -d "$build_dir" ] || [ ! -d "$tmg_src_dir" ]; then
+    build_dir="build"
+    tmg_src_dir="."
 fi
+[ ! -f "$tmg_src_dir/tmga.c" ] && error "TMG source not found"
+echo "TMG source found at: $tmg_src_dir/"
+echo "Build location: $build_dir/"
+
+# Compilation routine
+compile () {
+    align="-falign-functions=16"
+    opt="-O1"
+    while True; do
+        cc -std=c99 "$align" "$opt" tmga.c -o $1
+        if [ $? -eq 0 ]; then
+            [ -z "$align" ] && echo "WARNING: functions could not be aligned"
+            break
+        else
+            [ -z "$align" ] && break
+            align=""
+        fi
+    done
+}
+
+# TMG translation: phase 1
+"$tmgl1"  "$inp_file" > table.1.tmp
+[ $? -ne 0 ] && error "compiling TMGL file FAILED at phase 1"
+
+# TMG translation: phase 2
+"$tmgl2" table.1.tmp > table.tmp
+[ $? -ne 0 ] && error "compiling TMGL file FAILED at phase 2"
+
+# Build executable with C compiler
+rm table.1.tmp
+mkdir -p "$build_dir"
+[ -e "$build_dir/tmga.c" ] && rm "$build_dir"/*
+cp $tmg_src_dir/*.c "$build_dir/"
+cp $tmg_src_dir/*.h "$build_dir/"
+mv table.tmp "$build_dir"/tmgl.h               # overwrite
+cd "$build_dir"
+echo "Dest file: $out_file"
+compile "$dst_file"
+#cd "$cur_dir"
+echo "Compiling done" 
