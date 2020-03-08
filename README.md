@@ -19,6 +19,22 @@ This is a translation of TMG from PDP-11 assembly to portable C. To the best of
 our knowledge, it is the first implementation of TMG in a high-level language,
 done more than 50 years after the tool first appeared.
 
+Usage
+--
+
+Installation:
+
+    src/install.sh
+
+Compiling:
+
+    tmg examples/hello_world.t
+
+Running executable:
+
+    touch input
+    ./a.out input
+
 Quotes about TMG
 --
 TMG was an early inspiration for Donald Knuth and his TAOCP. According to him:

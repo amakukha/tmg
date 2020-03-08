@@ -2,6 +2,9 @@
 
 set -o nounset && set -o errexit
 
+# Enter the src directory
+[ ! -f build.sh ] && [ -d src ] && cd src
+
 # Make sure TMG is built
 [ ! -x tmgl1 ] && ./build.sh
 [ ! -x tmgl2 ] && ./build.sh
