@@ -19,7 +19,7 @@
 extern bool verbose;
 extern void errcom(const char* msg);
 
-#define USE_DISK_SWAPPING
+//#define USE_DISK_SWAPPING
 
 #ifdef USE_DISK_SWAPPING
 
@@ -478,7 +478,7 @@ bad:
 // Description:
 //      Cleanup: remove the temporary file.
 void cleanup() {
-    unlink("alloc.d");
+    unlink(ASMEM);
 }
 
 // Description:
