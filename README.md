@@ -37,7 +37,7 @@ Running executable:
 
 Quotes about TMG
 --
-TMG was an early inspiration for Donald Knuth and his TAOCP. According to him:
+TMG was an early inspiration for Donald Knuth and his [TAOCP](https://en.m.wikipedia.org/wiki/The_Art_of_Computer_Programming). According to him:
 > I was impressed by the metacompiler of Val Schorre and by the more powerful (though
 > less elegant) "transmogrifier" of Bob McClure. I told Peter [Wegner] about my draft manuscript for
 > Chapter 12 of The Art of Computer Programming, which included an example system of a similar kind,
