@@ -514,15 +514,27 @@ int main(int argc, char* argv[]) {
         r1++;
     }
 
+    if (r1 < argc && !strcmp(argv[r1], "-t")) {
+#if TRACING
+        trswitch = true;
+        r1++;
+#else
+	printf("%s not built with tracing enabled\n", argv[0]);
+	exit(1);
+#endif
+    }
+
     // Help message
     if (r1 >= argc || !strcmp(argv[r1], "-h")) {
         printf(SRC_LANGUAGE_ "compiler (%lu-bit)\n", 8*sizeof(tword));
-        printf("Usage: %s [-v] [-h] input [output]\n", argv[0]);
+        printf("Usage: %s [-v] [-h] [-t] input [output]\n", argv[0]);
         printf("\tinput \t- " SRC_LANGUAGE_ "program\n");
         printf("\toutput\t- " DST_LANGUAGE_ "translation\n");
         printf("\t-v    \t- verbose output\n");
         printf("\t-h    \t- display this message and exit\n");
-        
+#if TRACING
+        printf("\t-t    \t- enable tracing\n");
+#endif
         if (verbose) DEBUG("Built with Unix TMG");
 
         return 0;
