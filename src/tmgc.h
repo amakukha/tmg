@@ -14,8 +14,10 @@
 // detailed run-time debugging information.
 #define DEBUG_MODE 1
 
+#ifndef TRACING
 // Original tracing capability; must be set together with trswitch in tmgb.h
 #define TRACING 0
+#endif
 
 // Compile this with more memory than the original code?
 #define MORE_MEMORY

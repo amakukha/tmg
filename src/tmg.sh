@@ -14,6 +14,12 @@
 
 set -o nounset
 
+TRACING=
+if [ "x$1" = x-t ]; then
+    TRACING=-DTRACING
+    shift
+fi
+
 # What is the input and output files?
 inp_file="$1"
 echo "TMGL file: $inp_file"
@@ -38,7 +44,7 @@ tmgl2="./tmgl2"
 # Determine TMG source and build locations
 build_dir="/tmp/tmg_build"
 tmg_src_dir="$HOME/.local/share/tmg/src"
-if [ ! -d "$tmg_src_dir" ]; then
+if [ -f tmga.c ]; then
     build_dir="build"
     tmg_src_dir="."
 fi
@@ -51,7 +57,7 @@ compile () {
     align="-falign-functions=16"
     opt="-O1"
     while true; do
-        cc -std=c99 "$align" "$opt" tmga.c -o $1
+        cc $TRACING -std=c99 "$align" "$opt" tmga.c -o $1
         if [ $? -eq 0 ]; then
             [ -z "$align" ] && echo "WARNING: functions could not be aligned"
             break
