@@ -30,7 +30,7 @@ if [ $ALIGNED -ne 1 ]; then
     echo "WARNING: could not align the functions"
 fi
 echo " - DONE"
-echo "Now you can run ./tmg.sh to compile TMGL programs."
+echo "Now you can use tmg.sh (also tmg) to compile TMGL programs."
 
 # NOTES ON OPTIMIZATION:
 #
